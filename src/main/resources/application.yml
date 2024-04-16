@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: automessage
+
+  profiles:
+    active: local
+    include: api
