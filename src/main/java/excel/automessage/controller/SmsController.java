@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Time;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,11 +29,19 @@ public class SmsController {
     }
 
     @PostMapping("/sms/send")
-    public ResponseEntity<ResponseDTO> sendSms(@RequestBody MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<?> sendSms(@RequestBody MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         SmsResponseDTO response = smsService.sendSms(messageDto);
 
-        return ResponseEntity.ok().body(new ResponseDTO(response.getStatusName()));
+        return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/sms")
+    public ResponseEntity<?> requestSms(
+            @RequestParam("requestId") String requestId
+//            @RequestParam("time") String time,
+//            @RequestParam("key") String key
+    ) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, URISyntaxException {
+        return ResponseEntity.ok().body(smsService.resultSms(requestId));
+    }
 
 }
