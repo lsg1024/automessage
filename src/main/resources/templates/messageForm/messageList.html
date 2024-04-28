@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+  <div class="container">
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Phone Number</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- dataList에서 각 StoreDTO.Save 객체를 반복하여 출력 -->
+      <tr th:each="data : ${storeList.stores}">
+        <td th:text="${data.id}"></td>
+        <td th:text="${data.name}"></td>
+        <td th:text="${data.phone}"></td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</body>
+</html>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var dataList = [[${storeList.stores}]];
+  console.log('Model data:', dataList);
+  /*]]>*/
+</script>

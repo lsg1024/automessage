@@ -2,6 +2,7 @@ package excel.automessage.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +17,9 @@ public class Store {
     String storeName;
     String storePhoneNumber;
 
+    @Builder
+    public Store(String storeName, String storePhoneNumber) {
+        this.storeName = storeName;
+        this.storePhoneNumber = storePhoneNumber;
+    }
 }
