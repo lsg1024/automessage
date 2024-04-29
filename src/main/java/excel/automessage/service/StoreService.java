@@ -24,4 +24,5 @@ public class StoreService {
         storeRepository.saveAll(stores);
 
     }
+
 }

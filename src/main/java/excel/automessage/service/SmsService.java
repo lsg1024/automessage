@@ -2,36 +2,28 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import excel.automessage.dto.MessageDTO;
-import excel.automessage.dto.SmsRequestDTO;
-import excel.automessage.dto.SmsResponseDTO;
-import excel.automessage.dto.SmsResult;
-import excel.automessage.repository.SmsLogRepository;
+import excel.automessage.dto.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -51,8 +43,17 @@ public class SmsService {
     @Value("${naver-cloud-sms.senderPhone}")
     private String phone;
 
-    private final SmsLogRepository smsLogRepository;
+    public SmsFormDTO smsForm(ProductDTO.ProductList productList) {
 
+        SmsFormDTO smsFormDTO = new SmsFormDTO();
+
+        for (ProductDTO product : productList.getProductDTOList()) {
+            List<String> products = smsFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
+            products.add(product.getProductName());
+        }
+
+        return smsFormDTO;
+    }
     public SmsResponseDTO sendSms(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
         String Sign = makeSignature(time);

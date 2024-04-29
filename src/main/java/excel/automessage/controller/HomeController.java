@@ -13,4 +13,23 @@ public class HomeController {
         log.info("home controller");
         return "home";
     }
+
+    @RequestMapping("/store")
+    public String store() {
+        log.info("store controller");
+        return "storeForm/storeUpload";
+    }
+
+    @RequestMapping("/sms")
+    public String sms() {
+        log.info("sms controller");
+        return "messageForm/messageUpload";
+    }
+
+    @RequestMapping("/sms/content")
+    public String smsContent() {
+        log.info("smsContent Controller");
+        return "messageForm/messageList";
+    }
+
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header">
+<body>
+
+    <div class="container">
+
+        <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+        <form action="/sms/send" method="post" enctype="multipart/form-data">
+            <button class="btn btn-lg btn-secondary" type="submit">상점 등록</button>
+        </form>
+
+
+    </div>
+
+</body>
+</html>

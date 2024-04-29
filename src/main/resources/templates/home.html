@@ -8,16 +8,20 @@
 
 <div class="container">
 
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
     <div class="jumbotron">
-        <h1>통상</h1>
-        <p>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <!-- 파일 입력 필드 활성화 및 파일 선택 버튼으로 변경 -->
-            <input type="file" id="fileInput" name="file" class="form-control">
-            <!-- 파일 선택 후 자동으로 제출하도록 설정할 수도 있습니다. -->
-            <button class="btn btn-lg btn-secondary" type="submit">엑셀 파일 전송</button>
-        </form>
-        </p>
+
+        <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
+            <h1>메시지</h1>
+        </div>
+        <div style="display: flex; justify-content: space-around; align-items: center; margin-top: 20px">
+            <form action="/sms" method="get">
+                <button class="btn btn-lg btn-secondary" type="submit">메시지 전송</button>
+            </form>
+            <form action="/store" method="get">
+                <button class="btn btn-lg btn-secondary" type="submit">상점 등록</button>
+            </form>
+        </div>
     </div>
 
 </div>
