@@ -11,39 +11,16 @@
     <div class="jumbotron">
         <h1>통상</h1>
         <p>
-            <!-- 숨겨진 파일 입력 필드 -->
-            <input type="file" id="fileInput" class="form-control" style="display:none;">
-            <!-- 기존 버튼 사용 -->
-            <button class="btn btn-lg btn-secondary" onclick="document.getElementById('fileInput').click()">메시지 전송</button>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <!-- 파일 입력 필드 활성화 및 파일 선택 버튼으로 변경 -->
+            <input type="file" id="fileInput" name="file" class="form-control">
+            <!-- 파일 선택 후 자동으로 제출하도록 설정할 수도 있습니다. -->
+            <button class="btn btn-lg btn-secondary" type="submit">엑셀 파일 전송</button>
+        </form>
         </p>
     </div>
 
-</div> <!-- /container -->
-
-<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#fileInput').on('change', function() {
-            let fileData = $('#fileInput').prop('files')[0];
-            let formData = new FormData();
-            formData.append('file', fileData);
-
-            $.ajax({
-                url: '/upload',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    window.location.href = '/message/new';
-                },
-                error: function() {
-                    alert('파일 전송에 실패했습니다.');
-                }
-            });
-        });
-    });
-</script>
+</div>
 
 </body>
 </html>

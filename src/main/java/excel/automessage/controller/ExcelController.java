@@ -30,21 +30,9 @@ public class ExcelController {
 
     private final StoreService storeService;
 
-    @GetMapping("/store/new")
-    public String messageForm(Model model) {
-        if (!model.containsAttribute("storeList")) {
-            log.info("storeList not found in model, creating new StoreListDTO");
-            model.addAttribute("storeList", new StoreListDTO());
-        } else {
-            log.info("storeList found in model: {}", model.getAttribute("storeList"));
-        }
-        return "messageForm/messageList";
-    }
-
-
     //엑셀 값 읽기
     @PostMapping("/upload")
-    public String readExcelToJson(@RequestParam MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
+    public String readExcelToJson(@RequestParam MultipartFile file, Model model, RedirectAttributes redirectAttributes) throws IOException {
 
         log.info("readExcelToJson Controller");
         if (file.isEmpty()) {
@@ -87,10 +75,9 @@ public class ExcelController {
         }
 
         workbook.close();
-        storeService.saveAll(storeListDTO);
-        redirectAttributes.addFlashAttribute("storeList", storeListDTO);
-        log.info("storeListDTO = {}", storeListDTO.getStores().size());
-        return "redirect:/h";
+        model.addAttribute("storeList", storeListDTO);
+
+        return "messageForm/messageList";
 
     }
 }
