@@ -23,13 +23,13 @@ public class HomeController {
     @RequestMapping("/sms")
     public String sms() {
         log.info("sms controller");
-        return "messageForm/messageUpload";
+        return "smsForm/smsUpload";
     }
 
     @RequestMapping("/sms/content")
     public String smsContent() {
         log.info("smsContent Controller");
-        return "messageForm/messageList";
+        return "smsForm/smsList";
     }
 
 }
