@@ -5,19 +5,19 @@
 </head>
 <body>
 <div class="container" style="max-width: 1000px">
-  <div th:replace="fragments/bodyHeader :: bodyHeader"/>
-  <h5 th:text="'오늘 내려가는 통상 개수: ' + ${smsForm.smsForm.size()}"></h5>
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+  <h5 th:text="'오늘 내려가는 통상: ' + ${smsForm.smsForm.size()}"></h5>
   <form action="/sms/send" method="post">
     <div style="display: flex; flex-wrap: wrap">
       <div th:each="entry, stat : ${smsForm.smsForm}" style="flex: 33.333%; box-sizing: border-box; padding: 10px">
-        <h6 th:text="${entry.key} + ': ' + ${smsForm.smsPhone[entry.key]}"></h6>
+        <h6 th:text="${stat.index + 1}+'. ' + ${entry.key} + ': ' + ${smsForm.smsPhone[entry.key]}"></h6>
         <textarea
                 th:id="'content' + ${stat.index}"
                 th:name="'content' + ${stat.index}"
                 rows="4">오늘 물품이 내려갑니다.&#10;내일 통상(택배) 확인해주세요~
                 </textarea>
         <input type="checkbox" th:id="'checkbox' + ${stat.index}" th:name="'sendSms' + ${stat.index}" value="true" checked="checked"/> 전송 여부
-        <input type="hidden" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value='smsForm'/>
+        <input type="hidden" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value='${smsForm.smsPhone[entry.key]}'/>
       </div>
     </div>
     <div style="display: flex; flex-direction: row; justify-content: center;">
