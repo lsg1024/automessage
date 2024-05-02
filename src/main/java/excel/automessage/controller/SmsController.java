@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import excel.automessage.dto.MessageDTO;
 import excel.automessage.dto.ProductDTO;
 import excel.automessage.dto.SmsFormDTO;
-import excel.automessage.dto.SmsResponseDTO;
 import excel.automessage.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -67,17 +66,21 @@ public class SmsController {
                 productDTO.setStoreName(dataFormatter.formatCellValue(cell));
             }
 
-            cell = row.getCell(14);
+            cell = row.getCell(14); // 상품 정보
             if (cell != null && cell.getCellType() == CellType.STRING) {
                 String productName = cell.getStringCellValue();
                 if (!productName.startsWith("통상")) {
                     productDTO.setProductName(productName);
+                } else {
+                    continue;
                 }
             }
             productList.getProductDTOList().add(productDTO);
         }
 
         workbook.close();
+
+        log.info("SmsForm Data = {}", productList.getProductDTOList().get(0).getProductName());
 
         SmsFormDTO smsFormDTO = smsService.smsForm(productList);
         model.addAttribute("smsForm", smsFormDTO);
@@ -86,19 +89,15 @@ public class SmsController {
     }
 
     @PostMapping("/sms/send")
-    public ResponseEntity<?> sendSms(@RequestBody MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        SmsResponseDTO response = smsService.sendSms(messageDto);
+    public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/sms")
-    public ResponseEntity<?> requestSms(
-            @RequestParam("requestId") String requestId
-//            @RequestParam("time") String time,
-//            @RequestParam("key") String key
-    ) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, URISyntaxException {
-        return ResponseEntity.ok().body(smsService.resultSms(requestId));
+//        List<SmsResponseDTO> responses = new ArrayList<>();
+//        for (MessageDTO messageDTO : messageDto) {
+//            SmsResponseDTO response = smsService.sendSms(messageDTO);
+//            responses.add(response);
+//        }
+//
+        return ResponseEntity.ok().body("responses");
     }
 
 }

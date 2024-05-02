@@ -4,23 +4,67 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-  <div class="container">
-    <table class="table">
-      <thead>
-      <tr>
-        <th>상점</th>
-        <th>상품</th>
-      </tr>
-      </thead>
-      <tbody>
-      <!-- dataList에서 각 StoreDTO.Save 객체를 반복하여 출력 -->
-      <tr th:each="data, iterStat : ${smsForm.smsForm}">
-        <td th:text="${iterStat.count}"></td>
-        <td th:text="${data.}"></td>
-        <td th:text="${data.productName}"></td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="container" style="max-width: 1000px">
+  <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+  <h5 th:text="'오늘 내려가는 통상 개수: ' + ${smsForm.smsForm.size()}"></h5>
+  <form action="/sms/send" method="post">
+    <div style="display: flex; flex-wrap: wrap">
+      <div th:each="entry, stat : ${smsForm.smsForm}" style="flex: 33.333%; box-sizing: border-box; padding: 10px">
+        <h6 th:text="${entry.key} + ': ' + ${smsForm.smsPhone[entry.key]}"></h6>
+        <textarea
+                th:id="'content' + ${stat.index}"
+                th:name="'content' + ${stat.index}"
+                rows="4">오늘 물품이 내려갑니다.&#10;내일 통상(택배) 확인해주세요~
+                </textarea>
+        <input type="checkbox" th:id="'checkbox' + ${stat.index}" th:name="'sendSms' + ${stat.index}" value="true" checked="checked"/> 전송 여부
+        <input type="hidden" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value='smsForm'/>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: row; justify-content: center;">
+      <button type="submit">메시지 전송</button>
+    </div>
+  </form>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); // 폼 기본 제출 방지
+
+      let dataToSend = [];
+      form.querySelectorAll('div[style]').forEach((div) => {
+        const checkbox = div.querySelector('input[type="checkbox"]');
+        console.log("Checkbox:", checkbox);
+        if (checkbox && checkbox.checked) {
+          const content = div.querySelector('textarea').value;
+          const to = div.querySelector('input[type="hidden"][name^="phone"]').value;
+
+          dataToSend.push({
+            to: to,
+            content: content
+          });
+        }
+      });
+
+      // AJAX 요청으로 데이터 전송
+      $.ajax({
+        url: '/sms/send',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(dataToSend),
+        success: function(response) {
+          alert('SMS가 성공적으로 전송되었습니다.');
+          console.log(response);
+          console.log("success = {}", dataToSend);
+        },
+        error: function(xhr, status, error) {
+          alert('전송 실패: ' + xhr.responseText);
+          console.log("fail {}" + dataToSend);
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>

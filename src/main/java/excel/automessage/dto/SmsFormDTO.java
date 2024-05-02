@@ -9,6 +9,7 @@ import java.util.List;
 @Getter @Setter
 public class SmsFormDTO {
 
-    HashMap<String, List<String>> smsForm;
+    HashMap<String, List<String>> smsForm = new HashMap<>();
+    HashMap<String, String> smsPhone = new HashMap<>();
 
 }

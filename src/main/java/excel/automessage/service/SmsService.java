@@ -2,7 +2,9 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import excel.automessage.domain.Store;
 import excel.automessage.dto.*;
+import excel.automessage.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Base64;
@@ -43,6 +45,8 @@ public class SmsService {
     @Value("${naver-cloud-sms.senderPhone}")
     private String phone;
 
+    private final StoreRepository storeRepository;
+
     public SmsFormDTO smsForm(ProductDTO.ProductList productList) {
 
         SmsFormDTO smsFormDTO = new SmsFormDTO();
@@ -50,6 +54,17 @@ public class SmsService {
         for (ProductDTO product : productList.getProductDTOList()) {
             List<String> products = smsFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
             products.add(product.getProductName());
+            Store phoneNumber = storeRepository.findByStoreName(product.getStoreName());
+
+            log.info("전화번호 검색 결과 = {}", phoneNumber.getStorePhoneNumber());
+
+            if (phoneNumber.getStorePhoneNumber() != null) {
+                smsFormDTO.getSmsPhone().put(product.getStoreName(), phoneNumber.getStorePhoneNumber());
+            }
+            else {
+                smsFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
+            }
+
         }
 
         return smsFormDTO;
@@ -86,10 +101,6 @@ public class SmsService {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SmsResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsResponseDTO.class);
-
-//        if (response.getStatusCode().equals("202")) {
-//            smsLogRepository.save();
-//        }
 
         return response;
     }
