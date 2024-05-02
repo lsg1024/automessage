@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StoreDTO {
 
     @Getter @Setter
@@ -22,8 +19,17 @@ public class StoreDTO {
         public Store toEntity() {
             return Store.builder()
                     .storeName(name)
-                    .storePhoneNumber(phone)
+                    .storePhoneNumber(removeHyphens(phone))
                     .build();
+        }
+        private String removeHyphens(String phoneNumber) {
+            if (phoneNumber != null) {
+                return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
+            }
+            else {
+                return null;
+            }
+
         }
     }
 
