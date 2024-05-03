@@ -35,10 +35,10 @@ jobs:
 
     - name: Grant execute permission for Gradle
       run: chmod +x ./gradlew
-    - name: Gradle Waring mode all
-      run: ./gradlew --warning-mode all
     - name: Build
-      run: ./gradlew build
+      run:
+        ./gradlew --warning-mode all
+        ./gradlew build
         
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
