@@ -1,8 +1,12 @@
 package excel.automessage.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter @Setter
 public class StoreListDTO {
     private List<StoreDTO.Save> stores;
 
@@ -10,11 +14,4 @@ public class StoreListDTO {
         this.stores = new ArrayList<>();
     }
 
-    public List<StoreDTO.Save> getStores() {
-        return stores;
-    }
-
-    public void setStores(List<StoreDTO.Save> stores) {
-        this.stores = stores;
-    }
 }

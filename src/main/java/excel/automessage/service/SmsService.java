@@ -105,30 +105,6 @@ public class SmsService {
         return response;
     }
 
-    public SmsResult resultSms(String requestId) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, URISyntaxException {
-        Long time = System.currentTimeMillis();
-        String Sign = makeSignature(time);
-
-        log.info("time : {}", time);
-        log.info("Sing : {}", Sign);
-        log.info("requestId : {}", requestId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-ncp-iam-access-key", accessKey);
-        headers.set("x-ncp-apigw-timestamp", time.toString());
-        headers.set("x-ncp-apigw-signature-v2", Sign);
-
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-
-        URI uri = new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages?requestId=" + requestId);
-        log.info("uri = {}", uri);
-
-        SmsResult response = restTemplate.postForObject(uri, "" , SmsResult.class);
-
-        return response;
-    }
-
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";

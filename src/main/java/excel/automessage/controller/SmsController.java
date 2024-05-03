@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import excel.automessage.dto.MessageDTO;
 import excel.automessage.dto.ProductDTO;
 import excel.automessage.dto.SmsFormDTO;
+import excel.automessage.dto.SmsResponseDTO;
 import excel.automessage.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -61,10 +63,14 @@ public class SmsController {
 
             ProductDTO productDTO = new ProductDTO();
 
-            Cell cell = row.getCell(9); // 이름 셀
-            if (cell != null) {
-                productDTO.setStoreName(dataFormatter.formatCellValue(cell));
+            Cell cell = row.getCell(11); // 판매 정보
+            if (cell != null && cell.getCellType() == CellType.STRING) {
+                String sellType = cell.getStringCellValue();
+                if (!sellType.startsWith("판매")) {
+                    continue;
+                }
             }
+
 
             cell = row.getCell(14); // 상품 정보
             if (cell != null && cell.getCellType() == CellType.STRING) {
@@ -75,6 +81,12 @@ public class SmsController {
                     continue;
                 }
             }
+
+            cell = row.getCell(9); // 이름 셀
+            if (cell != null) {
+                productDTO.setStoreName(dataFormatter.formatCellValue(cell));
+            }
+
             productList.getProductDTOList().add(productDTO);
         }
 
@@ -91,11 +103,14 @@ public class SmsController {
     @PostMapping("/sms/send")
     public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-//        List<SmsResponseDTO> responses = new ArrayList<>();
-//        for (MessageDTO messageDTO : messageDto) {
-//            SmsResponseDTO response = smsService.sendSms(messageDTO);
-//            responses.add(response);
-//        }
+        List<SmsResponseDTO> responses = new ArrayList<>();
+        for (MessageDTO messageDTO : messageDto) {
+            log.info("messageDTO.getContent = {}", messageDTO.getContent());
+            log.info("messageDTO.getTo = {}", messageDTO.getTo());
+            SmsResponseDTO response = smsService.sendSms(messageDTO);
+            responses.add(response);
+            log.info("response = {}",response.getStatusCode());
+        }
 //
         return ResponseEntity.ok().body("responses");
     }
