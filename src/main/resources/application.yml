@@ -6,15 +6,15 @@ spring:
     active: local
     include: api
   datasource:
-    url: jdbc:h2:tcp://localhost/~/sms
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    username: root
+    password: ${DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${SERVER_URL}:8001/khanMessage
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         #        show_sql: true
