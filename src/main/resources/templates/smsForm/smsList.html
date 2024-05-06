@@ -18,7 +18,7 @@
         <textarea style="resize: none"
                 th:id="'content' + ${stat.index}"
                 th:name="'content' + ${stat.index}"
-                rows="4">오늘 물품이 내려갑니다.&#10;내일 통상(택배) 확인해주세요~</textarea>
+                rows="4">안녕하세요 종로 칸입니다.&#10;오늘 물품이 내려갑니다.&#10;내일 통상 확인해주세요~</textarea>
         <input type="checkbox" th:id="'checkbox' + ${stat.index}" th:name="'sendSms' + ${stat.index}" value="true" checked="checked"/> 전송
         <input type="hidden" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value='${smsForm.smsPhone[entry.key]}'/>
       </div>
