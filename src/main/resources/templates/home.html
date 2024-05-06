@@ -3,23 +3,30 @@
 <head th:replace="~{fragments/header :: header}">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
-
 <body>
 
 <div class="container">
 
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
     <div class="jumbotron">
-
-        <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
-            <h1>메시지</h1>
-        </div>
         <div style="display: flex; justify-content: space-around; align-items: center; margin-top: 20px">
             <form action="/sms" method="get">
-                <button class="btn btn-lg btn-secondary" type="submit">메시지 전송</button>
+                <button type="submit" class="button">
+                        <p class="btnText">메시지</p>
+                        <div class="btnTwo">
+                            <p class="btnText2">전송</p>
+                        </div>
+                </button>
+
             </form>
             <form action="/store" method="get">
-                <button class="btn btn-lg btn-secondary" type="submit">상점 등록</button>
+
+                <button type="submit" class="button">
+                    <p class="btnText">신규 가게</p>
+                    <div class="btnTwo">
+                        <p class="btnText2">등록</p>
+                    </div>
+                </button>
             </form>
         </div>
     </div>
