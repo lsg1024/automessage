@@ -105,13 +105,12 @@ public class SmsController {
 
         List<SmsResponseDTO> responses = new ArrayList<>();
         for (MessageDTO messageDTO : messageDto) {
-            log.info("messageDTO.getContent = {}", messageDTO.getContent());
-            log.info("messageDTO.getTo = {}", messageDTO.getTo());
+            log.info("getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
             SmsResponseDTO response = smsService.sendSms(messageDTO);
             responses.add(response);
             log.info("response = {}",response.getStatusCode());
         }
-//
+
         return ResponseEntity.ok().body("responses");
     }
 
