@@ -46,7 +46,7 @@ body {
 .jumbotron {
     padding: 2rem 2rem;
     margin-bottom: 2rem;
-    background-color: #FAF1E4;
+    background-color: #F4F3EA;
     border-radius: .3rem;
     display: flex;
     flex-direction: column;
@@ -67,7 +67,7 @@ body {
 }
 
 /* Responsive: Portrait tablets and up */
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 600px) {
     /* Remove the padding we set earlier */
     .header,
     .marketing,
@@ -77,10 +77,36 @@ body {
     }
     /* Space out the masthead */
     .header {
-        margin-bottom: 30px;
+        margin-bottom: 10px;
     }
     /* Remove the bottom border on the jumbotron for visual effect */
     .jumbotron {
+        border-bottom: 0;
+        min-height: 500px;
+    }
+}
+
+.jumbotron2 {
+    padding: 2rem 2rem;
+    margin-bottom: 2rem;
+    background-color: #F4F3EA;
+    border-radius: .3rem;
+}
+
+@media screen and (min-width: 600px) {
+    /* Remove the padding we set earlier */
+    .header,
+    .marketing,
+    .footer {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    /* Space out the masthead */
+    .header {
+        margin-bottom: 10px;
+    }
+    /* Remove the bottom border on the jumbotron for visual effect */
+    .jumbotron2 {
         border-bottom: 0;
         min-height: 500px;
     }
