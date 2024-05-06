@@ -8,14 +8,35 @@
             <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
             <div style="display: flex; justify-content: center;" >
                 <form action="/upload" method="post" enctype="multipart/form-data">
-                    <input type="file" id="fileInput" name="file" class="form-control" style="display: block; width: 345px; height: calc(1.5em + .75rem + 7px); padding: .375rem .75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;">
+                    <div class="filebox" style="display: flex">
+                        <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled="disabled">
+                        <label for="file">파일찾기</label>
+                        <input type="file" name="file" id="file">
+                    </div>
+
                     <div style="display: flex; justify-content: center; margin-top: 20px" >
-                        <button class="btn btn-lg btn-secondary" type="submit">상점 등록</button>
+                        <button type="submit" class="button">
+                            <p class="btnText">등록</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">가게</p>
+                            </div>
+                        </button>
                     </div>
                 </form>
-            <div/>
-        <div/>
+            </div>
+        </div>
     </div>
-
+</div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#file").on('change', function() {
+            // 파일 이름 가져오기
+            let fileName = $(this).val().split('\\').pop();
+            // 파일 이름을 upload-name 클래스의 입력 필드에 설정
+            $(".upload-name").val(fileName);
+        });
+    });
+</script>
 </html>
