@@ -13,7 +13,7 @@
 
   <form action="/sms/send" method="post">
     <div style="display: flex; flex-wrap: wrap">
-      <div th:each="entry, stat : ${smsForm.smsForm}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
+      <div class="entry" th:each="entry, stat : ${smsForm.smsForm}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
         <h6 th:text="${stat.index + 1}+'. ' + ${entry.key} + ': ' + ${smsForm.smsPhone[entry.key]}"></h6>
         <textarea style="resize: none; height: 150px"
                 th:id="'content' + ${stat.index}"
@@ -55,9 +55,9 @@
       submitButton.style.display = 'none';
 
       let dataToSend = [];
-      form.querySelectorAll('div[style]').forEach((div) => {
+      form.querySelectorAll('.entry').forEach((div) => {
         const checkbox = div.querySelector('input[type="checkbox"]');
-
+        console.log(div)
         if (checkbox && checkbox.checked) {
           const content = div.querySelector('textarea').value;
           const to = div.querySelector('input[type="hidden"][name^="phone"]').value;
