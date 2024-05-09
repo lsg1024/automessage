@@ -92,7 +92,7 @@ public class SmsController {
 
         workbook.close();
 
-        log.info("SmsForm Data = {}", productList.getProductDTOList().get(0).getProductName());
+        log.info("uploadSmsData SmsForm Data = {}", productList.getProductDTOList().get(0).getProductName());
 
         SmsFormDTO smsFormDTO = smsService.smsForm(productList);
         model.addAttribute("smsForm", smsFormDTO);
@@ -104,14 +104,31 @@ public class SmsController {
     public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
         List<SmsResponseDTO> responses = new ArrayList<>();
-        for (MessageDTO messageDTO : messageDto) {
-            log.info("getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
-            SmsResponseDTO response = smsService.sendSms(messageDTO);
-            responses.add(response);
-            log.info("response = {}",response.getStatusCode());
+        List<Integer> errorMessage = new ArrayList<>();
+        for (int i = 0; i < messageDto.size(); i++) {
+            MessageDTO messageDTO = messageDto.get(i);
+            log.info("sendSms getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
+
+            if (messageDTO.getTo().equals("번호 없음")) {
+                errorMessage.add(i);
+                continue;
+            }
+
+            try {
+                SmsResponseDTO response = smsService.sendSms(messageDTO);
+                responses.add(response);
+                log.info("sendSms response = {}", response.getStatusCode());
+            } catch (Exception e) {
+                log.error("Error sending SMS for index {}: {}", i, e.getMessage());
+                errorMessage.add(i);
+            }
         }
 
-        return ResponseEntity.ok().body("responses");
+        if (!errorMessage.isEmpty()) {
+            return ResponseEntity.badRequest().body("전화번호 없음 : " + errorMessage);
+        }
+
+        return ResponseEntity.ok().body(responses);
     }
 
 }
