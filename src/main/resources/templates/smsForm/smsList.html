@@ -57,11 +57,11 @@
       let dataToSend = [];
       form.querySelectorAll('div[style]').forEach((div) => {
         const checkbox = div.querySelector('input[type="checkbox"]');
-        console.log("Checkbox:", checkbox);
+
         if (checkbox && checkbox.checked) {
           const content = div.querySelector('textarea').value;
           const to = div.querySelector('input[type="hidden"][name^="phone"]').value;
-
+          console.log("to:", to);
           dataToSend.push({
             to: to,
             content: content

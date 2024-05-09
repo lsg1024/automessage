@@ -71,10 +71,6 @@ public class SmsService {
     }
     public SmsResponseDTO sendSms(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-        if (messageDto.getTo() == null) {
-            return null;
-        }
-
         Long time = System.currentTimeMillis();
         String Sign = makeSignature(time);
 
