@@ -15,7 +15,7 @@
     <div style="display: flex; flex-wrap: wrap">
       <div th:each="entry, stat : ${smsForm.smsForm}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
         <h6 th:text="${stat.index + 1}+'. ' + ${entry.key} + ': ' + ${smsForm.smsPhone[entry.key]}"></h6>
-        <textarea style="resize: none"
+        <textarea style="resize: none; height: 150px"
                 th:id="'content' + ${stat.index}"
                 th:name="'content' + ${stat.index}"
                 rows="4">안녕하세요 종로 칸입니다.&#10;오늘 물품이 내려갑니다.&#10;내일 통상 확인해주세요~</textarea>
@@ -24,15 +24,20 @@
       </div>
     </div>
     <div style="display: flex; flex-direction: row; justify-content: center;">
-      <button type="submit" class="button">
+      <button type="submit" class="button" id="submitButton">
         <p class="btnText">메시지</p>
         <div class="btnTwo">
           <p class="btnText2">전송</p>
         </div>
       </button>
     </div>
+
   </form>
 </div>
+</div>
+
+<div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 999; pointer-events: none" >
+  <img src="/images/loading.gif" alt="Loading..." />
 </div>
 </body>
 
@@ -40,8 +45,14 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     const form = document.querySelector('form');
+    const loadingDiv = document.getElementById('loading');
+    const submitButton = document.getElementById('submitButton');
+
     form.addEventListener('submit', function(event) {
       event.preventDefault(); // 폼 기본 제출 방지
+
+      submitButton.disabled = true;
+      submitButton.style.display = 'none';
 
       let dataToSend = [];
       form.querySelectorAll('div[style]').forEach((div) => {
@@ -58,6 +69,9 @@
         }
       });
 
+      // 로딩 이미지 표시
+      loadingDiv.style.display = 'block';
+
       // AJAX 요청으로 데이터 전송
       $.ajax({
         url: '/sms/send',
@@ -72,6 +86,12 @@
         error: function(xhr, status, error) {
           alert('전송 실패: ' + xhr.responseText);
           console.log("fail {}" + dataToSend);
+        },
+        complete: function() {
+          // 요청 완료 후 로딩 이미지 숨기기
+          loadingDiv.style.display = 'none';
+          submitButton.disabled = false;
+          submitButton.style.display = 'block';
         }
       });
     });
