@@ -1,6 +1,5 @@
 package excel.automessage.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import excel.automessage.dto.MessageDTO;
 import excel.automessage.dto.ProductDTO;
 import excel.automessage.dto.SmsFormDTO;
@@ -23,10 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,7 +96,7 @@ public class SmsController {
     }
 
     @PostMapping("/sms/send")
-    public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws RestClientException {
 
         List<SmsResponseDTO> responses = new ArrayList<>();
         List<Integer> errorMessage = new ArrayList<>();
@@ -115,9 +110,9 @@ public class SmsController {
             }
 
             try {
-//                SmsResponseDTO response = smsService.sendSms(messageDTO);
-//                responses.add(response);
-//                log.info("sendSms response = {}", response.getStatusCode());
+                SmsResponseDTO response = smsService.sendSms(messageDTO);
+                responses.add(response);
+                log.info("sendSms response = {}", response.getStatusCode());
             } catch (Exception e) {
                 log.error("Error sending SMS for index {}: {}", i, e.getMessage());
                 errorMessage.add(i);

@@ -25,7 +25,8 @@ spring:
   h2:
     console:
       enabled: true
-
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: trace
+server:
+  port: 8002
