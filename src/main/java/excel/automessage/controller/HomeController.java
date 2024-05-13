@@ -17,8 +17,22 @@ public class HomeController {
     @RequestMapping("/store")
     public String store() {
         log.info("store controller");
+        return "storeForm/storeSelect";
+    }
+
+    @RequestMapping("/store/excelStore")
+    public String storeExcelStore() {
+        log.info("store controller");
         return "storeForm/storeUpload";
     }
+
+
+    @RequestMapping("/store/inputStore")
+    public String storeInputStore() {
+        log.info("store controller");
+        return "storeForm/storeInput";
+    }
+
 
     @RequestMapping("/sms")
     public String sms() {

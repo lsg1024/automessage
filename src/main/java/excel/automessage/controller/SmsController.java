@@ -105,14 +105,14 @@ public class SmsController {
             log.info("sendSms getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
 
             if (messageDTO.getTo().equals("번호 없음")) {
-                errorMessage.add(i);
+                errorMessage.add(i + 1);
                 continue;
             }
 
             try {
-                SmsResponseDTO response = smsService.sendSms(messageDTO);
-                responses.add(response);
-                log.info("sendSms response = {}", response.getStatusCode());
+//                SmsResponseDTO response = smsService.sendSms(messageDTO);
+//                responses.add(response);
+//                log.info("sendSms response = {}", response.getStatusCode());
             } catch (Exception e) {
                 log.error("Error sending SMS for index {}: {}", i, e.getMessage());
                 errorMessage.add(i);
