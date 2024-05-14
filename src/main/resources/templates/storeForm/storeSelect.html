@@ -4,33 +4,27 @@
 <body>
 <div class="container">
   <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
-  <div class="jumbotron">
-    <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
-      <div style="display: flex; justify-content: center;" >
-        <form action="/store/excelStore" method="get" enctype="multipart/form-data">
+    <div class="jumbotron">
+      <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
+        <div style="display: flex; justify-content: center;" >
+          <form action="/store/excelStore" method="get" enctype="multipart/form-data">
+              <button type="submit" class="button">
+                <p class="btnText">엑셀</p>
+                <div class="btnTwo">
+                  <p class="btnText2">등록</p>
+                </div>
+              </button>
+          </form>
+          <form action="/store/inputStore" method="get" style="margin-left: 20px">
+              <button type="submit" class="button">
 
-          <div style="display: flex; justify-content: center; margin-top: 20px" >
-            <button type="submit" class="button">
-              <p class="btnText">엑셀</p>
-              <div class="btnTwo">
-                <p class="btnText2">등록</p>
-              </div>
-            </button>
-          </div>
-        </form>
-
-        <form action="/store/inputStore" method="get">
-
-          <div style="display: flex; justify-content: center; margin-top: 20px; margin-left: 20px" >
-            <button type="submit" class="button">
-              <p class="btnText">직접 입력</p>
-              <div class="btnTwo">
-                <p class="btnText2">등록</p>
-              </div>
-            </button>
-          </div>
-        </form>
-      </div>
+                <p class="btnText">직접 입력</p>
+                <div class="btnTwo">
+                  <p class="btnText2">등록</p>
+                </div>
+              </button>
+          </form>
+        </div>
     </div>
   </div>
 </div>
