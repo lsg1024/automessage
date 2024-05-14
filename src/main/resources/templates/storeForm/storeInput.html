@@ -1,22 +1,131 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: header">
+<head th:replace="~{fragments/header :: header}">
 <body>
 <div class="container">
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
-    <div class="jumbotron">
-        <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
-            <div style="display: flex; justify-content: center;" >
-                <form action="/s" method="post" enctype="multipart/form-data">
+    <div class="jumbotron3">
+        <div>
+            <div style="display: flex; flex-direction: column;">
+                <form id="storeForm" action="/storeCreate" method="post">
+                    <table class="table" id="storeTable">
+                        <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>가게 이름</th>
+                            <th>전화번호</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><input type="text" name="stores[0].name" /></td>
+                            <td><input type="number" name="stores[0].phone" placeholder="-없이 번호"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: center;">
+                        <div>
+                            <button type="button" id="addRowButton" class="button">
+                                <p class="btnText">추가</p>
+                                <div class="btnTwo">
+                                    <p class="btnText2">등록</p>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div style="margin-left: 20px">
+                            <button type="submit" id="submitButton" class="button">
+                                <p class="btnText">저장하기</p>
+                                <div class="btnTwo">
+                                    <p class="btnText2">등록</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
 
                 </form>
             </div>
         </div>
     </div>
 </div>
+<div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 999; pointer-events: none">
+    <img src="/images/loading.gif" alt="Loading..." />
+</div>
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    $(document).ready(function() {
+        let rowIndex = 1;
 
+        $('#addRowButton').click(function() {
+            let valid = true;
+            $('#storeTable tbody tr').each(function() {
+                let name = $(this).find('input[name^="stores"][name$=".name"]').val().trim();
+                let phone = $(this).find('input[name^="stores"][name$=".phone"]').val().trim();
+
+                if (!name || !phone) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                alert('비어 있는 값이 있습니다.');
+                return;
+            }
+
+            rowIndex++;
+            $('#storeTable tbody').append(
+                '<tr>' +
+                '<td>' + rowIndex + '</td>' +
+                '<td><input type="text" name="stores[' + (rowIndex - 1) + '].name" /></td>' +
+                '<td><input type="number" name="stores[' + (rowIndex - 1) + '].phone" placeholder="-없이 번호"/></td>' +
+                '</tr>'
+            );
+        });
+
+        $('#submitButton').click(function(event) {
+            event.preventDefault(); // 폼 제출 방지
+
+            let valid = true;
+            $('#storeTable tbody tr').each(function() {
+                let name = $(this).find('input[name^="stores"][name$=".name"]').val().trim();
+                let phone = $(this).find('input[name^="stores"][name$=".phone"]').val().trim();
+
+                if (!name || !phone) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                alert('비어 있는 값이 있습니다.');
+                return;
+            }
+
+            let dataToSend = $('#storeForm').serialize(); // 폼 데이터를 직렬화
+
+            $('#loading').show(); // 로딩 이미지 표시
+
+            // AJAX 요청
+            $.ajax({
+                type: 'POST',
+                url: $('#storeForm').attr('action'),
+                data: dataToSend,
+                success: function(response) {
+                    alert('저장되었습니다.');
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    alert('저장에 실패했습니다.');
+                    console.log(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loading').hide(); // 요청 완료 후 로딩 이미지 숨기기
+                }
+            });
+        });
+
+    });
 </script>
 </html>

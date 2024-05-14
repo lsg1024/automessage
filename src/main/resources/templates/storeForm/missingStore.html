@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+  <div class="jumbotron3">
+    <div>
+      <div style="display: flex; flex-direction: column;">
+        <h3>등록 되지 않은 가게 목록</h3>
+        <form id="storeInputForm" action="/storeMissingCreate" method="post">
+          <table class="table" id="missingStoreTable">
+            <thead>
+            <tr>
+              <th>번호</th>
+              <th>가게 이름</th>
+              <th>전화번호</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="store, iterStat : ${missingStores}">
+              <td th:text="${iterStat.count}"></td>
+              <td><input type="text" th:name="'stores[' + (${iterStat.index}) + '].name'" th:value="${store}" /></td>
+              <td><input type="number" th:name="'stores[' + (${iterStat.index}) + '].phone'" placeholder="-없이 번호"/></td>
+            </tr>
+            </tbody>
+          </table>
+          <div style="display: flex; justify-content: center;">
+            <button type="submit" class="button">
+              <p class="btnText">저장하기</p>
+              <div class="btnTwo">
+                <p class="btnText2">등록</p>
+              </div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

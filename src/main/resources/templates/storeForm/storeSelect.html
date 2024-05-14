@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: header">
+<head th:replace="~{fragments/header :: header}">
 <body>
 <div class="container">
   <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
@@ -19,7 +19,7 @@
           </div>
         </form>
 
-        <form action="/store/inputStore" method="get" enctype="multipart/form-data">
+        <form action="/store/inputStore" method="get">
 
           <div style="display: flex; justify-content: center; margin-top: 20px; margin-left: 20px" >
             <button type="submit" class="button">
