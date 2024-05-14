@@ -8,6 +8,7 @@ import excel.automessage.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Base64;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,28 +49,73 @@ public class SmsService {
 
     private final StoreRepository storeRepository;
 
-    public SmsFormDTO smsForm(ProductDTO.ProductList productList) {
+    public ProductDTO.ProductList formattingValue(Sheet worksheet) {
+        DataFormatter dataFormatter = new DataFormatter();
 
+        ProductDTO.ProductList productList = new ProductDTO.ProductList();
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            Row row = worksheet.getRow(i);
+            if (row == null) continue;
+
+            ProductDTO productDTO = new ProductDTO();
+
+            Cell cell = row.getCell(11); // 판매 정보
+            if (cell != null && cell.getCellType() == CellType.STRING) {
+                String sellType = cell.getStringCellValue();
+                if (!sellType.startsWith("판매")) {
+                    continue;
+                }
+            }
+
+
+            cell = row.getCell(14); // 상품 정보
+            if (cell != null && cell.getCellType() == CellType.STRING) {
+                String productName = cell.getStringCellValue();
+                if (!productName.startsWith("통상")) {
+                    productDTO.setProductName(productName);
+                } else {
+                    continue;
+                }
+            }
+
+            cell = row.getCell(9); // 이름 셀
+            if (cell != null) {
+                productDTO.setStoreName(dataFormatter.formatCellValue(cell));
+            }
+
+            productList.getProductDTOList().add(productDTO);
+        }
+
+        return productList;
+    }
+
+    public SmsFormDTO smsForm(ProductDTO.ProductList productList) {
         SmsFormDTO smsFormDTO = new SmsFormDTO();
 
         for (ProductDTO product : productList.getProductDTOList()) {
             List<String> products = smsFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
             products.add(product.getProductName());
-            Store phoneNumber = storeRepository.findByStoreName(product.getStoreName());
+            log.info("storeName = {}", product.getStoreName());
 
-            log.info("전화번호 검색 결과 = {}", phoneNumber.getStorePhoneNumber());
+            Optional<Store> phoneNumber = storeRepository.findByStoreName(product.getStoreName());
 
-            if (phoneNumber.getStorePhoneNumber() != null) {
-                smsFormDTO.getSmsPhone().put(product.getStoreName(), phoneNumber.getStorePhoneNumber());
+            if (phoneNumber.isPresent()) {
+                String phone = phoneNumber.get().getStorePhoneNumber();
+                if (phone != null) {
+                    smsFormDTO.getSmsPhone().put(product.getStoreName(), phone);
+                } else {
+                    smsFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
+                }
+                log.info("전화번호 검색 결과 = {}", phone);
+            } else {
+                smsFormDTO.getMissingStores().add(product.getStoreName());
             }
-            else {
-                smsFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
-            }
-
         }
 
         return smsFormDTO;
     }
+
     public SmsResponseDTO sendSms(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
         Long time = System.currentTimeMillis();

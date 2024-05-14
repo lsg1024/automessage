@@ -22,4 +22,8 @@ public class Store {
         this.storeName = storeName;
         this.storePhoneNumber = storePhoneNumber;
     }
+
+    public void setStorePhoneNumber(String storePhoneNumber) {
+        this.storePhoneNumber = storePhoneNumber;
+    }
 }

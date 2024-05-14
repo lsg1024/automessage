@@ -9,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,7 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -28,6 +29,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@SessionAttributes({"smsForm", "smsPhone"})
 public class SmsController {
 
     private final SmsService smsService;
@@ -48,71 +50,41 @@ public class SmsController {
 
         Workbook workbook = extension.equalsIgnoreCase("xls") ? new HSSFWorkbook(file.getInputStream()) : new XSSFWorkbook(file.getInputStream());
         Sheet worksheet = workbook.getSheetAt(0);
-        DataFormatter dataFormatter = new DataFormatter();
 
-        ProductDTO.ProductList productList = new ProductDTO.ProductList();
-
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            Row row = worksheet.getRow(i);
-            if (row == null) continue;
-
-            ProductDTO productDTO = new ProductDTO();
-
-            Cell cell = row.getCell(11); // 판매 정보
-            if (cell != null && cell.getCellType() == CellType.STRING) {
-                String sellType = cell.getStringCellValue();
-                if (!sellType.startsWith("판매")) {
-                    continue;
-                }
-            }
-
-
-            cell = row.getCell(14); // 상품 정보
-            if (cell != null && cell.getCellType() == CellType.STRING) {
-                String productName = cell.getStringCellValue();
-                if (!productName.startsWith("통상")) {
-                    productDTO.setProductName(productName);
-                } else {
-                    continue;
-                }
-            }
-
-            cell = row.getCell(9); // 이름 셀
-            if (cell != null) {
-                productDTO.setStoreName(dataFormatter.formatCellValue(cell));
-            }
-
-            productList.getProductDTOList().add(productDTO);
-        }
+        ProductDTO.ProductList productList = smsService.formattingValue(worksheet);
+        SmsFormDTO smsFormDTO = smsService.smsForm(productList);
 
         workbook.close();
 
-        log.info("uploadSmsData SmsForm Data = {}", productList.getProductDTOList().get(0).getProductName());
+        if (!smsFormDTO.getMissingStores().isEmpty()) {
+            redirectAttributes.addFlashAttribute("missingStores", smsFormDTO.getMissingStores());
+            model.addAttribute("smsForm", smsFormDTO.getSmsForm());
+            model.addAttribute("smsPhone", smsFormDTO.getSmsPhone());
+            return "redirect:/store/missingStore";
+        }
 
-        SmsFormDTO smsFormDTO = smsService.smsForm(productList);
-        model.addAttribute("smsForm", smsFormDTO);
-
-        return "smsForm/smsList";
+        model.addAttribute("smsForm", smsFormDTO.getSmsForm());
+        model.addAttribute("smsPhone", smsFormDTO.getSmsPhone());
+        return "smsForm/smsSendForm";
     }
 
     @PostMapping("/sms/send")
-    public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) throws RestClientException {
-
+    public ResponseEntity<?> sendSms(@RequestBody List<MessageDTO> messageDto) {
         List<SmsResponseDTO> responses = new ArrayList<>();
         List<Integer> errorMessage = new ArrayList<>();
         for (int i = 0; i < messageDto.size(); i++) {
             MessageDTO messageDTO = messageDto.get(i);
             log.info("sendSms getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
 
-            if (messageDTO.getTo().equals("번호 없음")) {
+            if (!isNumberic(messageDTO.getTo())) {
                 errorMessage.add(i + 1);
                 continue;
             }
 
             try {
-//                SmsResponseDTO response = smsService.sendSms(messageDTO);
-//                responses.add(response);
-//                log.info("sendSms response = {}", response.getStatusCode());
+//                 SmsResponseDTO response = smsService.sendSms(messageDTO);
+//                 responses.add(response);
+//                 log.info("sendSms response = {}", response.getStatusCode());
             } catch (Exception e) {
                 log.error("Error sending SMS for index {}: {}", i, e.getMessage());
                 errorMessage.add(i);
@@ -126,4 +98,7 @@ public class SmsController {
         return ResponseEntity.ok().body(responses);
     }
 
+    public static boolean isNumberic(String str) {
+        return str.chars().allMatch(Character::isDigit);
+    }
 }
