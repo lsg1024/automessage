@@ -19,7 +19,7 @@
               <input type="text" maxlength="11" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value="${smsPhone[entry.key]}" style="width: 110px; height: 24px; text-align: center; background: none; border: none;" readonly/>
             </div>
             <div>
-              <button type="button" class="edit-button" th:data-index="${stat.index}">수정</button>
+              <button type="button" class="btn btn-dark" style="width: 55px; height: 35px; font-size: 14px;" th:data-index="${stat.index}">수정</button>
             </div>
           </div>
           <textarea style="resize: none; height: 150px"
@@ -27,7 +27,6 @@
                     th:name="'content' + ${stat.index}"
                     rows="4">안녕하세요 종로 칸입니다.&#10;오늘 물품이 내려갑니다.&#10;내일 통상 확인해주세요~</textarea>
           <input type="checkbox" th:id="'checkbox' + ${stat.index}" th:name="'sendSms' + ${stat.index}" value="true" checked="checked"/> 전송
-          <input type="hidden" th:id="'phone' + ${stat.index}" th:name="'phone' + ${stat.index}" th:value='${smsPhone[entry.key]}'/>
         </div>
       </div>
       <div style="display: flex; flex-direction: row; justify-content: center;">
@@ -53,29 +52,43 @@
     const form = document.querySelector('form');
     const loadingDiv = document.getElementById('loading');
     const submitButton = document.getElementById('submitButton');
+    let editing = false;
 
-    document.querySelectorAll('.edit-button').forEach(button => {
+    document.querySelectorAll('.btn-dark').forEach(button => {
       button.addEventListener('click', function() {
         const index = this.getAttribute('data-index');
         const phoneInput = document.getElementById('phone' + index);
-        const hiddenPhoneInput = document.getElementById('hiddenPhone' + index);
 
         if (phoneInput.hasAttribute('readonly')) {
+          editing = true;
           phoneInput.removeAttribute('readonly');
           phoneInput.style.background = 'white';
           phoneInput.style.border = '1px solid #ccc';
           phoneInput.focus();
+          this.textContent = '완료';
         } else {
+          if (phoneInput.value.trim() === '') {
+            alert('전화번호를 입력해주세요.');
+            phoneInput.focus();
+            return;
+          }
+          editing = false;
           phoneInput.setAttribute('readonly', true);
           phoneInput.style.background = 'none';
           phoneInput.style.border = 'none';
-          hiddenPhoneInput.value = phoneInput.value; // update hidden input
+          this.textContent = '수정';
         }
       });
     });
 
-
     form.addEventListener('submit', function(event) {
+
+      if (editing) {
+        event.preventDefault();
+        alert('수정을 완료해 주세요.');
+        return;
+      }
+
       event.preventDefault(); // 폼 기본 제출 방지
 
       submitButton.disabled = true;
@@ -87,7 +100,7 @@
         console.log(div);
         if (checkbox && checkbox.checked) {
           const content = div.querySelector('textarea').value;
-          const to = div.querySelector('input[type="hidden"][name^="phone"]').value;
+          const to = div.querySelector('input[type="text"][name^="phone"]').value; // text input으로 변경
           console.log("to:", to);
           dataToSend.push({
             to: to,
