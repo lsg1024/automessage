@@ -21,16 +21,22 @@ public class HomeController {
     }
 
     @RequestMapping("/store/excelStore")
-    public String storeExcelStore() {
-        log.info("store controller");
+    public String excelStore() {
+        log.info("excelStore controller");
         return "storeForm/storeUpload";
     }
 
 
     @RequestMapping("/store/inputStore")
-    public String storeInputStore() {
-        log.info("store controller");
+    public String inputStore() {
+        log.info("inputStore controller");
         return "storeForm/storeInput";
+    }
+
+    @RequestMapping("/store/missingStore")
+    public String missingStore() {
+        log.info("missingStore Controller");
+        return "storeForm/missingStore";
     }
 
 
@@ -43,7 +49,7 @@ public class HomeController {
     @RequestMapping("/sms/content")
     public String smsContent() {
         log.info("smsContent Controller");
-        return "smsForm/smsList";
+        return "smsForm/smsSendForm";
     }
 
 }
