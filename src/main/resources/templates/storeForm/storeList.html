@@ -1,34 +1,50 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: header}">
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 
-  <div class="container">
+<div class="container">
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+
     <table class="table">
-      <thead>
-      <tr>
-        <th>번호</th>
-        <th>이름</th>
-        <th>전화번호</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="data, iterStat : ${storeList.stores}">
-        <td th:text="${iterStat.count}"></td>
-        <td th:text="${data.name}"></td>
-        <td th:text="${data.phone}"></td>
-      </tr>
-      </tbody>
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>전화번호</th>
+            <th>버튼</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="store, stat : ${storePage.content}">
+            <td th:text="${stat.count + 1}"></td>
+            <td th:text="${store.storeName}"></td>
+            <td th:text="${store.storePhoneNumber}"></td>
+            <td><button>수정</button></td>
+        </tr>
+        </tbody>
+
     </table>
-  </div>
+
+    <div class="pagination">
+        <ul>
+            <li th:if="${startPage > 0}">
+                <a th:href="@{/storeList(page=${startPage - 1})}">&laquo;</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(startPage, endPage - 1)}">
+                <a th:href="@{/storeList(page=${i})}"
+                   th:text="${i + 1}"
+                   th:class="${i == currentPage} ? 'active' : ''"></a>
+            </li>
+            <li th:if="${endPage < totalPages}">
+                <a th:href="@{/storeList(page=${endPage})}">&raquo;</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
 </body>
-<script th:inline="javascript">
-
-  let message = [[${success}]]
-  alert(message);
-
-</script>
 </html>

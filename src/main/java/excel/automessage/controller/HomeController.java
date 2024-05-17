@@ -39,6 +39,11 @@ public class HomeController {
         return "storeForm/missingStore";
     }
 
+    @RequestMapping("/storeList")
+    public String storeList() {
+        log.info("storeList controller");
+        return "storeForm/storeList";
+    }
 
     @RequestMapping("/sms")
     public String sms() {

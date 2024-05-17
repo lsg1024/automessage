@@ -10,23 +10,38 @@
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
     <div class="jumbotron">
         <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
-            <div style="display: flex; justify-content: center;" >
-                <form action="/sms" method="get">
-                    <button type="submit" class="button">
+            <div style="display: flex; justify-content: center; flex-basis: calc(50%);" >
+
+                <div>
+                    <form action="/sms" method="get">
+                        <button type="submit" class="button">
                             <p class="btnText">메시지</p>
                             <div class="btnTwo">
                                 <p class="btnText2">전송</p>
                             </div>
-                    </button>
-                </form>
-                <form action="/store" method="get" style="margin-left: 20px">
-                    <button type="submit" class="button">
-                        <p class="btnText">신규 가게</p>
-                        <div class="btnTwo">
-                            <p class="btnText2">등록</p>
-                        </div>
-                    </button>
-                </form>
+                        </button>
+                    </form>
+                    <form action="/store" method="get" style="margin-top: 20px">
+                        <button type="submit" class="button">
+                            <p class="btnText">신규 가게</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">등록</p>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+
+                <div style="display: flex">
+                    <form action="/storeList" method="get" style="margin-left: 20px">
+                        <button type="submit" class="button">
+                            <p class="btnText">가게 목록</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">수정</p>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
