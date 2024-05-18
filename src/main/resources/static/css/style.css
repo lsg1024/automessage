@@ -121,3 +121,89 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
 }
+
+.page-item .active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.dropdown-label {
+    font-size: 12px;
+    margin: 10px;
+    font-weight: bold;
+    color: rgb(50, 50, 50);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    display: block;
+    border: none;
+    border-radius: 4px;
+    font-weight: 200;
+    color: rgb(124, 124, 124);
+    height: 35px;
+    width: 110px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 1;
+    position: relative;
+    background: #fcfcfc url("../images/dropDown.png") no-repeat right;
+    background-size: 20px 20px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    font-weight: 400;
+    text-align: center;
+    background-color: #fcfcfc;
+    border-radius: 8px;
+    overflow: scroll;
+    box-shadow: 0px 0px 10px 3px rgba(190, 190, 190, 0.6);
+}
+
+.dropdown-content::-webkit-scrollbar {
+    width: 5px;
+    height: 10px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background-color: rgb(194, 194, 194);
+}
+
+.dropdown-content div {
+    display: block;
+    text-decoration: none;
+    color: rgb(37, 37, 37);
+    font-size: 12px;
+    padding: 12px 20px;
+}
+
+.dropdown-content div:hover {
+    background-color: rgb(226, 226, 226);
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.search-input{
+    background: url("../images/search.png") no-repeat left;
+    background-size: 20px 20px;
+    border-radius: 5px;
+    background-position-x: 2px;
+    text-align: end;
+    padding: 0px 6px;
+    width: 180px;
+    height: 35px;
+}
+.search-input:focus {
+    outline: none;
+}
