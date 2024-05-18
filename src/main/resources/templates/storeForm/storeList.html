@@ -19,7 +19,7 @@
         </thead>
         <tbody>
         <tr th:each="store, stat : ${storePage.content}">
-            <td th:text="${stat.count + 1}"></td>
+            <td th:text="${stat.count}"></td>
             <td th:text="${store.storeName}"></td>
             <td th:text="${store.storePhoneNumber}"></td>
             <td><button>수정</button></td>
@@ -28,23 +28,30 @@
 
     </table>
 
-    <div class="pagination">
-        <ul>
-            <li th:if="${startPage > 0}">
-                <a th:href="@{/storeList(page=${startPage - 1})}">&laquo;</a>
+    <nav class="pagination">
+        <ul class="d-flex justify-content-center">
+            <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
+                <button class="page-link" th:attr="onclick='navigateToPage(' + (${startPage} - 10) + ')'">&laquo;</button>
             </li>
-            <li th:each="i : ${#numbers.sequence(startPage, endPage - 1)}">
-                <a th:href="@{/storeList(page=${i})}"
-                   th:text="${i + 1}"
-                   th:class="${i == currentPage} ? 'active' : ''"></a>
+            <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
+                <button class="page-link"
+                        th:attr="onclick='navigateToPage(' + ${i} + ')'"
+                        th:text="${i}"
+                        th:classappend="${i == currentPage} ? 'active' : ''">
+                </button>
             </li>
-            <li th:if="${endPage < totalPages}">
-                <a th:href="@{/storeList(page=${endPage})}">&raquo;</a>
+            <li th:if="${endPage < totalPages}" class="page-item" style="list-style-type: none">
+                <button class="page-link" th:attr="onclick='navigateToPage(' + (${endPage}) + ')'">&raquo;</button>
             </li>
         </ul>
-    </div>
+    </nav>
 
 </div>
 
 </body>
+<script>
+    function navigateToPage(page) {
+        location.href = 'storeList?page=' + page;
+    }
+</script>
 </html>
