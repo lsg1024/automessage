@@ -8,7 +8,24 @@
 <div class="container">
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
-    <table class="table">
+    <div style="display: flex; flex-direction: row-reverse;">
+        <form class="search-box" method="get" action="/storeList">
+            <input class="search-input" type="text" name="query" placeholder="검색">
+            <div class="dropdown" >
+                <button class="dropbtn" type="button" onclick="toggleDropdown()">
+                    <span id="selectedCategory" class="dropbtn_content">전체보기</span>
+                </button>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div onclick="selectCategory('전체 번호')">전체 번호</div>
+                    <div onclick="selectCategory('빈 번호')">빈 번호</div>
+                    <div onclick="selectCategory('입력된 번호')">입력된 번호</div>
+                </div>
+            </div>
+            <input type="hidden" name="category" id="category" value="전체보기">
+        </form>
+    </div>
+
+    <table class="table" style="margin-top: 10px">
         <thead>
         <tr>
             <th>번호</th>
@@ -19,10 +36,13 @@
         </thead>
         <tbody>
         <tr th:each="store, stat : ${storePage.content}">
-            <td th:text="${stat.count}"></td>
+            <td th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
             <td th:text="${store.storeName}"></td>
             <td th:text="${store.storePhoneNumber}"></td>
-            <td><button>수정</button></td>
+            <td>
+                <button>수정</button>
+                <button>삭제</button>
+            </td>
         </tr>
         </tbody>
 
@@ -31,7 +51,7 @@
     <nav class="pagination">
         <ul class="d-flex justify-content-center">
             <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + (${startPage} - 10) + ')'">&laquo;</button>
+                <button class="page-link" th:attr="onclick='navigateToPage(' + (${startPage} - 1) + ')'">&laquo;</button>
             </li>
             <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
                 <button class="page-link"
@@ -41,7 +61,7 @@
                 </button>
             </li>
             <li th:if="${endPage < totalPages}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + (${endPage}) + ')'">&raquo;</button>
+                <button class="page-link" th:attr="onclick='navigateToPage(' + (${endPage} + 1) + ')'">&raquo;</button>
             </li>
         </ul>
     </nav>
@@ -50,8 +70,31 @@
 
 </body>
 <script>
+
+    function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+
+    function selectCategory(category) {
+        document.getElementById("selectedCategory").innerText = category;
+        document.getElementById("category").value = category;
+        toggleDropdown();
+    }
+
     function navigateToPage(page) {
         location.href = 'storeList?page=' + page;
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn') && !event.target.matches('.dropbtn_click') && !event.target.matches('.dropbtn_content') && !event.target.matches('.dropbtn_icon')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
     }
 </script>
 </html>
