@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,6 +36,13 @@ public class StoreService {
         }
 
     }
+
+    public Page<Store> getStores(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return storeRepository.findAll(pageable);
+    }
+
+
 
     public StoreListDTO formattingValue(Sheet worksheet) {
 
@@ -66,11 +72,6 @@ public class StoreService {
         }
 
         return storeListDTO;
-    }
-
-    public Page<Store> getStores(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return storeRepository.findAll(pageable);
     }
 
 }

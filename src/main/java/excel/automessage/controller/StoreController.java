@@ -97,12 +97,14 @@ public class StoreController {
     @GetMapping("/storeList")
     public String loadStores(@RequestParam(defaultValue = "1") int page, Model model) {
 
+        log.info("loadStore StoreController");
+
         int size = 10;
         Page<Store> storePage = storeService.getStores(page - 1, size);
 
         int totalPages = storePage.getTotalPages();
         int currentPage = storePage.getNumber() + 1;
-        int startPage = (currentPage / size) * size + 1;
+        int startPage = ((currentPage - 1)/ size) * size + 1;
         int endPage = Math.min(startPage + size - 1, totalPages);
 
         model.addAttribute("storePage", storePage);
@@ -111,11 +113,18 @@ public class StoreController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
 
-        log.info("storePage = {}", storePage);
-        log.info("startPage = {}", startPage);
-        log.info("endPage = {}", endPage);
+        log.info("loadStore StoreController totalPages = {}", totalPages);
 
         return "storeForm/storeList";
     }
+
+//    @GetMapping("/storeList/search")
+//    public String searchStores(@RequestParam(defaultValue = "1") int page, @RequestParam String storeName, Model model) {
+//
+//        int size = 10;
+//
+//
+//        return null;
+//    }
 
 }
