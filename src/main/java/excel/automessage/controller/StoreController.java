@@ -94,16 +94,29 @@ public class StoreController {
         return "redirect:/sms/content";
     }
 
+    @GetMapping("/storeList/edit/{id}")
+    public String editStore(@PathVariable Long id, Model model) {
+        Store store = storeService.findById(id);
+        model.addAttribute("store", store);
+        return "storeForm/storeUpdate";
+    }
+    @PostMapping("/storeList/update")
+    public String updateStoreName(@ModelAttribute Store store, RedirectAttributes redirectAttributes) {
+        storeService.updateStore(store);
+        redirectAttributes.addFlashAttribute("success", "수정 완료");
+        return "redirect:/storeList";
+    }
+
     @GetMapping("/storeList")
-    public String loadStores(@RequestParam(defaultValue = "1") int page, Model model) {
-
-        log.info("loadStore StoreController");
-
+    public String getStores(@RequestParam(defaultValue = "1") int page,
+                            @RequestParam(defaultValue = "") String query,
+                            @RequestParam(defaultValue = "all") String category,
+                            Model model) {
         int size = 10;
-        Page<Store> storePage = storeService.getStores(page - 1, size);
+        Page<Store> storePage = storeService.searchStores(category, query, page - 1, size);
 
         int totalPages = storePage.getTotalPages();
-        int currentPage = storePage.getNumber() + 1;
+        int currentPage = storePage.getNumber() + 1; // Thymeleaf에서 페이지는 1부터 시작
         int startPage = ((currentPage - 1)/ size) * size + 1;
         int endPage = Math.min(startPage + size - 1, totalPages);
 
@@ -113,18 +126,7 @@ public class StoreController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
 
-        log.info("loadStore StoreController totalPages = {}", totalPages);
-
         return "storeForm/storeList";
     }
-
-//    @GetMapping("/storeList/search")
-//    public String searchStores(@RequestParam(defaultValue = "1") int page, @RequestParam String storeName, Model model) {
-//
-//        int size = 10;
-//
-//
-//        return null;
-//    }
 
 }

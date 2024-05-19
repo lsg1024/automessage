@@ -45,6 +45,12 @@ public class HomeController {
         return "storeForm/storeList";
     }
 
+//    @RequestMapping("storeList/edit")
+//    public String storeEdit() {
+//        log.info("storeEdit controller");
+//        return "storeForm/storeUpdate";
+//    }
+
     @RequestMapping("/sms")
     public String sms() {
         log.info("sms controller");

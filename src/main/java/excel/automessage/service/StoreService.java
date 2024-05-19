@@ -5,6 +5,7 @@ import excel.automessage.dto.StoreDTO;
 import excel.automessage.dto.StoreListDTO;
 import excel.automessage.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StoreService {
 
     private final StoreRepository storeRepository;
@@ -37,12 +39,25 @@ public class StoreService {
 
     }
 
-    public Page<Store> getStores(int page, int size) {
+    public Page<Store> searchStores(String category, String storeName, int page, int size) {
+
         Pageable pageable = PageRequest.of(page, size);
-        return storeRepository.findAll(pageable);
+
+        log.info("searchStores category = {}", category);
+        log.info("searchStores storeName = {}", storeName);
+        log.info("searchStores page = {}", page);
+        log.info("searchStores size = {}", size);
+        return storeRepository.findByCategoryAndStoreName(category, storeName, pageable);
     }
 
+    public Store findById(Long id) {
 
+        return storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("가게 정보가 없습니다."));
+    }
+
+    public void updateStore(Store store) {
+        storeRepository.save(store);
+    }
 
     public StoreListDTO formattingValue(Sheet worksheet) {
 

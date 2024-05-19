@@ -6,7 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StoreDTO {
+
+    Long id;
+    String name;
+    String phone;
 
     @Getter @Setter
     @NoArgsConstructor

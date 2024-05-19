@@ -1,21 +1,23 @@
 package excel.automessage.repository;
 
 import excel.automessage.domain.Store;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
     Optional<Store> findByStoreName(String storeName);
 
-    // 전체 메뉴 검색
-    List<Store> findByStoreNameContains(String storeName);
-
-    // null 검색
-    List<Store> findByStoreNameIsNotNullAndStoreNameContains(String storeName);
-
-    // notnull 검색
-    List<Store> findByStoreNameIsNullAndStoreNameContains(String storeName);
+    // 조건과 검색어에 따른 동적 쿼리
+    @Query("SELECT s FROM Store s WHERE " +
+            "(:category = 'all' OR " +
+            "(:category = 'null' AND s.storePhoneNumber IS NULL) OR " +
+            "(:category = 'notnull' AND s.storePhoneNumber IS NOT NULL)) " +
+            "AND (:storeName IS NULL OR s.storeName LIKE %:storeName%)")
+    Page<Store> findByCategoryAndStoreName(@Param("category") String category, @Param("storeName") String storeName, Pageable pageable);
 }
