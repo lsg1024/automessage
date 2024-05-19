@@ -10,48 +10,53 @@
 
     <div style="display: flex; flex-direction: row-reverse;">
         <form class="search-box" method="get" action="/storeList">
-            <input class="search-input" type="text" name="query" placeholder="검색">
-            <div class="dropdown" >
+            <input class="search-input" type="text" name="query" placeholder="검색" th:value="${param.query}">
+            <div class="dropdown">
                 <button class="dropbtn" type="button" onclick="toggleDropdown()">
-                    <span id="selectedCategory" class="dropbtn_content">전체보기</span>
+                    <span id="selectedCategory" class="dropbtn_content"
+                          th:text="${#strings.equals(param.category, 'all') ? '전체 번호' :
+                                   #strings.equals(param.category, 'null') ? '빈 번호' :
+                                   #strings.equals(param.category, 'notnull') ? '입력된 번호' : '전체 번호'}">전체 번호</span>
                 </button>
                 <div id="dropdownMenu" class="dropdown-content">
-                    <div onclick="selectCategory('전체 번호')">전체 번호</div>
-                    <div onclick="selectCategory('빈 번호')">빈 번호</div>
-                    <div onclick="selectCategory('입력된 번호')">입력된 번호</div>
+                    <div onclick="selectCategory('전체 번호', 'all')">전체 번호</div>
+                    <div onclick="selectCategory('빈 번호', 'null')">빈 번호</div>
+                    <div onclick="selectCategory('입력된 번호', 'notnull')">입력된 번호</div>
                 </div>
             </div>
-            <input type="hidden" name="category" id="category" value="전체보기">
+            <input type="hidden" name="category" id="category" th:value="${param.category ?: 'all'}">
         </form>
     </div>
 
-    <table class="table" style="margin-top: 10px">
-        <thead>
-        <tr>
-            <th>번호</th>
-            <th>이름</th>
-            <th>전화번호</th>
-            <th>버튼</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="store, stat : ${storePage.content}">
-            <td th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
-            <td th:text="${store.storeName}"></td>
-            <td th:text="${store.storePhoneNumber}"></td>
-            <td>
-                <button>수정</button>
-                <button>삭제</button>
-            </td>
-        </tr>
-        </tbody>
+    <div style="display: flex; height: 620px; align-content: flex-start; flex-wrap: wrap;">
+        <table class="table" style="margin-top: 10px">
+            <thead>
+            <tr>
+                <th>번호</th>
+                <th>이름</th>
+                <th>전화번호</th>
+                <th>수정/삭제</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="store, stat : ${storePage.content}">
+                <td th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
+                <td th:text="${store.storeName}"></td>
+                <td th:text="${store.storePhoneNumber}"></td>
+                <td>
+                    <button th:onclick="'location.href=\''+ @{/storeList/edit/{id}(id=${store.storeId})} + '\''">수정</button>
+                    <button>삭제</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-    </table>
 
     <nav class="pagination">
         <ul class="d-flex justify-content-center">
             <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + (${startPage} - 1) + ')'">&laquo;</button>
+                <button class="page-link" th:attr="onclick='navigateToPage(' + ${startPage - 1} + ')'">&laquo;</button>
             </li>
             <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
                 <button class="page-link"
@@ -61,7 +66,7 @@
                 </button>
             </li>
             <li th:if="${endPage < totalPages}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + (${endPage} + 1) + ')'">&raquo;</button>
+                <button class="page-link" th:attr="onclick='navigateToPage(' + ${endPage + 1} + ')'">&raquo;</button>
             </li>
         </ul>
     </nav>
@@ -70,26 +75,27 @@
 
 </body>
 <script>
-
     function toggleDropdown() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
 
-    function selectCategory(category) {
-        document.getElementById("selectedCategory").innerText = category;
-        document.getElementById("category").value = category;
+    function selectCategory(categoryName, categoryValue) {
+        document.getElementById("selectedCategory").innerText = categoryName;
+        document.getElementById("category").value = categoryValue;
         toggleDropdown();
     }
 
     function navigateToPage(page) {
-        location.href = 'storeList?page=' + page;
+        const query = document.querySelector('.search-input').value;
+        const category = document.getElementById("category").value;
+        location.href = `/storeList?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
     }
 
     window.onclick = function(event) {
         if (!event.target.matches('.dropbtn') && !event.target.matches('.dropbtn_click') && !event.target.matches('.dropbtn_content') && !event.target.matches('.dropbtn_icon')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
+            let dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                let openDropdown = dropdowns[i];
                 if (openDropdown.classList.contains('show')) {
                     openDropdown.classList.remove('show');
                 }
@@ -97,4 +103,3 @@
         }
     }
 </script>
-</html>
