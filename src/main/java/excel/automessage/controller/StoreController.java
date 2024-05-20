@@ -69,6 +69,12 @@ public class StoreController {
         return "storeForm/storeSaveList";
     }
 
+    @PostMapping("storeList/delete/{id}")
+    @ResponseBody
+    public void deleteStore(@PathVariable Long id) {
+        storeService.deleteStore(id);
+    }
+
     @PostMapping("/storeMissingCreate")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
                                    @SessionAttribute("smsForm") Map<String, List<String>> smsForm,
