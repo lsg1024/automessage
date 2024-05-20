@@ -63,8 +63,11 @@ public class StoreService {
         storeRepository.save(store);
     }
 
-    public Store findById(Long id) {
+    public void deleteStore(Long storeId) {
+        storeRepository.deleteById(storeId);
+    }
 
+    public Store findById(Long id) {
         return storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("가게 정보가 없습니다."));
     }
     public StoreListDTO formattingValue(Sheet worksheet) {
