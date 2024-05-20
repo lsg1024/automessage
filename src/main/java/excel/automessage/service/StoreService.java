@@ -50,15 +50,23 @@ public class StoreService {
         return storeRepository.findByCategoryAndStoreName(category, storeName, pageable);
     }
 
+
+    public void updateStore(Long storeId, StoreDTO storeDTO) {
+
+        log.info("store.getId() = {}", storeDTO.getId());
+        log.info("store.getPhone() = {}", storeDTO.getPhone());
+
+        Store store = findById(storeId);
+
+        store.setStorePhoneNumber(storeDTO.getPhone());
+
+        storeRepository.save(store);
+    }
+
     public Store findById(Long id) {
 
         return storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("가게 정보가 없습니다."));
     }
-
-    public void updateStore(Store store) {
-        storeRepository.save(store);
-    }
-
     public StoreListDTO formattingValue(Sheet worksheet) {
 
         DataFormatter dataFormatter = new DataFormatter();

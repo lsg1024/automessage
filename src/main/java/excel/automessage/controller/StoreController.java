@@ -1,6 +1,7 @@
 package excel.automessage.controller;
 
 import excel.automessage.domain.Store;
+import excel.automessage.dto.StoreDTO;
 import excel.automessage.dto.StoreListDTO;
 import excel.automessage.service.StoreService;
 import lombok.RequiredArgsConstructor;
@@ -97,12 +98,19 @@ public class StoreController {
     @GetMapping("/storeList/edit/{id}")
     public String editStore(@PathVariable Long id, Model model) {
         Store store = storeService.findById(id);
-        model.addAttribute("store", store);
+
+        StoreDTO storeDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
+
+        model.addAttribute("storeDTO", storeDTO);
         return "storeForm/storeUpdate";
     }
     @PostMapping("/storeList/update")
-    public String updateStoreName(@ModelAttribute Store store, RedirectAttributes redirectAttributes) {
-        storeService.updateStore(store);
+    public String updateStoreName(@RequestParam Long storeId, @ModelAttribute StoreDTO storeDTO, RedirectAttributes redirectAttributes) {
+        log.info("updateStoreName");
+
+        log.info("storeId = {}", storeId);
+
+        storeService.updateStore(storeId, storeDTO);
         redirectAttributes.addFlashAttribute("success", "수정 완료");
         return "redirect:/storeList";
     }

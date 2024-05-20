@@ -24,6 +24,9 @@ public class Store {
     }
 
     public void setStorePhoneNumber(String storePhoneNumber) {
-        this.storePhoneNumber = storePhoneNumber;
+
+        if (storePhoneNumber != null) {
+            this.storePhoneNumber = storePhoneNumber;
+        }
     }
 }
