@@ -82,9 +82,9 @@ public class SmsController {
             }
 
             try {
-//                 SmsResponseDTO response = smsService.sendSms(messageDTO);
-//                 responses.add(response);
-//                 log.info("sendSms response = {}", response.getStatusCode());
+                 SmsResponseDTO response = smsService.sendSms(messageDTO);
+                 responses.add(response);
+                 log.info("sendSms response = {}", response.getStatusCode());
             } catch (Exception e) {
                 log.error("Error sending SMS for index {}: {}", i, e.getMessage());
                 errorMessage.add(i);

@@ -6,14 +6,14 @@ spring:
     active: dev
     include: api
   datasource:
-    url: jdbc:h2:tcp://localhost/~/sms
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-#    username: root
-#    password: ${DB_PASSWORD}
-#    driver-class-name: org.mariadb.jdbc.Driver
-#    url: jdbc:mariadb://${SERVER_URL}/khanMessage
+#    url: jdbc:h2:tcp://localhost/~/sms
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+    username: root
+    password: ${DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${SERVER_URL}/khanMessage
 
   jpa:
     defer-datasource-initialization: true
