@@ -87,7 +87,7 @@ public class SmsController {
                  log.info("sendSms response = {}", response.getStatusCode());
             } catch (Exception e) {
                 log.error("Error sending SMS for index {}: {}", i, e.getMessage());
-                errorMessage.add(i);
+                errorMessage.add(i + 1);
             }
         }
 
