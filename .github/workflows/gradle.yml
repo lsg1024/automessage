@@ -30,7 +30,7 @@ jobs:
           echo "naver-cloud-sms.secretKey=${{ secrets.SECRET_KEY }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.serviceId=${{ secrets.SERVICE_ID }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.senderPhone=${{ secrets.PHONE }}" >> src/main/resources/application-api.properties
-          echo "SERVER_URL=${{ secrets.SERVER_URL }}" >> src/main/resources/application-api.properties
+          echo "SERVER_URL=${{ secrets.DB_URL }}" >> src/main/resources/application-api.properties
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
 
       - name: Display application-api.properties content for verification
