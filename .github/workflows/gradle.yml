@@ -72,7 +72,7 @@ jobs:
             docker rm automessage || true
             docker run -d --name automessage \
               -e SPRING_DATASOURCE_URL=jdbc:mariadb://${{ secrets.DB_URL }}/khanMessage \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e SPRING_DATASOURCE_USERNAME=root \
               -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
