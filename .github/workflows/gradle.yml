@@ -30,9 +30,11 @@ jobs:
           echo "naver-cloud-sms.secretKey=${{ secrets.SECRET_KEY }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.serviceId=${{ secrets.SERVICE_ID }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.senderPhone=${{ secrets.PHONE }}" >> src/main/resources/application-api.properties
-          echo "spring.datasource.url=jdbc:mariadb://${{ secrets.SERVER_URL }}/khanMessage" >> src/main/resources/application-api.properties
-          echo "spring.datasource.username=${{ secrets.DB_USERNAME }}" >> src/main/resources/application-api.properties
-          echo "spring.datasource.password=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
+          echo "SERVER_URL=${{ secrets.SERVER_URL }}" >> src/main/resources/application-api.properties
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
+
+      - name: Display application-api.properties content for verification
+        run: cat src/main/resources/application-api.properties
 
       - name: Build JAR
         run: ./gradlew clean build -x test
