@@ -1,4 +1,4 @@
-name: CI/CD using github actions & docker
+name: CI/CD using GitHub Actions & Docker
 
 on:
   push:
@@ -63,7 +63,6 @@ jobs:
           NAS_USERNAME: ${{ secrets.NAS_USERNAME }}
           NAS_PASSWORD: ${{ secrets.NAS_PASSWORD }}
           NAS_HOST: ${{ secrets.NAS_HOST }}
-
         run: |
           sshpass -p "$NAS_PASSWORD" ssh -o StrictHostKeyChecking=no $NAS_USERNAME@$NAS_HOST << EOF
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
@@ -71,9 +70,6 @@ jobs:
             docker stop automessage || true
             docker rm automessage || true
             docker run -d --name automessage \
-#              -e SPRING_DATASOURCE_URL=jdbc:mariadb://${{ secrets.DB_URL }}/khanMessage \
-#              -e SPRING_DATASOURCE_USERNAME=root \
-#              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
 
