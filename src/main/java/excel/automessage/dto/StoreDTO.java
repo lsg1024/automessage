@@ -29,7 +29,7 @@ public class StoreDTO {
                     .storePhoneNumber(removeHyphens(phone))
                     .build();
         }
-        private String removeHyphens(String phoneNumber) {
+        public String removeHyphens(String phoneNumber) {
             if (phoneNumber != null) {
                 return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
             }
