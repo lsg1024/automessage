@@ -28,7 +28,7 @@ public class StoreService {
             if (existingStore.isPresent()) {
                 // Store가 이미 존재하는 경우 업데이트
                 Store store = existingStore.get();
-                store.setStorePhoneNumber(storeDTO.getPhone());
+                store.setStorePhoneNumber(storeDTO.removeHyphens(storeDTO.getPhone()));
                 storeRepository.save(store);
             } else {
                 // Store가 존재하지 않는 경우 새로 저장
