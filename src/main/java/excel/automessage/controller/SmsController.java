@@ -1,17 +1,13 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.MessageDTO;
-import excel.automessage.dto.ProductDTO;
-import excel.automessage.dto.SmsFormDTO;
-import excel.automessage.dto.SmsResponseDTO;
+import excel.automessage.dto.sms.MessageDTO;
+import excel.automessage.dto.sms.ProductDTO;
+import excel.automessage.dto.sms.SmsFormDTO;
+import excel.automessage.dto.sms.SmsResponseDTO;
 import excel.automessage.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,13 +44,8 @@ public class SmsController {
             return "redirect:sms";
         }
 
-        Workbook workbook = extension.equalsIgnoreCase("xls") ? new HSSFWorkbook(file.getInputStream()) : new XSSFWorkbook(file.getInputStream());
-        Sheet worksheet = workbook.getSheetAt(0);
-
-        ProductDTO.ProductList productList = smsService.formattingValue(worksheet);
+        ProductDTO.ProductList productList = smsService.uploadSMS(file);
         SmsFormDTO smsFormDTO = smsService.smsForm(productList);
-
-        workbook.close();
 
         if (!smsFormDTO.getMissingStores().isEmpty()) {
             redirectAttributes.addFlashAttribute("missingStores", smsFormDTO.getMissingStores());
