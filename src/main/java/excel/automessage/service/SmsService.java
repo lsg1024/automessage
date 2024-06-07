@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hc.client5.http.utils.Base64;
-import org.apache.poi.poifs.filesystem.NotOLE2FileException;
+import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
@@ -70,7 +70,7 @@ public class SmsService {
         
         try {
             workbook = new XSSFWorkbook(file.getInputStream());
-        } catch (NotOLE2FileException e) {
+        } catch (NotOfficeXmlFileException e) {
             workbook = convertHtmlToWorkbook(file);
         } catch (IOException e) {
             e.printStackTrace();
