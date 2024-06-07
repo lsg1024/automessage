@@ -1,4 +1,4 @@
-package excel.automessage.dto;
+package excel.automessage.dto.store;
 
 import excel.automessage.domain.Store;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package excel.automessage.dto;
+package excel.automessage.dto.sms;
 
 import lombok.*;
 
