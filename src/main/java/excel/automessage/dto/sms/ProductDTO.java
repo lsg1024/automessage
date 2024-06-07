@@ -1,4 +1,4 @@
-package excel.automessage.dto;
+package excel.automessage.dto.sms;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,10 +22,6 @@ public class ProductDTO {
 
         public ProductList() {
             productDTOList = new ArrayList<>(); // 생성자에서 리스트 초기화
-        }
-
-        public void addProduct(ProductDTO product) {
-            productDTOList.add(product);
         }
     }
 

@@ -1,4 +1,4 @@
-package excel.automessage.dto;
+package excel.automessage.dto.store;
 
 import lombok.Getter;
 import lombok.Setter;
