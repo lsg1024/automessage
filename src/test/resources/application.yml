@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: automessage
+
+  profiles:
+    active: test
+    include: api
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/smsTest
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 10
+  h2:
+    console:
+      enabled: true
+
+logging.level:
+  org.hibernate.SQL: debug
