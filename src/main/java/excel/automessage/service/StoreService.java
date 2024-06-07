@@ -1,17 +1,26 @@
 package excel.automessage.service;
 
 import excel.automessage.domain.Store;
-import excel.automessage.dto.StoreDTO;
-import excel.automessage.dto.StoreListDTO;
+import excel.automessage.dto.store.StoreDTO;
+import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.poifs.filesystem.NotOLE2FileException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -25,14 +34,15 @@ public class StoreService {
 
         for (StoreDTO.Save storeDTO : storeListDTO.getStores()) {
             Optional<Store> existingStore = storeRepository.findByStoreName(storeDTO.getName());
+            Store store;
             if (existingStore.isPresent()) {
                 // Store가 이미 존재하는 경우 업데이트
-                Store store = existingStore.get();
+                store = existingStore.get();
                 store.setStorePhoneNumber(storeDTO.getPhone());
                 storeRepository.save(store);
             } else {
                 // Store가 존재하지 않는 경우 새로 저장
-                Store store = storeDTO.toEntity();
+                store = storeDTO.toEntity();
                 storeRepository.save(store);
             }
         }
@@ -70,11 +80,67 @@ public class StoreService {
     public Store findById(Long id) {
         return storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("가게 정보가 없습니다."));
     }
-    public StoreListDTO formattingValue(Sheet worksheet) {
+
+    public StoreListDTO saveStores(MultipartFile file) throws IOException {
+
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+
+        Workbook workbook = null;
+
+        if (extension == null) {
+            throw new IllegalArgumentException("파일 확장자를 확인할 수 없습니다.");
+        }
+
+        try {
+            workbook = new XSSFWorkbook(file.getInputStream());
+        } catch (NotOLE2FileException e) {
+            workbook = convertHtmlToWorkbook(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (workbook == null) {
+            throw new IllegalArgumentException("파일이 비어있습니다.");
+        }
+
+        Sheet worksheet = workbook.getSheetAt(0);
+        StoreListDTO storeListDTO = new StoreListDTO();
+
+        extractedNameAndPhone(worksheet, storeListDTO);
+
+        workbook.close();
+
+        return storeListDTO;
+    }
+
+    private Workbook convertHtmlToWorkbook(MultipartFile htmlFile) throws IOException {
+        Document htmlDoc = Jsoup.parse(htmlFile.getInputStream(), "UTF-8", "");
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Sheet1");
+
+        Element table = htmlDoc.select("table").first();
+        if (table != null) {
+            Elements rows = table.select("tr");
+
+            int rowIndex = 0;
+            for (Element row : rows) {
+                Row excelRow = sheet.createRow(rowIndex++);
+                Elements cells = row.select("td, th");
+                int cellIndex = 0;
+                for (Element cell : cells) {
+                    Cell excelCell = excelRow.createCell(cellIndex++);
+                    excelCell.setCellValue(cell.text());
+                }
+            }
+        }
+
+        return workbook;
+    }
+
+    private void extractedNameAndPhone(Sheet worksheet, StoreListDTO storeListDTO) {
 
         DataFormatter dataFormatter = new DataFormatter();
 
-        StoreListDTO storeListDTO = new StoreListDTO();
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
             if (row == null) continue;
@@ -94,10 +160,7 @@ public class StoreService {
                 }
             }
             storeListDTO.getStores().add(data);
-
         }
-
-        return storeListDTO;
     }
 
 }

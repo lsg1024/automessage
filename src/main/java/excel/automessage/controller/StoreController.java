@@ -1,16 +1,12 @@
 package excel.automessage.controller;
 
 import excel.automessage.domain.Store;
-import excel.automessage.dto.StoreDTO;
-import excel.automessage.dto.StoreListDTO;
+import excel.automessage.dto.store.StoreDTO;
+import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,13 +52,9 @@ public class StoreController {
             return "redirect:upload";
         }
 
-        Workbook workbook = extension.equalsIgnoreCase("xls") ? new HSSFWorkbook(file.getInputStream()) : new XSSFWorkbook(file.getInputStream());
-        Sheet worksheet = workbook.getSheetAt(0);
-
-        StoreListDTO storeListDTO = storeService.formattingValue(worksheet);
+        StoreListDTO storeListDTO = storeService.saveStores(file);
         storeService.saveAll(storeListDTO);
 
-        workbook.close();
         model.addAttribute("storeList", storeListDTO);
         model.addAttribute("success", "저장 완료");
 
