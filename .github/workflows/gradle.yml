@@ -1,4 +1,4 @@
-name: CI/CD using github actions & docker
+name: CI/CD using GitHub Actions & Docker
 
 on:
   push:
@@ -30,8 +30,8 @@ jobs:
           echo "naver-cloud-sms.secretKey=${{ secrets.SECRET_KEY }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.serviceId=${{ secrets.SERVICE_ID }}" >> src/main/resources/application-api.properties
           echo "naver-cloud-sms.senderPhone=${{ secrets.PHONE }}" >> src/main/resources/application-api.properties
-#          echo "SERVER_URL=${{ secrets.DB_URL }}" >> src/main/resources/application-api.properties
-#          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
+          echo "SERVER_URL=${{ secrets.DB_URL }}" >> src/main/resources/application-api.properties
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
 
       - name: Display application-api.properties content for verification
         run: cat src/main/resources/application-api.properties
@@ -44,8 +44,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t zks145/automessage:${{ github.sha }} .
-          echo "DOCKER_IMAGE=zks145/automessage:${{ github.sha }}" >> $GITHUB_ENV
+          docker build -t zks145/automessage:latest .
+          echo "DOCKER_IMAGE=zks145/automessage:latest" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -63,7 +63,6 @@ jobs:
           NAS_USERNAME: ${{ secrets.NAS_USERNAME }}
           NAS_PASSWORD: ${{ secrets.NAS_PASSWORD }}
           NAS_HOST: ${{ secrets.NAS_HOST }}
-
         run: |
           sshpass -p "$NAS_PASSWORD" ssh -o StrictHostKeyChecking=no $NAS_USERNAME@$NAS_HOST << EOF
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
@@ -71,9 +70,6 @@ jobs:
             docker stop automessage || true
             docker rm automessage || true
             docker run -d --name automessage \
-              -e SPRING_DATASOURCE_URL=jdbc:mariadb://${{ secrets.DB_URL }}/khanMessage \
-              -e SPRING_DATASOURCE_USERNAME=root \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
 
