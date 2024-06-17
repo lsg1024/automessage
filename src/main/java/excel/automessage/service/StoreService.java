@@ -1,5 +1,6 @@
 package excel.automessage.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import excel.automessage.domain.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
@@ -17,11 +18,14 @@ import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,8 @@ import java.util.Optional;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     public void saveAll(StoreListDTO storeListDTO) {
 
@@ -112,6 +118,24 @@ public class StoreService {
 
         return storeListDTO;
     }
+
+    @Async
+    public CompletableFuture<Void> saveAllToDBAsync(String key) {
+        return CompletableFuture.runAsync(() -> {
+            String serializedData = (String) redisTemplate.opsForValue().get(key);
+            if (serializedData != null) {
+                try {
+                    StoreListDTO storeListDTO = objectMapper.readValue(serializedData, StoreListDTO.class);
+                    saveAll(storeListDTO);
+                    redisTemplate.delete(key);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to deserialize JSON to StoreListDTO", e);
+                }
+            }
+        });
+
+    }
+
 
     private Workbook convertHtmlToWorkbook(MultipartFile htmlFile) throws IOException {
         Document htmlDoc = Jsoup.parse(htmlFile.getInputStream(), "UTF-8", "");
