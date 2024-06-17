@@ -32,6 +32,9 @@ jobs:
           echo "naver-cloud-sms.senderPhone=${{ secrets.PHONE }}" >> src/main/resources/application-api.properties
           echo "SERVER_URL=${{ secrets.DB_URL }}" >> src/main/resources/application-api.properties
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> src/main/resources/application-api.properties
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> src/main/resources/application-api.properties
+          
 
       - name: Display application-api.properties content for verification
         run: cat src/main/resources/application-api.properties

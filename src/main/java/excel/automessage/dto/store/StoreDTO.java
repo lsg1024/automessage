@@ -19,7 +19,6 @@ public class StoreDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Save {
-        Long id;
         String name;
         String phone;
 

@@ -1,7 +1,6 @@
 spring:
   application:
     name: automessage
-
   profiles:
     active: dev
     include: api
@@ -29,8 +28,15 @@ spring:
   h2:
     console:
       enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: trace
 server:
   port: 8002
+
