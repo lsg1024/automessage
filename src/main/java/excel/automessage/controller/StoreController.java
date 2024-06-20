@@ -40,6 +40,13 @@ public class StoreController {
         return new HashMap<>();
     }
 
+    // 새로운 상점 url
+    @GetMapping("/new")
+    public String store() {
+        log.info("store controller");
+        return "storeForm/storeSelect";
+    }
+
     @GetMapping("/new/store")
     public String newStore() {
         log.info("newStore controller");
@@ -115,8 +122,16 @@ public class StoreController {
 //        return "storeForm/storeSaveList";
 //    }
 
+
+    // 등록되지 않은 가게 폼
+    @GetMapping("/store/miss")
+    public String missingStore() {
+        log.info("missingStore Controller");
+        return "storeForm/missingStore";
+    }
+
     // 등록되지 않는 가게
-    @PostMapping("/storeMissingCreate")
+    @PostMapping("/store/miss")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
                                    @SessionAttribute("smsForm") Map<String, List<String>> smsForm,
                                    @SessionAttribute("smsPhone") Map<String, String> smsPhone,
@@ -139,7 +154,7 @@ public class StoreController {
         redirectAttributes.addFlashAttribute("smsPhone", smsPhone);
 
         sessionStatus.setComplete(); // 세션 종료
-        return "redirect:/sms/content";
+        return "redirect:/message/content";
     }
 
     // 가게 목록
