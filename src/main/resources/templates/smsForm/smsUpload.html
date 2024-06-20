@@ -9,13 +9,13 @@
             <div style="display: flex; justify-content: center;" >
 
                 <form action="/sms" method="post" enctype="multipart/form-data">
-                    <div class="filebox" style="display: flex">
-                        <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled="disabled">
+                    <div class="filebox" id='filebox' style="display: flex">
+                        <input class="upload-name" value="파일 드래그 혹은 첨부" placeholder="파일 드래그 혹은 첨부" disabled="disabled">
                         <label for="file">파일찾기</label>
                         <input type="file" name="file" id="file">
                     </div>
                     <div style="display: flex; justify-content: center; margin-top: 20px" >
-                        <button type="submit" class="button">
+                        <button type="submit" id="submitBtn" class="button">
                             <p class="btnText">등록</p>
                             <div class="btnTwo">
                                 <p class="btnText2">메시지</p>
@@ -30,12 +30,46 @@
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+
+    let fileBox = document.getElementById("filebox");
+    let fileInput = document.getElementById('file');
+    let submitBtn = document.getElementById('submitBtn');
+
+    fileBox.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        console.log("dragover");
+    })
+
+    fileBox.addEventListener("drop", function(e) {
+        e.preventDefault();
+
+        let files = e.dataTransfer.files;
+        if (files.length > 0) {
+            let file = files[0];
+            if (file.type.includes('excel') || file.type.includes('sheet')) {
+                fileInput.files = files;
+                $(".upload-name").val(file.name);
+            } else {
+                alert('엑셀 파일만 업로드 가능합니다.');
+            }
+        }
+    })
+
+
     $(document).ready(function() {
         $("#file").on('change', function() {
             // 파일 이름 가져오기
             let fileName = $(this).val().split('\\').pop();
             // 파일 이름을 upload-name 클래스의 입력 필드에 설정
             $(".upload-name").val(fileName);
+        });
+
+        $("#submitBtn").on('click', function(e) {
+            let fileName = $("#file").val();
+            if (!fileName) {
+                e.preventDefault(); // 폼 제출 막기
+                alert('파일을 첨부해주세요.');
+            }
         });
     });
 </script>

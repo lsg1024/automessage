@@ -1,13 +1,16 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: header}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>가게 정보 등록</title>
+</head>
 <body>
 <div class="container">
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
     <div class="jumbotron3">
         <div>
             <div style="display: flex; flex-direction: column;">
-                <form id="storeForm" action="/storeCreate" method="post">
+                <form id="storeForm">
                     <table class="table" id="storeTable">
                         <thead>
                         <tr>
@@ -36,7 +39,7 @@
                         </div>
 
                         <div style="margin-left: 20px">
-                            <button type="submit" id="submitButton" class="button">
+                            <button type="button" id="submitButton" class="button">
                                 <p class="btnText">저장하기</p>
                                 <div class="btnTwo">
                                     <p class="btnText2">등록</p>
@@ -85,9 +88,7 @@
             );
         });
 
-        $('#submitButton').click(function(event) {
-            event.preventDefault(); // 폼 제출 방지
-
+        $('#submitButton').click(function() {
             let valid = true;
             $('#storeTable tbody tr').each(function() {
                 let name = $(this).find('input[name^="stores"][name$=".name"]').val().trim();
@@ -103,15 +104,17 @@
                 return;
             }
 
-            let dataToSend = $('#storeForm').serialize(); // 폼 데이터를 직렬화
+            let form = document.getElementById('storeForm');
+            let formData = new FormData(form);
 
             $('#loading').show(); // 로딩 이미지 표시
 
-            // AJAX 요청
             $.ajax({
                 type: 'POST',
-                url: $('#storeForm').attr('action'),
-                data: dataToSend,
+                url: '/new/store',
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     alert('저장되었습니다.');
                     console.log(response);
@@ -125,7 +128,6 @@
                 }
             });
         });
-
     });
 </script>
 </html>

@@ -8,55 +8,53 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class HomeController {
 
+    // 홈 화면
     @RequestMapping("/")
     public String home() {
         log.info("home controller");
         return "home";
     }
 
-    @RequestMapping("/store")
+    // 새로운 상점 url
+    @RequestMapping("/new")
     public String store() {
         log.info("store controller");
         return "storeForm/storeSelect";
     }
 
-    @RequestMapping("/store/excelStore")
+    // 새로운 상점 (엑셀 입력)
+    @RequestMapping("/new/stores")
     public String excelStore() {
         log.info("excelStore controller");
         return "storeForm/storeUpload";
     }
 
-
-    @RequestMapping("/store/inputStore")
-    public String inputStore() {
-        log.info("inputStore controller");
+    // 새로운 상점 (직접 입력)
+    @RequestMapping("/new/store")
+    public String newStore() {
+        log.info("newStore controller");
         return "storeForm/storeInput";
     }
-
-    @RequestMapping("/store/missingStore")
-    public String missingStore() {
-        log.info("missingStore Controller");
-        return "storeForm/missingStore";
-    }
-
-    @RequestMapping("/storeList")
-    public String storeList() {
-        log.info("storeList controller");
-        return "storeForm/storeList";
-    }
-
-//    @RequestMapping("storeList/edit")
-//    public String storeEdit() {
-//        log.info("storeEdit controller");
-//        return "storeForm/storeUpdate";
+//
+//    // 추가 상점 (미등록 상점)
+//    @RequestMapping("/store/add")
+//    public String addStore() {
+//        log.info("addStore Controller");
+//        return "storeForm/missingStore";
 //    }
-
-    @RequestMapping("/sms")
-    public String sms() {
-        log.info("sms controller");
-        return "smsForm/smsUpload";
-    }
-
+//
+//    @RequestMapping("/stores")
+//    public String storeList() {
+//        log.info("stores controller");
+//        return "storeForm/storeList";
+//    }
+//
+//    @RequestMapping("/sms")
+//    public String sms() {
+//        log.info("sms controller");
+//        return "smsForm/smsUpload";
+//    }
+//
     @RequestMapping("/sms/content")
     public String smsContent() {
         log.info("smsContent Controller");
