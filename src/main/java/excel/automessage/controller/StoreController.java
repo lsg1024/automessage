@@ -40,12 +40,25 @@ public class StoreController {
         return new HashMap<>();
     }
 
+    @GetMapping("/new/store")
+    public String newStore() {
+        log.info("newStore controller");
+        return "storeForm/storeInput";
+    }
+
     // 가게 신규 등록 (직접 입력)
     @PostMapping("/new/store")
     public String newStore(@ModelAttribute StoreListDTO storeListDTO) {
         log.info("newStore (직접입력) Controller");
         storeService.saveAll(storeListDTO);
         return "redirect:/new/store";
+    }
+
+    // 새로운 상점 (엑셀 입력)
+    @GetMapping("/new/stores")
+    public String excelStore() {
+        log.info("excelStore controller");
+        return "storeForm/storeUpload";
     }
 
     // 가게 신규 등록 (엑셀)
