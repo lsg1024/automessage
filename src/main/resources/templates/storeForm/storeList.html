@@ -9,7 +9,7 @@
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
     <div style="display: flex; flex-direction: row-reverse;">
-        <form class="search-box" method="get" action="/storeList">
+        <form class="search-box" method="get" action="/stores">
             <input class="search-input" type="text" name="query" placeholder="검색" th:value="${param.query}">
             <div class="dropdown">
                 <button class="dropbtn" type="button" onclick="toggleDropdown()">
@@ -44,7 +44,7 @@
                 <td class="storeList_td" th:text="${store.storeName}"></td>
                 <td class="storeList_td" th:text="${store.storePhoneNumber}"></td>
                 <td>
-                    <button class="btn btn-primary" th:onclick="'location.href=\''+ @{/storeList/edit/{id}(id=${store.storeId})} + '\''">수정</button>
+                    <button class="btn btn-primary" th:onclick="'location.href=\''+ @{/stores/{id}(id=${store.storeId})} + '\''">수정</button>
                     <button class="btn btn-danger" th:onclick="deleteStore([[${store.storeId}]])">삭제</button>
                 </td>
             </tr>
@@ -87,8 +87,8 @@
 
     function deleteStore(id) {
         if (confirm('정말로 삭제하시겠습니까?')) {
-            fetch(`/storeList/delete/${id}`, {
-                method: 'post'
+            fetch(`/stores/${id}`, {
+                method: 'delete'
             }).then(() => {
                 location.reload();
             }).catch((error) => {
@@ -101,7 +101,7 @@
         function navigateToPage(page) {
         const query = document.querySelector('.search-input').value;
         const category = document.getElementById("category").value;
-        location.href = `/storeList?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
+        location.href = `/stores?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
     }
 
     window.onclick = function(event) {

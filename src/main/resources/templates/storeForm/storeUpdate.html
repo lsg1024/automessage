@@ -13,7 +13,7 @@
     <h4>가게 수정</h4>
 
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20%;">
-      <form action="/storeList/update" th:object="${storeDTO}" method="post">
+      <form th:action="@{/stores/{id}(id=${storeDTO.id})}" th:object="${storeDTO}" method="post">
         <input type="hidden" name="storeId" th:value="${storeDTO.id}">
         <div style="display: flex; margin: 10px; flex-direction: row; flex-wrap: nowrap; justify-content: center;">
           <label for="name">가게 이름</label>
