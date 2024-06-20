@@ -40,18 +40,28 @@ public class StoreController {
         return new HashMap<>();
     }
 
-    @PostMapping("/upload")
-    public String uploadStoreData(@RequestParam MultipartFile file, Model model, RedirectAttributes redirectAttributes) throws IOException {
-        log.info("uploadStoreData Controller");
+    // 가게 신규 등록 (직접 입력)
+    @PostMapping("/new/store")
+    public String newStore(@ModelAttribute StoreListDTO storeListDTO) {
+        log.info("newStore (직접입력) Controller");
+        storeService.saveAll(storeListDTO);
+        return "redirect:/new/store";
+    }
+
+    // 가게 신규 등록 (엑셀)
+    @PostMapping("/new/stores")
+    public String newStores(@RequestParam MultipartFile file, Model model, RedirectAttributes redirectAttributes) throws IOException {
+        log.info("newStores (엑셀) Controller");
+
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "파일을 선택해주세요.");
-            return "redirect:upload";
+            return "redirect:store/excelStore";
         }
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         if (extension == null || (!extension.equalsIgnoreCase("xlsx") && !extension.equalsIgnoreCase("xls"))) {
             redirectAttributes.addFlashAttribute("message", "엑셀 파일만 업로드 가능합니다.");
-            return "redirect:upload";
+            return "redirect:store/excelStore";
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
@@ -92,12 +102,7 @@ public class StoreController {
 //        return "storeForm/storeSaveList";
 //    }
 
-    @PostMapping("storeList/delete/{id}")
-    @ResponseBody
-    public void deleteStore(@PathVariable Long id) {
-        storeService.deleteStore(id);
-    }
-
+    // 등록되지 않는 가게
     @PostMapping("/storeMissingCreate")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
                                    @SessionAttribute("smsForm") Map<String, List<String>> smsForm,
@@ -124,31 +129,15 @@ public class StoreController {
         return "redirect:/sms/content";
     }
 
-    @GetMapping("/storeList/edit/{id}")
-    public String editStore(@PathVariable Long id, Model model) {
-        Store store = storeService.findById(id);
-
-        StoreDTO storeDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
-
-        model.addAttribute("storeDTO", storeDTO);
-        return "storeForm/storeUpdate";
-    }
-    @PostMapping("/storeList/update")
-    public String updateStoreName(@RequestParam Long storeId, @ModelAttribute StoreDTO storeDTO, RedirectAttributes redirectAttributes) {
-        log.info("updateStoreName");
-
-        log.info("storeId = {}", storeId);
-
-        storeService.updateStore(storeId, storeDTO);
-        redirectAttributes.addFlashAttribute("success", "수정 완료");
-        return "redirect:/storeList";
-    }
-
-    @GetMapping("/storeList")
+    // 가게 목록
+    @GetMapping("/stores")
     public String getStores(@RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "") String query,
                             @RequestParam(defaultValue = "all") String category,
                             Model model) {
+
+        log.info("getStores Controller");
+
         int size = 10;
         Page<Store> storePage = storeService.searchStores(category, query, page - 1, size);
 
@@ -164,6 +153,37 @@ public class StoreController {
         model.addAttribute("totalPages", totalPages);
 
         return "storeForm/storeList";
+    }
+
+
+    // 가게 목록/가게 수정 이동
+    @GetMapping("/stores/{id}")
+    public String editStore(@PathVariable Long id, Model model) {
+        log.info("editStore");
+
+        Store store = storeService.findById(id);
+
+        StoreDTO storeDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
+        model.addAttribute("storeDTO", storeDTO);
+        return "storeForm/storeUpdate";
+    }
+
+    // 가게 목록/가게 수정
+    @PostMapping("/stores/{id}")
+    public String updateStoreName(@RequestParam Long storeId, @ModelAttribute StoreDTO storeDTO, RedirectAttributes redirectAttributes) {
+        log.info("updateStoreName");
+        log.info("storeId = {}", storeId);
+
+        storeService.updateStore(storeId, storeDTO);
+        redirectAttributes.addFlashAttribute("success", "수정 완료");
+        return "redirect:/stores";
+    }
+
+    // 가게 목록/가게 삭제
+    @DeleteMapping("stores/{id}")
+    @ResponseBody
+    public void deleteStore(@PathVariable Long id) {
+        storeService.deleteStore(id);
     }
 
 

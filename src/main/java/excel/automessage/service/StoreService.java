@@ -120,17 +120,12 @@ public class StoreService {
     }
 
     @Async
-    public CompletableFuture<Void> saveAllToDBAsync(String key) {
+    public CompletableFuture<Void> saveAllToDBAsync(StoreListDTO storeListDTO, String key) {
         return CompletableFuture.runAsync(() -> {
             String serializedData = (String) redisTemplate.opsForValue().get(key);
             if (serializedData != null) {
-                try {
-                    StoreListDTO storeListDTO = objectMapper.readValue(serializedData, StoreListDTO.class);
-                    saveAll(storeListDTO);
-                    redisTemplate.delete(key);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to deserialize JSON to StoreListDTO", e);
-                }
+                saveAll(storeListDTO);
+                redisTemplate.delete(key);
             }
         });
 
