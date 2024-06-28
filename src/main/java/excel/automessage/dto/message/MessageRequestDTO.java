@@ -1,4 +1,4 @@
-package excel.automessage.dto.sms;
+package excel.automessage.dto.message;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-public class SmsRequestDTO {
+public class MessageRequestDTO {
     String type;
     String contentType;
     String countryCode;

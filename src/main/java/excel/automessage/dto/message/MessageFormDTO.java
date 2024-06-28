@@ -1,4 +1,4 @@
-package excel.automessage.dto.sms;
+package excel.automessage.dto.message;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 @Getter @Setter
-public class SmsFormDTO {
+public class MessageFormDTO {
     public Map<String, List<String>> smsForm;
     public Map<String, String> smsPhone;
     public List<String> missingStores;
 
-    public SmsFormDTO() {
+    public MessageFormDTO() {
         this.smsForm = new HashMap<>();
         this.smsPhone = new HashMap<>();
         this.missingStores = new ArrayList<>();
