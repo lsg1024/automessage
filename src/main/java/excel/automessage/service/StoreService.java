@@ -1,6 +1,5 @@
 package excel.automessage.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import excel.automessage.domain.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
@@ -31,6 +30,7 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
 
+    // 데이터 저장
     public void saveAll(StoreListDTO storeListDTO) {
 
         for (StoreDTO.Save storeDTO : storeListDTO.getStores()) {

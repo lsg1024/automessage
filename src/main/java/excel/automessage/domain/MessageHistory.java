@@ -1,6 +1,5 @@
 package excel.automessage.domain;
 
-import excel.automessage.domain.auditing.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MessageHistory extends BaseTimeEntity {
+public class MessageHistory {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long historyId;
@@ -21,7 +20,7 @@ public class MessageHistory extends BaseTimeEntity {
     private String errorMessage;
 
     @ManyToOne
-    @JoinColumn(name = "message_storage_id")
+    @JoinColumn(name = "messageStorageId")
     private MessageStorage messageStorage;
 
     @Builder
