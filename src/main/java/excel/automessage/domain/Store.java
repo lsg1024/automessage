@@ -18,6 +18,10 @@ public class Store {
     String storeName;
     String storePhoneNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "historyId")
+    private MessageHistory messageHistory;
+
     @Builder
     public Store(String storeName, String storePhoneNumber) {
         this.storeName = storeName;
