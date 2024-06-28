@@ -1,4 +1,4 @@
-package excel.automessage.dto.sms;
+package excel.automessage.dto.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
