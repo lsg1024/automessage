@@ -136,11 +136,17 @@ public class MessageService {
             }
         }
 
-        MessageStorage messageHistory = MessageStorage.builder()
-                .messageHistories(messageHistories)
+        // 메시지 스토리지 초기화
+        MessageStorage messageStorage = MessageStorage.builder()
+                .messageHistories(new ArrayList<>())
                 .build();
 
-        messageStorageRepository.save(messageHistory);
+        // 메시지 내역 스토리지 매핑
+        for (MessageHistory history : messageHistories) {
+            messageStorage.addMessageHistory(history);
+        }
+
+        messageStorageRepository.save(messageStorage);
 
         return responses;
 
