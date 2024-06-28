@@ -2,8 +2,11 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import excel.automessage.domain.MessageHistory;
+import excel.automessage.domain.MessageStorage;
 import excel.automessage.domain.Store;
-import excel.automessage.dto.sms.*;
+import excel.automessage.dto.message.*;
+import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +44,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SmsService {
+public class MessageService {
 
     @Value("${naver-cloud-sms.accessKey}")
     private String accessKey;
@@ -57,17 +59,19 @@ public class SmsService {
     private String phone;
 
     private final StoreRepository storeRepository;
+    private final MessageStorageRepository messageStorageRepository;
 
-    public ProductDTO.ProductList uploadSMS(MultipartFile file) throws IOException {
+    // 메시지 정보 업로드
+    public ProductDTO.ProductList messageUpload(MultipartFile file) throws IOException {
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-        
+
         Workbook workbook = null;
-        
+
         if (extension == null) {
             throw new IllegalArgumentException("파일 확장자를 확인할 수 없습니다.");
         }
-        
+
         try {
             workbook = new XSSFWorkbook(file.getInputStream());
         } catch (NotOfficeXmlFileException e) {
@@ -89,24 +93,67 @@ public class SmsService {
         return productList;
     }
 
-    public SmsFormDTO smsForm(ProductDTO.ProductList productList) {
-        SmsFormDTO smsFormDTO = new SmsFormDTO();
+    public MessageFormDTO messageForm(ProductDTO.ProductList productList) {
+        MessageFormDTO messageFormDTO = new MessageFormDTO();
 
         for (ProductDTO product : productList.getProductDTOList()) {
-            List<String> products = smsFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
+            List<String> products = messageFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
             products.add(product.getProductName());
             log.info("storeName = {}", product.getStoreName());
 
             Optional<Store> phoneNumber = storeRepository.findByStoreName(product.getStoreName());
 
-            searchProductPhone(smsFormDTO, product, phoneNumber);
+            searchProductPhone(messageFormDTO, product, phoneNumber);
         }
 
-        return smsFormDTO;
+        return messageFormDTO;
     }
 
+    // 메시지 전송
+    public List<MessageResponseDTO> messageSend(List<MessageDTO> messageDTOList, List<Integer> errorMessage) {
+        List<MessageResponseDTO> responses = new ArrayList<>();
+        List<MessageHistory> messageHistories = new ArrayList<>();
 
-    public SmsResponseDTO sendSms(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        for (int i = 0; i < messageDTOList.size(); i++) {
+            MessageDTO messageDTO = messageDTOList.get(i);
+            if (!isNumber(messageDTO.getTo())) {
+                log.error("전화번호 형식 오류로 인한 메시지 전송 실패 {}", messageDTO.getTo());
+                errorMessage.add(i + 1);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", "잘못된 전화번호 입니다."));
+                continue;
+            }
+
+            try {
+                MessageResponseDTO response = messageSendForm(messageDTO);
+                responses.add(response);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
+                log.info("메시지 전송 성공 {}", messageDTO.getTo());
+            }
+            catch (Exception e) {
+                errorMessage.add(i + 1);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", e.getMessage()));
+                log.error("메시지 전송 실패 {}, {}",messageDTO.getTo(), e.getMessage());
+            }
+        }
+
+        // 메시지 스토리지 초기화
+        MessageStorage messageStorage = MessageStorage.builder()
+                .messageHistories(new ArrayList<>())
+                .build();
+
+        // 메시지 내역 스토리지 매핑
+        for (MessageHistory history : messageHistories) {
+            messageStorage.addMessageHistory(history);
+        }
+
+        messageStorageRepository.save(messageStorage);
+
+        return responses;
+
+    }
+
+    // 메시지 전송 양식 (네이버 sms)
+    public MessageResponseDTO messageSendForm(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException {
 
         Long time = System.currentTimeMillis();
         String Sign = makeSignature(time);
@@ -123,7 +170,7 @@ public class SmsService {
         List<MessageDTO> messages = new ArrayList<>();
         messages.add(messageDto);
 
-        SmsRequestDTO request = SmsRequestDTO.builder()
+        MessageRequestDTO request = MessageRequestDTO.builder()
                 .type("SMS")
                 .contentType("COMM")
                 .countryCode("82")
@@ -138,26 +185,28 @@ public class SmsService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        SmsResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsResponseDTO.class);
+        MessageResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, MessageResponseDTO.class);
 
         return response;
     }
 
-    private void searchProductPhone(SmsFormDTO smsFormDTO, ProductDTO product, Optional<Store> phoneNumber) {
+    // 미등록 가게 번호 검색
+    private void searchProductPhone(MessageFormDTO messageFormDTO, ProductDTO product, Optional<Store> phoneNumber) {
         if (phoneNumber.isPresent()) {
             String phone = phoneNumber.get().getStorePhoneNumber();
             if (phone != null) {
-                smsFormDTO.getSmsPhone().put(product.getStoreName(), phone);
+                messageFormDTO.getSmsPhone().put(product.getStoreName(), phone);
             } else {
-                smsFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
+                messageFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
             }
             log.info("전화번호 검색 결과 = {}", phone);
         } else {
-            smsFormDTO.getMissingStores().add(product.getStoreName());
+            messageFormDTO.getMissingStores().add(product.getStoreName());
         }
     }
 
-    private String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+    // 메시지 암호화
+    private String makeSignature(Long time) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";
         String method = "POST";
@@ -185,6 +234,7 @@ public class SmsService {
         return Base64.encodeBase64String(rawHmac);
     }
 
+    // Html 데이터 테이블 읽어오기
     private Workbook convertHtmlToWorkbook(MultipartFile htmlFile) throws IOException {
         Document htmlDoc = Jsoup.parse(htmlFile.getInputStream(), "UTF-8", "");
         Workbook workbook = new XSSFWorkbook();
@@ -209,6 +259,7 @@ public class SmsService {
         return workbook;
     }
 
+    // 엑셀 데이터 포멧팅
     private void extractedProductAndName(Sheet worksheet, ProductDTO.ProductList productList) {
 
         DataFormatter dataFormatter = new DataFormatter();
@@ -246,6 +297,22 @@ public class SmsService {
             productList.getProductDTOList().add(productDTO);
         }
     }
+
+    // 숫자만 있는지 확인
+    private static boolean isNumber(String str) {
+        return str.chars().allMatch(Character::isDigit);
+    }
+
+    // 메시지 로그
+    private MessageHistory createMessageHistory(MessageDTO messageDTO, String status, String errorMessage) {
+        return MessageHistory.builder()
+                .receiver(messageDTO.getTo())
+                .content(messageDTO.getContent())
+                .status(status)
+                .errorMessage(errorMessage)
+                .build();
+    }
+
 }
 
 
