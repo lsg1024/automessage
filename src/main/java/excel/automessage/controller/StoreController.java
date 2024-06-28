@@ -28,7 +28,6 @@ import java.util.Map;
 public class StoreController {
 
     private final StoreService storeService;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     @ModelAttribute("smsForm")
     public Map<String, List<String>> initSmsForm() {
@@ -92,36 +91,6 @@ public class StoreController {
 
         return "storeForm/storeSaveList";
     }
-
-//    @PostMapping("/uploads")
-//    public String uploadStoreDataRedis(@RequestParam MultipartFile file, Model model, RedirectAttributes redirectAttributes) throws IOException {
-//        log.info("uploadStoreDataRedis Controller");
-//        if (file.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("message", "파일을 선택해주세요.");
-//            return "redirect:upload";
-//        }
-//
-//        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-//        if (extension == null || (!extension.equalsIgnoreCase("xlsx") && !extension.equalsIgnoreCase("xls"))) {
-//            redirectAttributes.addFlashAttribute("message", "엑셀 파일만 업로드 가능합니다.");
-//            return "redirect:upload";
-//        }
-//
-//        StoreListDTO storeListDTO = storeService.saveStores(file);
-//
-//        String key = "storesKey";
-//        redisTemplate.opsForValue().set(key, storeListDTO);
-//
-//        storeService.saveAllToDBAsync(key);
-//
-//        storeService.saveAll(storeListDTO);
-//
-//        model.addAttribute("storeList", storeListDTO);
-//        model.addAttribute("success", "저장 완료");
-//
-//        return "storeForm/storeSaveList";
-//    }
-
 
     // 등록되지 않은 가게 폼
     @GetMapping("/store/miss")

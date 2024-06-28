@@ -1,4 +1,4 @@
-package excel.automessage.dto.sms;
+package excel.automessage.dto.message;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Builder
-public class SmsResponseDTO {
+public class MessageResponseDTO {
     String requestId;
     LocalDateTime requestTime;
     String statusCode;

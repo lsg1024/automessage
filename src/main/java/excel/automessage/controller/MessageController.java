@@ -1,10 +1,10 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.sms.MessageDTO;
-import excel.automessage.dto.sms.ProductDTO;
-import excel.automessage.dto.sms.SmsFormDTO;
-import excel.automessage.dto.sms.SmsResponseDTO;
-import excel.automessage.service.SmsService;
+import excel.automessage.dto.message.MessageDTO;
+import excel.automessage.dto.message.ProductDTO;
+import excel.automessage.dto.message.MessageFormDTO;
+import excel.automessage.dto.message.MessageResponseDTO;
+import excel.automessage.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -23,9 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @SessionAttributes({"smsForm", "smsPhone"})
-public class SmsController {
+public class MessageController {
 
-    private final SmsService smsService;
+    private final MessageService messageService;
 
 
     // 메시지 양식 업로드 폼
@@ -54,19 +54,19 @@ public class SmsController {
             return "redirect:sms";
         }
 
-        ProductDTO.ProductList productList = smsService.uploadSMS(file);
-        SmsFormDTO smsFormDTO = smsService.smsForm(productList);
+        ProductDTO.ProductList productList = messageService.messageUpload(file);
+        MessageFormDTO messageFormDTO = messageService.messageForm(productList);
 
         // 엑셀에 등록되지 않은 가게 추가 등록
-        if (!smsFormDTO.getMissingStores().isEmpty()) {
-            redirectAttributes.addFlashAttribute("missingStores", smsFormDTO.getMissingStores());
-            model.addAttribute("smsForm", smsFormDTO.getSmsForm());
-            model.addAttribute("smsPhone", smsFormDTO.getSmsPhone());
+        if (!messageFormDTO.getMissingStores().isEmpty()) {
+            redirectAttributes.addFlashAttribute("missingStores", messageFormDTO.getMissingStores());
+            model.addAttribute("smsForm", messageFormDTO.getSmsForm());
+            model.addAttribute("smsPhone", messageFormDTO.getSmsPhone());
             return "redirect:store/miss";
         }
 
-        model.addAttribute("smsForm", smsFormDTO.getSmsForm());
-        model.addAttribute("smsPhone", smsFormDTO.getSmsPhone());
+        model.addAttribute("smsForm", messageFormDTO.getSmsForm());
+        model.addAttribute("smsPhone", messageFormDTO.getSmsPhone());
         return "messageForm/messageSendForm";
     }
 
@@ -80,36 +80,15 @@ public class SmsController {
     // 메시지 전송
     @PostMapping("/message/content")
     public ResponseEntity<?> messageSend(@RequestBody List<MessageDTO> messageDto) {
-        List<SmsResponseDTO> responses = new ArrayList<>();
         List<Integer> errorMessage = new ArrayList<>();
-        for (int i = 0; i < messageDto.size(); i++) {
-            MessageDTO messageDTO = messageDto.get(i);
-            log.info("messageSend getContent = {}, getTo = {}", messageDTO.getContent(), messageDTO.getTo());
-
-            if (!isNumberic(messageDTO.getTo())) {
-                errorMessage.add(i + 1);
-                continue;
-            }
-
-            try {
-                 SmsResponseDTO response = smsService.sendSms(messageDTO);
-                 responses.add(response);
-                 log.info("messageSend 응답 = {}", response.getStatusCode());
-            } catch (Exception e) {
-                log.error("messageSend 번호 오류 {}: {}", i, e.getMessage());
-                errorMessage.add(i + 1);
-            }
-        }
+        List<MessageResponseDTO> responses = messageService.messageSend(messageDto, errorMessage);
 
         if (!errorMessage.isEmpty()) {
             return ResponseEntity.badRequest().body("전화번호 없음 : " + errorMessage);
         }
 
         return ResponseEntity.ok().body(responses);
+
     }
 
-    // 숫자로만 이뤄져있는지 확인 코드
-    private static boolean isNumberic(String str) {
-        return str.chars().allMatch(Character::isDigit);
-    }
 }
