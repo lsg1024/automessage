@@ -56,7 +56,7 @@ public class StoreController {
     @PostMapping("/new/store")
     public String newStore(@ModelAttribute StoreListDTO storeListDTO) {
         log.info("newStore (직접입력) Controller");
-        storeService.saveAll(storeListDTO);
+        StoreListDTO result = storeService.saveAll(storeListDTO);
         return "redirect:/new/store";
     }
 
@@ -84,7 +84,7 @@ public class StoreController {
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
-        storeService.saveAll(storeListDTO);
+        StoreListDTO result = storeService.saveAll(storeListDTO);
 
         model.addAttribute("storeList", storeListDTO);
         model.addAttribute("success", "저장 완료");
