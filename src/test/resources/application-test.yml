@@ -5,6 +5,7 @@ spring:
   profiles:
     active: test
     include: api
+
   datasource:
     username: sa
     password:
