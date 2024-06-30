@@ -8,6 +8,7 @@ import excel.automessage.domain.Store;
 import excel.automessage.dto.message.*;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
+import excel.automessage.util.ExcelSheetUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -64,26 +65,8 @@ public class MessageService {
     // 메시지 정보 업로드
     public ProductDTO.ProductList messageUpload(MultipartFile file) throws IOException {
 
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        Workbook workbook = ExcelSheetUtils.getSheets(file);
 
-        Workbook workbook = null;
-
-        if (extension == null) {
-            throw new IllegalArgumentException("파일 확장자를 확인할 수 없습니다.");
-        }
-
-        try {
-            workbook = new XSSFWorkbook(file.getInputStream());
-        } catch (NotOfficeXmlFileException e) {
-            workbook = convertHtmlToWorkbook(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        if (workbook == null) {
-            throw new IllegalArgumentException("파일이 비어있습니다");
-        }
-        
         Sheet worksheet = workbook.getSheetAt(0);
 
         ProductDTO.ProductList productList = new ProductDTO.ProductList();
@@ -232,31 +215,6 @@ public class MessageService {
         byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
 
         return Base64.encodeBase64String(rawHmac);
-    }
-
-    // Html 데이터 테이블 읽어오기
-    private Workbook convertHtmlToWorkbook(MultipartFile htmlFile) throws IOException {
-        Document htmlDoc = Jsoup.parse(htmlFile.getInputStream(), "UTF-8", "");
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet1");
-
-        Element table = htmlDoc.select("table").first();
-        if (table != null) {
-            Elements rows = table.select("tr");
-
-            int rowIndex = 0;
-            for (Element row : rows) {
-                Row excelRow = sheet.createRow(rowIndex++);
-                Elements cells = row.select("td, th");
-                int cellIndex = 0;
-                for (Element cell : cells) {
-                    Cell excelCell = excelRow.createCell(cellIndex++);
-                    excelCell.setCellValue(cell.text());
-                }
-            }
-        }
-
-        return workbook;
     }
 
     // 엑셀 데이터 포멧팅
