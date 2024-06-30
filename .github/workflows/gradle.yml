@@ -36,7 +36,7 @@ jobs:
         run: cat src/main/resources/application-api.properties
 
       - name: Run tests
-        run: ./gradlew clean test
+        run: ./gradlew test
 
       - name: Build JAR
         run: ./gradlew clean build -x test
