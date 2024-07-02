@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - develop
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,3 +58,34 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: docker push ${{ env.DOCKER_IMAGE }}
+
+  deploy:
+    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master' }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH connection
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: SSH into Synology NAS and deploy
+        env:
+          NAS_USERNAME: ${{ secrets.NAS_USERNAME }}
+          NAS_PASSWORD: ${{ secrets.NAS_PASSWORD }}
+          NAS_HOST: ${{ secrets.NAS_HOST }}
+          SSH_PORT: ${{ secrets.NAS_SSH_PORT }}
+        run: |
+          sshpass -p "$NAS_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SSH_PORT $NAS_USERNAME@$NAS_HOST << EOF
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull ${{ env.DOCKER_IMAGE }}
+            docker stop automessage || true
+            docker rm automessage || true
+            docker run -d --name automessage \
+              -p 8002:8002 ${{ env.DOCKER_IMAGE }}
+          EOF
