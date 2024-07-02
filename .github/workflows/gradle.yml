@@ -2,9 +2,8 @@ name: CI/CD using GitHub Actions & Docker
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - develop
 
 jobs:
   build:
@@ -32,12 +31,12 @@ jobs:
           echo "naver-cloud-sms.senderPhone=${{ secrets.PHONE }}" >> src/main/resources/application-api.properties
           echo "SERVER_URL=${{ secrets.DB_URL }}" >> src/main/resources/application-api.properties
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> src/main/resources/application-api.properties
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> src/main/resources/application-api.properties
-          
 
       - name: Display application-api.properties content for verification
         run: cat src/main/resources/application-api.properties
+
+      - name: Run tests
+        run: ./gradlew test
 
       - name: Build JAR
         run: ./gradlew clean build -x test
@@ -55,6 +54,17 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: docker push ${{ env.DOCKER_IMAGE }}
+
+  deploy:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'master' && github.event.pull_request.merged
+    needs: build
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up SSH connection
         uses: webfactory/ssh-agent@v0.5.3
@@ -76,19 +86,3 @@ jobs:
             docker run -d --name automessage \
               -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
-
-  dependency-submission:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
