@@ -9,22 +9,22 @@
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
     <div style="display: flex; flex-direction: row-reverse;">
-        <form class="search-box" method="get" action="/stores">
-            <input class="search-input" type="text" name="query" placeholder="검색" th:value="${param.query}">
+        <form class="search-box" method="get" action="/stores" style="display: flex">
             <div class="dropdown">
                 <button class="dropbtn" type="button" onclick="toggleDropdown()">
                     <span id="selectedCategory" class="dropbtn_content"
                           th:text="${#strings.equals(param.category, 'all') ? '전체 보기' :
-                                   #strings.equals(param.category, 'null') ? '공백 번호' :
-                                   #strings.equals(param.category, 'notnull') ? '저장 번호' : '전체 번호'}">전체 번호</span>
+                                   #strings.equals(param.category, 'null') ? '미등록 번호' :
+                                   #strings.equals(param.category, 'notnull') ? '등록 번호' : '전체 번호'}">전체 번호</span>
                 </button>
                 <div id="dropdownMenu" class="dropdown-content">
                     <div onclick="selectCategory('전체 보기', 'all')">전체 보기</div>
-                    <div onclick="selectCategory('공백 번호', 'null')">공백 번호</div>
+                    <div onclick="selectCategory('미등록 번호', 'null')">미등록 번호</div>
                     <div onclick="selectCategory('저장 번호', 'notnull')">저장 번호</div>
                 </div>
             </div>
             <input type="hidden" name="category" id="category" th:value="${param.category ?: 'all'}">
+            <input class="search-input" type="text" name="query" placeholder="검색" th:value="${param.query}">
         </form>
     </div>
 
@@ -98,7 +98,7 @@
     }
 
 
-        function navigateToPage(page) {
+    function navigateToPage(page) {
         const query = document.querySelector('.search-input').value;
         const category = document.getElementById("category").value;
         location.href = `/stores?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
