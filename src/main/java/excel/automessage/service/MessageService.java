@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MessageService {
 
     @Value("${naver-cloud-sms.accessKey}")
@@ -63,6 +65,7 @@ public class MessageService {
     private final MessageStorageRepository messageStorageRepository;
 
     // 메시지 정보 업로드
+    @Transactional
     public ProductDTO.ProductList messageUpload(MultipartFile file) throws IOException {
 
         Workbook workbook = ExcelSheetUtils.getSheets(file);
@@ -76,6 +79,8 @@ public class MessageService {
         return productList;
     }
 
+    // 메시지 내역
+    @Transactional
     public MessageFormDTO messageForm(ProductDTO.ProductList productList) {
         MessageFormDTO messageFormDTO = new MessageFormDTO();
 
@@ -93,6 +98,7 @@ public class MessageService {
     }
 
     // 메시지 전송
+    @Transactional
     public List<MessageResponseDTO> messageSend(List<MessageDTO> messageDTOList, List<Integer> errorMessage) {
         List<MessageResponseDTO> responses = new ArrayList<>();
         List<MessageHistory> messageHistories = new ArrayList<>();
@@ -136,6 +142,7 @@ public class MessageService {
     }
 
     // 메시지 전송 양식 (네이버 sms)
+    @Transactional
     public MessageResponseDTO messageSendForm(MessageDTO messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException {
 
         Long time = System.currentTimeMillis();
