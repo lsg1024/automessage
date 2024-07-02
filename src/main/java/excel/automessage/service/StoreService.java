@@ -4,6 +4,7 @@ import excel.automessage.domain.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.repository.StoreRepository;
+import excel.automessage.util.ExcelSheetUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -34,9 +35,17 @@ public class StoreService {
 
     // 데이터 저장
     @Transactional
-    public void saveAll(StoreListDTO storeListDTO) {
+    public StoreListDTO saveAll(StoreListDTO storeListDTO) {
+
+        StoreListDTO result = new StoreListDTO();
 
         for (StoreDTO storeDTO : storeListDTO.getStores()) {
+
+            //- 제거
+            storeDTO.setPhone(removeHyphens(storeDTO.getPhone()));
+            //번호 유효성 검사
+            validateStoreNumber(storeDTO);
+
             Optional<Store> existingStore = storeRepository.findByStoreName(storeDTO.getName());
             Store store;
             if (existingStore.isPresent()) {
@@ -49,8 +58,12 @@ public class StoreService {
                 store = storeDTO.toEntity();
                 storeRepository.save(store);
             }
+
+            StoreDTO savedStoreDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
+            result.getStores().add(savedStoreDTO);
         }
 
+        return result;
     }
 
     // 가게 검색
@@ -92,25 +105,7 @@ public class StoreService {
     // 가게 저장 (엑셀)
     public StoreListDTO saveStores(MultipartFile file) throws IOException {
 
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-
-        Workbook workbook = null;
-
-        if (extension == null) {
-            throw new IllegalArgumentException("파일 확장자를 확인할 수 없습니다.");
-        }
-
-        try {
-            workbook = new XSSFWorkbook(file.getInputStream());
-        } catch (NotOfficeXmlFileException e) {
-            workbook = convertHtmlToWorkbook(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (workbook == null) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
-        }
+        Workbook workbook = ExcelSheetUtils.getSheets(file);
 
         Sheet worksheet = workbook.getSheetAt(0);
         StoreListDTO storeListDTO = new StoreListDTO();
@@ -122,29 +117,22 @@ public class StoreService {
         return storeListDTO;
     }
 
-    // html 테이블 읽기
-    private Workbook convertHtmlToWorkbook(MultipartFile htmlFile) throws IOException {
-        Document htmlDoc = Jsoup.parse(htmlFile.getInputStream(), "UTF-8", "");
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet1");
 
-        Element table = htmlDoc.select("table").first();
-        if (table != null) {
-            Elements rows = table.select("tr");
-
-            int rowIndex = 0;
-            for (Element row : rows) {
-                Row excelRow = sheet.createRow(rowIndex++);
-                Elements cells = row.select("td, th");
-                int cellIndex = 0;
-                for (Element cell : cells) {
-                    Cell excelCell = excelRow.createCell(cellIndex++);
-                    excelCell.setCellValue(cell.text());
-                }
-            }
+    //번호 유효성 검사
+    private void validateStoreNumber(StoreDTO storeDTO) {
+        if (!storeDTO.getPhone().matches("\\d{10,11}")) {
+            throw new IllegalStateException("옳바른 번호를 입력해주세요.");
         }
+    }
 
-        return workbook;
+    //하이픈 제거
+    private String removeHyphens(String phoneNumber) {
+        if (phoneNumber != null) {
+            return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
+        }
+        else {
+            return null;
+        }
     }
 
     // 가게 저장 데이터 포멧 (엑셀)
