@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+  pull_request_target:
+    types:
+      - closed
 
 jobs:
   build:
@@ -56,7 +59,7 @@ jobs:
         run: docker push ${{ env.DOCKER_IMAGE }}
 
   deploy:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'master' && github.event.pull_request.merged
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master'
     needs: build
 
     runs-on: ubuntu-latest
