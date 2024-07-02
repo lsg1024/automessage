@@ -15,28 +15,11 @@ public class StoreDTO {
     String name;
     String phone;
 
-    @Getter @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Save {
-        String name;
-        String phone;
-
-        public Store toEntity() {
-            return Store.builder()
-                    .storeName(name)
-                    .storePhoneNumber(removeHyphens(phone))
-                    .build();
-        }
-        public String removeHyphens(String phoneNumber) {
-            if (phoneNumber != null) {
-                return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
-            }
-            else {
-                return null;
-            }
-
-        }
+    public Store toEntity() {
+        return Store.builder()
+                .storeName(name)
+                .storePhoneNumber(phone)
+                .build();
     }
 
 }

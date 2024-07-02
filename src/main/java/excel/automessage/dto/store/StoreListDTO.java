@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter @Setter
 public class StoreListDTO {
-    private List<StoreDTO.Save> stores;
+    private List<StoreDTO> stores;
 
     public StoreListDTO() {
         this.stores = new ArrayList<>();
