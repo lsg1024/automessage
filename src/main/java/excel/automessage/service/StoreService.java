@@ -41,13 +41,24 @@ public class StoreService {
 
         for (StoreDTO storeDTO : storeListDTO.getStores()) {
 
+            Store store;
+
+            log.info("storeDto name {}, number {}", storeDTO.getName(), storeDTO.getPhone());
+
+            // 가게 존재, 번호 없음 저장
+            if (storeDTO.getPhone() == null) {
+                log.info("가게 이름만 존재 {}", storeDTO.getName());
+                store = storeDTO.toEntity();
+                storeRepository.save(store);
+                continue;
+            }
+
             //- 제거
             storeDTO.setPhone(removeHyphens(storeDTO.getPhone()));
             //번호 유효성 검사
             validateStoreNumber(storeDTO);
 
             Optional<Store> existingStore = storeRepository.findByStoreName(storeDTO.getName());
-            Store store;
             if (existingStore.isPresent()) {
                 // Store가 이미 존재하는 경우 업데이트
                 store = existingStore.get();
@@ -120,20 +131,19 @@ public class StoreService {
 
     //번호 유효성 검사
     private void validateStoreNumber(StoreDTO storeDTO) {
+        log.info("validateStoreNumber {}", storeDTO.getPhone());
         if (!storeDTO.getPhone().matches("\\d{10,11}")) {
-            throw new IllegalStateException("옳바른 번호를 입력해주세요.");
+            throw new IllegalStateException("올바른 번호를 입력해주세요.");
         }
     }
 
     //하이픈 제거
     private String removeHyphens(String phoneNumber) {
-        if (phoneNumber != null) {
-            return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
-        }
-        else {
-            return null;
-        }
+        log.info("removeHyphens after {}", phoneNumber);
+        return phoneNumber.replaceAll("-", ""); // 모든 하이픈 제거
+
     }
+
 
     // 가게 저장 데이터 포멧 (엑셀)
     private void extractedNameAndPhone(Sheet worksheet, StoreListDTO storeListDTO) {

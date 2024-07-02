@@ -14,7 +14,7 @@ public class Store {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "storeId")
     Long storeId;
-    @Column(name = "storeName", unique = true)
+    @Column(name = "storeName")
     String storeName;
     String storePhoneNumber;
 
