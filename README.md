@@ -3,7 +3,7 @@
 프로젝트 이름: Auto Message<br>
 프로젝트 진행 기간: 24.04.16 ~ 24.07.01<br>
 </p>
-<h6></h6> 
+ 
 <h2>사용 언어 및 기술</h2>
 <div align="center">
 <p style="font-weight: bolder">사용 언어 및 프레임 워크</p>
@@ -18,12 +18,14 @@
     <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
 
 </div>
-<h6></h6> 
+
 <h2>아키텍처</h2>
-<div><img src="src/main/resources/static/images/diagram.png"></div>
-<div><img src="src/main/resources/static/images/erd.png"></div>
+<h3>시스템 아키텍처</h5>
+<div align="center"><img src="src/main/resources/static/images/diagram.png" style="width: 400px"></div>
+<h3>DB ERD</h3>
+<div align="center"><img src="src/main/resources/static/images/erd.png" style="width: 400px"></div>
 <br>
-<h6></h6>  
+  
 <h2>주요 기능 구성</h2>
 
 <div>
@@ -33,8 +35,8 @@
         Store (CRUD) <br>
     </p>
 </div>
-<h6></h6> 
+ 
 <h2>리팩토링</h2>
-<h6></h6> 
+ 
 <h2>테스트</h2>
-<h6></h6> 
+ 
