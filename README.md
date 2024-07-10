@@ -3,7 +3,7 @@
 프로젝트 이름: Auto Message<br>
 프로젝트 진행 기간: 24.04.16 ~ 24.07.01<br>
 </p>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
 <h2>사용 언어 및 기술</h2>
 <div align="center">
 <p style="font-weight: bolder">사용 언어 및 프레임 워크</p>
@@ -18,12 +18,12 @@
     <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
 
 </div>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
 <h2>아키텍처</h2>
 <div><img src="src/main/resources/static/images/diagram.png"></div>
 <div><img src="src/main/resources/static/images/erd.png"></div>
 <br>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
 <h2>주요 기능 구성</h2>
 
 <div>
@@ -33,8 +33,8 @@
         Store (CRUD) <br>
     </p>
 </div>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
 <h2>리팩토링</h2>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
 <h2>테스트</h2>
-<hr>
+hr {border-width:1px 0px 0px 0px; border-style:solid; border-color:#808080; height:1px;} 
