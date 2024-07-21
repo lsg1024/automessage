@@ -33,9 +33,6 @@
     <p>
         Message Send (네이버 클라우드 sms 기능 사용) <br>
         네이버 클라우드에서 제공하는 SMS 송/수신 기능을 이용해 지정된 사용자에게 메시지를 전송하는 기능이다.
-        <ol>
-            <li></li>
-        </ol>
         Message Log <br>
         전송된 메시지 결과를 별도 DB에 저장해 전송 내역을 확인할 수 있는 기능이다.<br>
         Store (CRUD) <br>
