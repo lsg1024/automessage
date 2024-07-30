@@ -1,4 +1,4 @@
-package excel.automessage.domain;
+package excel.automessage.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

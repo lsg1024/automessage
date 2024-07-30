@@ -2,9 +2,9 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import excel.automessage.domain.MessageHistory;
-import excel.automessage.domain.MessageStorage;
-import excel.automessage.domain.Store;
+import excel.automessage.entity.MessageHistory;
+import excel.automessage.entity.MessageStorage;
+import excel.automessage.entity.Store;
 import excel.automessage.dto.message.*;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
@@ -172,6 +172,8 @@ public class MessageService {
 
         return response;
     }
+
+    // 메시지 로그 전체 조회
 
     // 미등록 가게 번호 검색
     private void searchProductPhone(MessageFormDTO messageFormDTO, ProductDTO product, Optional<Store> phoneNumber) {
