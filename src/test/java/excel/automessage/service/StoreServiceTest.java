@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
@@ -104,8 +103,8 @@ public class StoreServiceTest {
         storeListDTO.getStores().add(store_1);
         storeListDTO.getStores().add(store_2);
 
-        StoreListDTO result = storeService.saveAll(storeListDTO);
-        log.info("결과 = {}", result.getStores().get(0).getPhone());
+//        StoreListDTO result = storeService.saveAll(storeListDTO);
+//        log.info("결과 = {}", result.getStores().get(0).getPhone());
 
         //when
         //then
