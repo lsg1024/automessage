@@ -1,11 +1,10 @@
-package excel.automessage.time.auditing;
+package excel.automessage.entity.auditing;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @Getter
-@Slf4j
 public class BaseTimeEntity {
 
     private String createDate;
