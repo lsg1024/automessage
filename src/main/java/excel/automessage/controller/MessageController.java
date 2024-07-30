@@ -91,4 +91,15 @@ public class MessageController {
 
     }
 
+    // 메시지 로그 조회 폼
+//    @GetMapping("/message/log")
+//    public String messageLogPage(@ModelAttribute() ) {
+//        log.info("messageLogPage");
+//        return "messageForm/messageLogForm";
+//    }
+
+    // 메시지 로그 조회 -> 검색?
+//    @PostMapping("/message/log")
+//    public
+
 }
