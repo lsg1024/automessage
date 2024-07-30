@@ -1,6 +1,6 @@
-package excel.automessage.domain;
+package excel.automessage.entity;
 
-import excel.automessage.domain.auditing.BaseTimeEntity;
+import excel.automessage.entity.auditing.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
