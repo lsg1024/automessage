@@ -1,6 +1,6 @@
 package excel.automessage.service;
 
-import excel.automessage.domain.Store;
+import excel.automessage.entity.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.repository.StoreRepository;
@@ -32,30 +32,43 @@ public class StoreService {
 
         StoreListDTO result = new StoreListDTO();
 
-        for (StoreDTO storeDTO : storeListDTO.getStores()) {
+        for (StoreDTO saveStore : storeListDTO.getStores()) {
 
             Store store;
 
-            log.info("storeDto name {}, number {}", storeDTO.getName(), storeDTO.getPhone());
+            log.info("storeDto name {}, number {}", saveStore.getName(), saveStore.getPhone());
 
             //- 제거
-            storeDTO.setPhone(removeHyphens(storeDTO.getPhone()));
-            //번호 유효성 검사
-            validateStoreNumber(storeDTO);
+            saveStore.setPhone(removeHyphens(saveStore.getPhone()));
 
-            Optional<Store> existingStore = storeRepository.findByStoreName(storeDTO.getName());
+            log.info("saveStore.getPhone() = {}", saveStore.getPhone());
+
+            //번호 유효성 검사 - validation
+            validateStoreNumber(saveStore);
+
+            Optional<Store> existingStore = storeRepository.findByStoreName(saveStore.getName());
+
             if (existingStore.isPresent()) {
                 // Store가 이미 존재하는 경우 업데이트
                 store = existingStore.get();
-                store.setStorePhoneNumber(storeDTO.getPhone());
+                store.setStorePhoneNumber(saveStore.getPhone());
                 storeRepository.save(store);
             } else {
                 // Store가 존재하지 않는 경우 새로 저장
-                store = storeDTO.toEntity();
+                store = Store.builder()
+                        .storeName(saveStore.getName())
+                        .storePhoneNumber(saveStore.getPhone())
+                        .build();
+
                 storeRepository.save(store);
             }
 
-            StoreDTO savedStoreDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
+            StoreDTO savedStoreDTO = StoreDTO.builder()
+                    .id(store.getStoreId())
+                    .name(store.getStoreName())
+                    .phone(store.getStorePhoneNumber())
+                    .build();
+
             result.getStores().add(savedStoreDTO);
         }
 
@@ -115,13 +128,13 @@ public class StoreService {
 
 
     //번호 유효성 검사
-    private void validateStoreNumber(StoreDTO storeDTO) {
-        log.info("validateStoreNumber {}", storeDTO.getPhone());
+    private void validateStoreNumber(StoreDTO saveStore) {
+        log.info("validateStoreNumber {}", saveStore.getPhone());
 
-        if (storeDTO.getPhone() == null) {
+        if (saveStore.getPhone() == null) {
             return;
         }
-        if (!storeDTO.getPhone().matches("\\d{10,11}")) {
+        if (!saveStore.getPhone().matches("\\d{10,11}")) {
             throw new IllegalStateException("올바른 번호를 입력해주세요.");
         }
     }

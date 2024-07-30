@@ -1,6 +1,6 @@
 package excel.automessage.controller;
 
-import excel.automessage.domain.Store;
+import excel.automessage.entity.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.service.StoreService;
@@ -8,9 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,9 +55,9 @@ public class StoreController {
 
     // 가게 신규 등록 (직접 입력)
     @PostMapping("/new/store")
-    public String newStore(@ModelAttribute StoreListDTO storeListDTO) {
+    public String newStore(@Validated @ModelAttribute StoreListDTO storeListDTO, BindingResult bindingResult) {
         log.info("newStore (직접입력) Controller");
-        StoreListDTO result = storeService.saveAll(storeListDTO);
+        storeService.saveAll(storeListDTO);
         return "redirect:/new/store";
     }
 
@@ -84,7 +85,7 @@ public class StoreController {
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
-        StoreListDTO result = storeService.saveAll(storeListDTO);
+        storeService.saveAll(storeListDTO);
 
         model.addAttribute("storeList", storeListDTO);
         model.addAttribute("success", "저장 완료");
