@@ -1,6 +1,7 @@
 package excel.automessage.dto.store;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -12,11 +13,27 @@ public class StoreDTO {
 
     Long id;
 
-    @NotBlank(message = "사용자 이름을 입력해주세요.")
+    @NotBlank(message = "이름 입력")
     String name;
 
-    @Pattern(regexp = "^01(?:0|1|[0-1])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$", message = "10 ~ 11 자리의 숫자만 입력 가능합니다.")
+    @Pattern(regexp = "^01[01]-?\\d{4}-?\\d{4}$", message = "잘못된 번호")
     String phone;
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public static class Update {
+
+        @NotNull(message = "가게 정보를 찾을 수 없습니다")
+        Long id;
+
+        @NotBlank(message = "이름 입력 필수")
+        String name;
+
+        @NotBlank(message = "잘못된 입력")
+        @Pattern(regexp = "^(010\\d{8})?$", message = "")
+        String phone;
+
+    }
 
 }
 
