@@ -103,14 +103,11 @@ public class StoreServiceTest {
         storeListDTO.getStores().add(store_1);
         storeListDTO.getStores().add(store_2);
 
-//        StoreListDTO result = storeService.saveAll(storeListDTO);
-//        log.info("결과 = {}", result.getStores().get(0).getPhone());
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            storeService.saveAll(storeListDTO);
+        });
 
-        //when
-        //then
-//        assertThrows(IllegalStateException.class, () -> {
-//            storeService.saveAll(storeListDTO);
-//        }, );
+        assertEquals("올바른 번호를 입력해주세요.", exception.getMessage());
 
     }
 
