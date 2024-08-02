@@ -4,6 +4,7 @@ import excel.automessage.entity.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.service.StoreService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -48,16 +49,32 @@ public class StoreController {
     }
 
     @GetMapping("/new/store")
-    public String newStore() {
+    public String newStore(Model model) {
         log.info("newStore controller");
+        StoreListDTO storeListDTO = new StoreListDTO();
+        storeListDTO.getStores().add(new StoreDTO());
+        model.addAttribute("storeFormData", storeListDTO);
         return "storeForm/storeInput";
     }
 
     // 가게 신규 등록 (직접 입력)
     @PostMapping("/new/store")
-    public String newStore(@Validated @ModelAttribute StoreListDTO storeListDTO, BindingResult bindingResult) {
-        log.info("newStore (직접입력) Controller");
-        storeService.saveAll(storeListDTO);
+    public String newStore(@Validated @ModelAttribute("storeFormData") StoreListDTO storeListDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes, HttpServletResponse response) {
+
+        if (bindingResult.hasErrors()) {
+            log.error("bindingResult 에러");
+            response.setStatus(400);
+            return "storeForm/storeInput";
+        }
+        try {
+            storeService.saveAll(storeListDTO);
+        } catch (IllegalStateException e) {
+            log.info("IllegalStateException 에러");
+            response.setStatus(500);
+            bindingResult.reject("storeSaveError", e.getMessage());
+            return "storeForm/storeInput";
+        }
+        redirectAttributes.addFlashAttribute("message", "저장되었습니다.");
         return "redirect:/new/store";
     }
 
@@ -85,6 +102,7 @@ public class StoreController {
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
+        log.info("newStores storeListDTO = {}", storeListDTO.getStores().get(0).getName());
         storeService.saveAll(storeListDTO);
 
         model.addAttribute("storeList", storeListDTO);
@@ -154,25 +172,31 @@ public class StoreController {
     }
 
 
-    // 가게 목록/가게 수정 이동
+    // 가게 목록 -> 가게 수정 이동
     @GetMapping("/stores/{id}")
-    public String editStore(@PathVariable Long id, Model model) {
+    public String editStore(@PathVariable("id") Long id, Model model) {
         log.info("editStore");
 
         Store store = storeService.findById(id);
 
-        StoreDTO storeDTO = new StoreDTO(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
+        StoreDTO.Update storeDTO = new StoreDTO.Update(store.getStoreId(), store.getStoreName(), store.getStorePhoneNumber());
         model.addAttribute("storeDTO", storeDTO);
         return "storeForm/storeUpdate";
     }
 
     // 가게 목록/가게 수정
     @PostMapping("/stores/{id}")
-    public String updateStoreName(@RequestParam Long storeId, @ModelAttribute StoreDTO storeDTO, RedirectAttributes redirectAttributes) {
+    public String updateStoreName(@RequestParam("id") Long id, @Validated @ModelAttribute("storeDTO") StoreDTO.Update storeDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes, HttpServletResponse response) {
         log.info("updateStoreName");
-        log.info("storeId = {}", storeId);
+        log.info("storeId = {}", id);
 
-        storeService.updateStore(storeId, storeDTO);
+        if (bindingResult.hasErrors()) {
+            log.error("bindingResult 에러");
+            response.setStatus(400);
+            return "storeForm/storeUpdate";
+        }
+
+        storeService.updateStore(id, storeDTO);
         redirectAttributes.addFlashAttribute("success", "수정 완료");
         return "redirect:/stores";
     }

@@ -1,8 +1,8 @@
 package excel.automessage.service;
 
-import excel.automessage.entity.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
+import excel.automessage.entity.Store;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final Validator validator;
 
     // 데이터 저장
     @Transactional
@@ -44,7 +46,7 @@ public class StoreService {
             log.info("saveStore.getPhone() = {}", saveStore.getPhone());
 
             //번호 유효성 검사 - validation
-            validateStoreNumber(saveStore);
+//            validateStoreNumber(saveStore);
 
             Optional<Store> existingStore = storeRepository.findByStoreName(saveStore.getName());
 
@@ -87,7 +89,7 @@ public class StoreService {
 
     // 가게 정보 업데이트
     @Transactional
-    public void updateStore(Long storeId, StoreDTO storeDTO) {
+    public void updateStore(Long storeId, StoreDTO.Update storeDTO) {
 
         log.info("store.getId() = {} store.getPhone() = {}", storeDTO.getId(), storeDTO.getPhone());
 

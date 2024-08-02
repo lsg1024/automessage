@@ -10,21 +10,33 @@
     <div class="jumbotron3">
         <div>
             <div style="display: flex; flex-direction: column;">
-                <form id="storeForm">
+                <form id="storeForm" th:action="@{/new/store}" th:object="${storeFormData}" method="post">
                     <table class="table" id="storeTable">
                         <thead>
-                        <tr>
-                            <th>번호</th>
-                            <th>가게 이름</th>
-                            <th>전화번호</th>
-                        </tr>
+                            <tr>
+                                <th>번호</th>
+                                <th>가게 이름</th>
+                                <th>전화번호</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><input type="text" name="stores[0].name" /></td>
-                            <td><input type="number" name="stores[0].phone" placeholder="-없이 번호"/></td>
-                        </tr>
+                            <tr th:each="store, iter : ${storeFormData.stores}">
+                                <td th:text="${iter.index + 1}"></td>
+                                <!-- 이름 필드 -->
+                                <td>
+                                    <input type="text"
+                                           th:field="*{stores[__${iter.index}__].name}"
+                                           th:errorclass="field-error" class="form-control"
+                                           th:placeholder="${#fields.hasErrors('stores[' + iter.index + '].name') ? #fields.errors('stores[' + iter.index + '].name')[0] : '가게 이름'}"/>
+                                </td>
+                                <!-- 전화번호 필드 -->
+                                <td>
+                                    <input type="number"
+                                           th:field="*{stores[__${iter.index}__].phone}"
+                                           th:errorclass="field-error" class="form-control"
+                                           th:placeholder="${#fields.hasErrors('stores[' + iter.index + '].phone') ? #fields.errors('stores[' + iter.index + '].phone')[0] : '전화 번호'}"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -39,7 +51,7 @@
                         </div>
 
                         <div style="margin-left: 20px">
-                            <button type="button" id="submitButton" class="button">
+                            <button type="submit" id="submitButton" class="button">
                                 <p class="btnText">저장하기</p>
                                 <div class="btnTwo">
                                     <p class="btnText2">등록</p>
@@ -47,7 +59,6 @@
                             </button>
                         </div>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -60,73 +71,29 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
-        let rowIndex = 1;
+        let index = $('#storeTable tbody tr').length; // 기존 행의 수를 가져옵니다.
 
         $('#addRowButton').click(function() {
-            let valid = true;
-            $('#storeTable tbody tr').each(function() {
-                let name = $(this).find('input[name^="stores"][name$=".name"]').val().trim();
-                let phone = $(this).find('input[name^="stores"][name$=".phone"]').val().trim();
-
-                if (!name || !phone) {
-                    valid = false;
-                }
-            });
-
-            if (!valid) {
-                alert('비어 있는 값이 있습니다.');
-                return;
-            }
-
-            rowIndex++;
-            $('#storeTable tbody').append(
-                '<tr>' +
-                '<td>' + rowIndex + '</td>' +
-                '<td><input type="text" name="stores[' + (rowIndex - 1) + '].name" /></td>' +
-                '<td><input type="number" name="stores[' + (rowIndex - 1) + '].phone" placeholder="-없이 번호"/></td>' +
-                '</tr>'
-            );
-        });
-
-        $('#submitButton').click(function() {
-            let valid = true;
-            $('#storeTable tbody tr').each(function() {
-                let name = $(this).find('input[name^="stores"][name$=".name"]').val().trim();
-                let phone = $(this).find('input[name^="stores"][name$=".phone"]').val().trim();
-
-                if (!name || !phone) {
-                    valid = false;
-                }
-            });
-
-            if (!valid) {
-                alert('비어 있는 값이 있습니다.');
-                return;
-            }
-
-            let form = document.getElementById('storeForm');
-            let formData = new FormData(form);
-
-            $('#loading').show(); // 로딩 이미지 표시
-
-            $.ajax({
-                type: 'POST',
-                url: '/new/store',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    alert('저장되었습니다.');
-                    console.log(response);
-                },
-                error: function(xhr, status, error) {
-                    alert('저장에 실패했습니다.');
-                    console.log(xhr.responseText);
-                },
-                complete: function() {
-                    $('#loading').hide(); // 요청 완료 후 로딩 이미지 숨기기
-                }
-            });
+            let newRow = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <!-- 이름 필드 -->
+                    <td>
+                        <input type="text"
+                               name="stores[${index}].name"
+                               placeholder="가게 이름"
+                               class="form-control"/>
+                    </td>
+                    <!-- 전화번호 필드 -->
+                    <td>
+                        <input type="number"
+                               name="stores[${index}].phone"
+                               placeholder="-없이 번호"
+                               class="form-control"/>
+                    </td>
+                </tr>`;
+            $('#storeTable tbody').append(newRow);
+            index++;
         });
     });
 </script>

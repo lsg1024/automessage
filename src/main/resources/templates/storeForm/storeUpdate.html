@@ -14,14 +14,24 @@
 
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20%;">
       <form th:action="@{/stores/{id}(id=${storeDTO.id})}" th:object="${storeDTO}" method="post">
-        <input type="hidden" name="storeId" th:value="${storeDTO.id}">
-        <div style="display: flex; margin: 10px; flex-direction: row; flex-wrap: nowrap; justify-content: center;">
-          <label for="name">가게 이름</label>
-          <input type="text" id="name" name="name" th:value="${storeDTO.name}" style="margin-left: 10px">
+        <input type="hidden" th:field="*{id}">
+        <div>
+          <div class="update-div">
+            <label for="name">가게 이름</label>
+            <input class="update-input form-control" type="text" id="name" name="name"
+                   th:field="*{name}"
+                   th:placeholder="${#fields.hasErrors('name') ? #fields.errors('name')[0] : '이름 입력'}"
+                   th:errorclass="field-error">
+          </div>
         </div>
-        <div style="display: flex; flex-direction: row; justify-content: center; flex-wrap: nowrap; margin: 10px">
-          <label for="phone">전화번호</label>
-          <input type="text" id="phone" name="phone" th:value="${storeDTO.phone}" style="margin-left: 10px">
+        <div>
+          <div class="update-div">
+            <label for="phone">전화번호</label>
+            <input class="update-input form-control" type="number" id="phone" name="phone"
+                   th:fields="*{phone}"
+                   th:placeholder="${#fields.hasErrors('phone') ? #fields.errors('phone')[0] : '번호 입력 - 제외'}"
+                   th:errorclass="field-error">
+          </div>
         </div>
 
         <div style="display: flex; justify-content: center; margin-top: 10%;">
@@ -48,7 +58,6 @@
       </div>
     </div>
 
-  </div>
 </div>
 
 </body>
