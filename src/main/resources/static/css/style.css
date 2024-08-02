@@ -354,3 +354,23 @@ table td.storeList_td {
     border-top: 1px solid #dee2e6;
     vertical-align: middle;
 }
+
+
+.field-error {
+     border-color: red;
+     color: red;
+}
+
+.update-input {
+    margin-left: 10px;
+    width: 60%;
+}
+
+.update-div {
+    display: flex;
+    margin: 10px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: flex-end;
+}

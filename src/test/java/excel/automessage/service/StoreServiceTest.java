@@ -83,36 +83,33 @@ public class StoreServiceTest {
 
     }
 
-    @Transactional
-    @DisplayName(("가게 등록 실패(직접등록)"))
-    @Test
-    void createFailStore() {
-        //given
-        StoreListDTO storeListDTO = new StoreListDTO();
-
-        StoreDTO store_1 = StoreDTO.builder()
-                .name("홍길동")
-                .phone("010/1234/5667")
-                .build();
-
-        StoreDTO store_2 = StoreDTO.builder()
-                .name("김모이")
-                .phone("010 9876 5432")
-                .build();
-
-        storeListDTO.getStores().add(store_1);
-        storeListDTO.getStores().add(store_2);
-
-//        StoreListDTO result = storeService.saveAll(storeListDTO);
-//        log.info("결과 = {}", result.getStores().get(0).getPhone());
-
-        //when
-        //then
-//        assertThrows(IllegalStateException.class, () -> {
+//    @Transactional
+//    @DisplayName(("가게 등록 실패(직접등록)"))
+//    @Test
+//    void createFailStore() {
+//        //given
+//        StoreListDTO storeListDTO = new StoreListDTO();
+//
+//        StoreDTO store_1 = StoreDTO.builder()
+//                .name("홍길동")
+//                .phone("010/1234/5667")
+//                .build();
+//
+//        StoreDTO store_2 = StoreDTO.builder()
+//                .name("김모이")
+//                .phone("010 9876 5432")
+//                .build();
+//
+//        storeListDTO.getStores().add(store_1);
+//        storeListDTO.getStores().add(store_2);
+//
+//        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
 //            storeService.saveAll(storeListDTO);
-//        }, );
-
-    }
+//        });
+//
+//        assertEquals("올바른 번호를 입력해주세요.", exception.getMessage());
+//
+//    }
 
     // 가게 등록 (엑셀 등록) 성공, 실패
 
