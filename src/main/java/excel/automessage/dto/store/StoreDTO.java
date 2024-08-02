@@ -16,7 +16,7 @@ public class StoreDTO {
     @NotBlank(message = "이름 입력")
     String name;
 
-    @Pattern(regexp = "^01[01]\\d{8}$", message = "잘못된 번호")
+    @Pattern(regexp = "^01[01]-?\\d{4}-?\\d{4}$", message = "잘못된 번호")
     String phone;
 
     @Getter @Setter
