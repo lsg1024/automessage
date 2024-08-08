@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/header :: header}">
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+        <div class="jumbotron">
+            <div style="display: flex; flex-direction: column;">
+                <h1 style="display: flex">Login Page</h1>
+                <div>
+                    <form th:action="@{/login}" method="post">
+                        <div style="display: flex">
+                            <div>
+                                <label for="memberId">ID:</label>
+                                <input type="text" id="memberId" name="memberId"/>
+                            </div>
+                            <div>
+                                <label for="memberPassword">Password:</label>
+                                <input type="password" id="memberPassword" name="memberPassword"/>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="remember" name="remember"/>
+                            <label for="remember">간편 로그인 저장</label>
+                        </div>
+                        <div>
+                            <button type="submit">로그인</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+</div>
+</body>
+</html>
