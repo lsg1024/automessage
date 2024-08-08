@@ -21,10 +21,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/automessage/**").authenticated()
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
 
         http.exceptionHandling((except) -> except
                 .accessDeniedPage("/login"));
@@ -36,9 +35,7 @@ public class SecurityConfig {
 
         http.rememberMe((remember) -> remember
                 .rememberMeParameter("remember")
-                .tokenValiditySeconds(84000 * 2)
-                );
-
+                .tokenValiditySeconds(84000 * 2));
 
         return http.build();
     }

@@ -23,15 +23,28 @@ public class MembersController {
 
     @GetMapping("/login")
     public String loginPage(Model model) {
-        log.info("로그인 페이지 접속");
+        log.info("login Page Controller");
         model.addAttribute("loginForm", new MembersDTO());
         return "membersForm/loginPage";
     }
 
     @PostMapping("/login")
     public String login(@Validated @ModelAttribute("loginForm") MembersDTO membersDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        log.info("로그인 시도");
+        log.info("login Controller Controller");
 
+        return null;
+    }
+
+    @GetMapping("/signup")
+    public String signupPage(Model model) {
+        log.info("signup Page Controller");
+        model.addAttribute("signupForm", new MembersDTO());
+        return "membersForm/signupPage";
+    }
+
+    @PostMapping("/signup")
+    public String signup(@Validated @ModelAttribute("signupForm") MembersDTO membersDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        log.info("signup Controller");
         return null;
     }
 
