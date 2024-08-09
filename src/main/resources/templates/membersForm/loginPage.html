@@ -11,10 +11,14 @@
                     <form th:action="@{/login}" th:object="${loginForm}" method="post">
                         <div class="login-div">
                             <div>
-                                <input class="login-input" type="text" th:object="${loginForm.memberId}" placeholder="아이디"/>
+                                <input class="login-input" type="text"
+                                       th:field="*{memberId}"
+                                       placeholder="아이디"/>
                             </div>
                             <div>
-                                <input class="login-input" type="password" th:object="${loginForm.memberPassword}" placeholder="비밀번호"/>
+                                <input class="login-input" type="password"
+                                       th:field="*{memberPassword}"
+                                       placeholder="비밀번호"/>
                             </div>
 
                             <div class="login-remember-div">
