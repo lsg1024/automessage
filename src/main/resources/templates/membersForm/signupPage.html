@@ -4,6 +4,7 @@
 <body>
 
 <div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
   <div class="jumbotron">
     <div style="display: flex; flex-direction: column;">
       <h1 class="flex-normal">회원 가입</h1>
@@ -12,12 +13,17 @@
 
           <div class="login-div">
             <div>
-              <input class="login-input" type="text" th:object="${signupForm.memberId}" placeholder="아이디"/>
+              <input class="login-input" type="text"
+                     th:field="*{memberId}"
+                     th:placeholder="${#fields.hasErrors('memberId') ? #fields.errors('memberId')[0] : '아이디 입력'}"
+                     th:errorclass="field-error"/>
             </div>
             <div>
-              <input class="login-input" type="password" th:object="${signupForm.memberPassword}" placeholder="비밀번호"/>
+              <input class="login-input" type="password"
+                     th:field="*{memberPassword}"
+                     th:placeholder="${#fields.hasErrors('memberPassword') ? #fields.errors('memberPassword')[0] : '비밀번호 입력'}"
+                     th:errorclass="field-error"/>
             </div>
-
           </div>
 
           <div style="display: flex; flex-direction: column; align-items: center;">

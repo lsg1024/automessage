@@ -13,6 +13,8 @@ public class Members  {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
+
+    @Column(unique = true)
     private String memberId;
     private String memberPassword;
     @Enumerated(EnumType.STRING)
