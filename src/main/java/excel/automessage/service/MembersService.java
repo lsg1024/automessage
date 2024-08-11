@@ -4,7 +4,6 @@ import excel.automessage.dto.members.MembersDTO;
 import excel.automessage.entity.Members;
 import excel.automessage.entity.Role;
 import excel.automessage.repository.MembersRepository;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,7 +26,7 @@ public class MembersService {
         Members members = Members.builder()
                 .memberId(membersDTO.getMemberId())
                 .memberPassword(encoder.encode(membersDTO.getMemberPassword()))
-                .role(Role.USER)
+                .role(Role.WAIT)
                 .build();
 
         membersRepository.save(members);

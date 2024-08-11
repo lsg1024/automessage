@@ -2,6 +2,7 @@ package excel.automessage.config;
 
 import excel.automessage.config.handler.CustomLoginSuccessHandler;
 import excel.automessage.config.handler.CustomLogoutSuccessHandler;
+import excel.automessage.service.CustomRememberService;
 import excel.automessage.service.RedisTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -23,12 +25,14 @@ public class SecurityConfig {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/").hasRole("WAIT")
                         .requestMatchers("/automessage/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated());
 
@@ -53,7 +57,8 @@ public class SecurityConfig {
         http.rememberMe((remember) -> remember
                 .rememberMeParameter("remember")
                 .tokenValiditySeconds(3 * 24 * 60 * 60) // 3일 동안 유효한 쿠키
-                .tokenRepository(persistentTokenRepository()));
+                .tokenRepository(persistentTokenRepository())
+                .rememberMeServices(customRememberService()));
 
         return http.build();
     }
@@ -66,7 +71,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    BCryptPasswordEncoder passwordEncoder() {
+    public CustomRememberService customRememberService() {
+        return new CustomRememberService("mySecretKey", userDetailsService, persistentTokenRepository());
+    }
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
