@@ -2,7 +2,7 @@ package excel.automessage.config;
 
 import excel.automessage.config.handler.CustomLoginSuccessHandler;
 import excel.automessage.config.handler.CustomLogoutSuccessHandler;
-import excel.automessage.service.CustomRememberService;
+import excel.automessage.service.CustomMemberDetailService;
 import excel.automessage.service.RedisTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class SecurityConfig {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
-    private final UserDetailsService userDetailsService;
+    private final CustomMemberDetailService customMemberDetailService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .rememberMeParameter("remember")
                 .tokenValiditySeconds(3 * 24 * 60 * 60) // 3일 동안 유효한 쿠키
                 .tokenRepository(persistentTokenRepository())
-                .rememberMeServices(customRememberService()));
+                .userDetailsService(customMemberDetailService));
 
         return http.build();
     }
@@ -70,10 +70,6 @@ public class SecurityConfig {
         return new RedisTokenService(redisTemplate);
     }
 
-    @Bean
-    public CustomRememberService customRememberService() {
-        return new CustomRememberService("mySecretKey", userDetailsService, persistentTokenRepository());
-    }
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
