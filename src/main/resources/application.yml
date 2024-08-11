@@ -24,10 +24,11 @@ spring:
         #        use_sql_comments: true
         default_batch_fetch_size: 10
         dialect: org.hibernate.dialect.MariaDBDialect
+
   data:
     redis:
       host: ${REDIS_URL}
-      port: ${REDIS_POST}
+      port: ${REDIS_PORT}
 
 
   h2:
