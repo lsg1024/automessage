@@ -1,5 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<div class="header" th:fragment="bodyHeader">
-  <a href="/"><h4 class="text-muted">홈</h4></a>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div class="header" th:fragment="bodyHeader" style="display: flex; flex-direction: row; justify-content: space-between;">
+  <a href="/automessage"><h4 class="text-muted">홈</h4></a>
+  <div sec:authorize="isAuthenticated()">
+    <form th:action="@{/logout}" method="post">
+      <button type="submit">로그아웃</button>
+    </form>
+  </div>
+
 </div>
+
