@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+        <div class="jumbotron">
+            <div style="display: flex; flex-direction: column;">
+                <h1 class="flex-normal">로그인</h1>
+                <div>
+                    <form th:action="@{/login}" th:object="${loginForm}" method="post">
+                        <div class="login-div">
+                            <div>
+                                <input class="login-input" type="text"
+                                       th:field="*{memberId}"
+                                       placeholder="아이디"/>
+                            </div>
+                            <div>
+                                <input class="login-input" type="password"
+                                       th:field="*{memberPassword}"
+                                       placeholder="비밀번호"/>
+                            </div>
+
+                            <div class="login-remember-div">
+                                <input class="login-remember-input" type="checkbox" id="remember" name="remember"/>
+                                <label for="remember" style="height: 20px">간편 로그인 저장</label>
+                            </div>
+                        </div>
+
+                        <div class="flex-normal" style="margin-top: 15px">
+                            <div>
+                                <button type="submit" class="button" style="width: 310px; background: black;">
+                                    <p class="btnText">로그인</p>
+                                    <div class="btnTwo">
+                                        <p class="btnText2">확인</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form th:action="@{/signup}" method="get">
+                        <div class="login-div" style="margin-top: 10px">
+                            <button type="submit" class="button" style="width: 310px; background: black;">
+                                <p class="btnText">회원가입</p>
+                                <div class="btnTwo">
+                                    <p class="btnText2">확인</p>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+</div>
+</body>
+</html>

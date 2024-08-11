@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.util.Optional;
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final Validator validator;
 
     // 데이터 저장
     @Transactional
@@ -126,19 +124,6 @@ public class StoreService {
         workbook.close();
 
         return storeListDTO;
-    }
-
-
-    //번호 유효성 검사
-    private void validateStoreNumber(StoreDTO saveStore) {
-        log.info("validateStoreNumber {}", saveStore.getPhone());
-
-        if (saveStore.getPhone() == null) {
-            return;
-        }
-        if (!saveStore.getPhone().matches("\\d{10,11}")) {
-            throw new IllegalStateException("올바른 번호를 입력해주세요.");
-        }
     }
 
     //하이픈 제거

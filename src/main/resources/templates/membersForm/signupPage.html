@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+<body>
+
+<div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+  <div class="jumbotron">
+    <div style="display: flex; flex-direction: column;">
+      <h1 class="flex-normal">회원 가입</h1>
+      <div>
+        <form th:action="@{/signup}" th:object="${signupForm}" method="post">
+
+          <div class="login-div">
+            <div>
+              <input class="login-input" type="text"
+                     th:field="*{memberId}"
+                     th:placeholder="${#fields.hasErrors('memberId') ? #fields.errors('memberId')[0] : '아이디 입력'}"
+                     th:errorclass="field-error"/>
+            </div>
+            <div>
+              <input class="login-input" type="password"
+                     th:field="*{memberPassword}"
+                     th:placeholder="${#fields.hasErrors('memberPassword') ? #fields.errors('memberPassword')[0] : '비밀번호 입력'}"
+                     th:errorclass="field-error"/>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="flex-normal" style="margin-top: 15px">
+              <div>
+                <button type="submit" id="signupBtn" class="button" style="width: 310px; background: black;">
+                  <p class="btnText">회원가입</p>
+                  <div class="btnTwo">
+                    <p class="btnText2">확인</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
