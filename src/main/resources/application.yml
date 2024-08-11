@@ -28,7 +28,7 @@ spring:
   data:
     redis:
       host: ${REDIS_URL}
-      port: ${REDIS_POST}
+      port: ${REDIS_PORT}
 
 
   h2:
