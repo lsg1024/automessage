@@ -1,8 +1,8 @@
 package excel.automessage.controller;
 
-import excel.automessage.entity.Store;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
+import excel.automessage.entity.Store;
 import excel.automessage.service.StoreService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,16 +14,17 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 @Controller
+@RequestMapping("/automessage")
 @RequiredArgsConstructor
 @Slf4j
 @SessionAttributes({"smsForm", "smsPhone"})
@@ -31,15 +32,15 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @ModelAttribute("smsForm")
-    public Map<String, List<String>> initSmsForm() {
-        return new HashMap<>();
-    }
-
-    @ModelAttribute("smsPhone")
-    public Map<String, String> initSmsPhone() {
-        return new HashMap<>();
-    }
+//    @ModelAttribute("smsForm")
+//    public Map<String, List<String>> initSmsForm() {
+//        return new HashMap<>();
+//    }
+//
+//    @ModelAttribute("smsPhone")
+//    public Map<String, String> initSmsPhone() {
+//        return new HashMap<>();
+//    }
 
     // 새로운 상점 url
     @GetMapping("/new")
@@ -75,10 +76,10 @@ public class StoreController {
             return "storeForm/storeInput";
         }
         redirectAttributes.addFlashAttribute("message", "저장되었습니다.");
-        return "redirect:/new/store";
+        return "redirect:/automessage/new/store";
     }
 
-    // 새로운 상점 (엑셀 입력)
+    // 새로운 상점 (엑셀)
     @GetMapping("/new/stores")
     public String excelStore() {
         log.info("excelStore controller");
@@ -92,13 +93,13 @@ public class StoreController {
 
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "파일을 선택해주세요.");
-            return "redirect:store/excelStore";
+            return "redirect:/automessage/new/stores";
         }
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         if (extension == null || (!extension.equalsIgnoreCase("xlsx") && !extension.equalsIgnoreCase("xls"))) {
             redirectAttributes.addFlashAttribute("message", "엑셀 파일만 업로드 가능합니다.");
-            return "redirect:store/excelStore";
+            return "redirect:/automessage/new/stores";
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
@@ -113,17 +114,23 @@ public class StoreController {
 
     // 등록되지 않은 가게 폼
     @GetMapping("/store/miss")
-    public String missingStore() {
+    public String missingStore(@ModelAttribute("missingStores") List<String> missingStores,
+                               @ModelAttribute("smsForm") Map<String, List<String>> smsForm,
+                               @ModelAttribute("smsPhone") Map<String, String> smsPhone,
+                               Model model) {
         log.info("missingStore Controller");
+        model.addAttribute("missingStores", missingStores);
+        model.addAttribute("smsForm", smsForm);
+        model.addAttribute("smsPhone", smsPhone);
         return "storeForm/missingStore";
     }
 
     // 등록되지 않는 가게
     @PostMapping("/store/miss")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
-                                   @SessionAttribute("smsForm") Map<String, List<String>> smsForm,
-                                   @SessionAttribute("smsPhone") Map<String, String> smsPhone,
-                                   RedirectAttributes redirectAttributes, SessionStatus sessionStatus) {
+                                   @ModelAttribute("smsForm") Map<String, List<String>> smsForm,
+                                   @ModelAttribute("smsPhone") Map<String, String> smsPhone,
+                                   RedirectAttributes redirectAttributes) {
 
         log.info("saveMissingStore StoreListDTO = {}", storeListDTO.getStores().size());
 
@@ -141,8 +148,7 @@ public class StoreController {
         redirectAttributes.addFlashAttribute("smsForm", smsForm);
         redirectAttributes.addFlashAttribute("smsPhone", smsPhone);
 
-        sessionStatus.setComplete(); // 세션 종료
-        return "redirect:/message/content";
+        return "redirect:/automessage/message/content";
     }
 
     // 가게 목록
@@ -198,15 +204,24 @@ public class StoreController {
 
         storeService.updateStore(id, storeDTO);
         redirectAttributes.addFlashAttribute("success", "수정 완료");
-        return "redirect:/stores";
+        return "redirect:/automessage/stores";
     }
 
     // 가게 목록/가게 삭제
-    @DeleteMapping("stores/{id}")
-    @ResponseBody
-    public void deleteStore(@PathVariable Long id) {
+    @PostMapping("/store/{id}")
+    public String deleteStore(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "category", defaultValue = "all") String category,
+            @RequestParam(value = "query", defaultValue = "") String query,
+            RedirectAttributes redirectAttributes) {
+
         storeService.deleteStore(id);
+        redirectAttributes.addFlashAttribute("message", "삭제 성공");
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        // 현재 쿼리 파라미터를 포함하여 리다이렉트
+        return "redirect:/automessage/stores?category=" + category + "&query=" + encodedQuery;
     }
+
 
 
 }
