@@ -96,6 +96,10 @@ public class MessageService {
         List<MessageResponseDTO> responses = new ArrayList<>();
         List<MessageHistory> messageHistories = new ArrayList<>();
 
+        log.info("messageSend Service");
+
+        log.info(messageDTOList.get(0).getTo());
+
         for (int i = 0; i < messageDTOList.size(); i++) {
             MessageDTO messageDTO = messageDTOList.get(i);
             if (!isNumber(messageDTO.getTo())) {
