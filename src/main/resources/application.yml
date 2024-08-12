@@ -1,4 +1,5 @@
 spring:
+
   application:
     name: automessage
   profiles:
@@ -27,6 +28,12 @@ spring:
     redis:
       host: ${REDIS_URL}
       port: ${REDIS_PORT}
+
+#  data:
+#    redis:
+#      host: ${REDIS_URL}
+#      port: ${REDIS_PORT}
+
 
   h2:
     console:

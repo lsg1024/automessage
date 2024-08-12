@@ -10,7 +10,7 @@
     <div>
       <div style="display: flex; flex-direction: column;">
         <h3>등록 되지 않은 가게 목록</h3>
-        <form id="storeInputForm" action="/store/miss" method="post">
+        <form th:object="${missingStores}" th:action="@{/automessage/store/miss}" method="post">
           <table class="table" id="missingStoreTable">
             <thead>
             <tr>
@@ -22,8 +22,12 @@
             <tbody>
             <tr th:each="store, iterStat : ${missingStores}">
               <td th:text="${iterStat.count}"></td>
-              <td><input type="text" th:name="'stores[' + (${iterStat.index}) + '].name'" th:value="${store}" /></td>
-              <td><input type="number" th:name="'stores[' + (${iterStat.index}) + '].phone'" placeholder="-없이 번호"/></td>
+              <td><input type="text"
+                         th:name="'stores[' + (${iterStat.index}) + '].name'"
+                         th:value="${store}"/></td>
+              <td><input type="number"
+                         th:name="'stores[' + (${iterStat.index}) + '].phone'"
+                         placeholder="-없이 번호"/></td>
             </tr>
             </tbody>
           </table>
