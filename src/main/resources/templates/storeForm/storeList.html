@@ -9,7 +9,7 @@
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
     <div style="display: flex; flex-direction: row-reverse;">
-        <form class="search-box" method="get" action="/stores" style="display: flex">
+        <form class="search-box" method="get" action="/automessage/stores" style="display: flex">
             <div class="dropdown">
                 <button class="dropbtn" type="button" onclick="toggleDropdown()">
                     <span id="selectedCategory" class="dropbtn_content"
@@ -44,8 +44,16 @@
                 <td class="storeList_td" th:text="${store.storeName}"></td>
                 <td class="storeList_td" th:text="${store.storePhoneNumber}"></td>
                 <td>
-                    <button class="btn btn-primary" th:onclick="'location.href=\''+ @{/stores/{id}(id=${store.storeId})} + '\''">수정</button>
-                    <button class="btn btn-danger" th:onclick="deleteStore([[${store.storeId}]])">삭제</button>
+                    <button class="btn btn-primary" th:onclick="'location.href=\''+ @{/automessage/stores/{id}(id=${store.storeId})} + '\''">수정</button>
+                    <form th:action="@{/automessage/store/{id}(id=${store.storeId})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_method" value="delete"/> <!-- hidden input to simulate DELETE method -->
+                        <input type="hidden" name="category" th:value="${param.category}">
+                        <input type="hidden" name="query" th:value="${param.query}">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('정말로 삭제하시겠습니까?')">
+                            삭제
+                        </button>
+                    </form>
                 </td>
             </tr>
             </tbody>
@@ -85,23 +93,10 @@
         toggleDropdown();
     }
 
-    function deleteStore(id) {
-        if (confirm('정말로 삭제하시겠습니까?')) {
-            fetch(`/stores/${id}`, {
-                method: 'delete'
-            }).then(() => {
-                location.reload();
-            }).catch((error) => {
-                console.error('Error:', error);
-            });
-        }
-    }
-
-
     function navigateToPage(page) {
         const query = document.querySelector('.search-input').value;
         const category = document.getElementById("category").value;
-        location.href = `/stores?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
+        location.href = `/automessage/stores?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
     }
 
     window.onclick = function(event) {

@@ -11,7 +11,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE Store SET deleted = true where store_id = ?")
+@SQLDelete(sql = "UPDATE khanMessage.store SET deleted = true where store_id = ?")
 @SQLRestriction("deleted = false")
 public class Store {
 

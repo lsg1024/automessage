@@ -13,7 +13,7 @@
     <h4>가게 수정</h4>
 
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20%;">
-      <form th:action="@{/stores/{id}(id=${storeDTO.id})}" th:object="${storeDTO}" method="post">
+      <form th:action="@{/automessage/stores/{id}(id=${storeDTO.id})}" th:object="${storeDTO}" method="post">
         <input type="hidden" th:field="*{id}">
         <div>
           <div class="update-div">
@@ -45,7 +45,7 @@
           </div>
 
           <div style="margin-left: 20px">
-            <button type="button" id="submitButton" onclick="location.href='/storeList'" class="button">
+            <button type="button" id="submitButton" onclick="location.href='/automessage/stores'" class="button">
               <p class="btnText">취소</p>
               <div class="btnTwo">
                 <p class="btnText2">확인</p>
