@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+
+<div id="results">
+    <!-- 결과는 자바스크립트에서 처리되므로 이 부분은 비워둡니다. -->
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // 서버에서 전달된 응답 및 오류 메시지 처리
+        let responses = [[${responses}]];
+        let errorMessage = [[${errorMessage}]];
+
+        if (errorMessage && errorMessage.length > 0) {
+            // 오류 메시지 출력
+            let formattedErrors = errorMessage.map(index => `${index}번`).join(', ');
+            alert("메시지 전송 실패: " + formattedErrors);
+            location.href = "/automessage";
+        } else if (responses && responses.length > 0) {
+            // 응답 메시지 출력
+            alert("메시지 전송 성공: " + responses.length);
+            location.href = "/automessage";
+        }
+    });
+</script>
+
+</body>
+</html>

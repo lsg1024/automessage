@@ -1,14 +1,10 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.message.MessageDTO;
-import excel.automessage.dto.message.MessageFormDTO;
-import excel.automessage.dto.message.MessageResponseDTO;
-import excel.automessage.dto.message.ProductDTO;
+import excel.automessage.dto.message.*;
 import excel.automessage.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +12,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.LocalDateTime.*;
 
 @Controller
 @RequestMapping("/automessage")
 @RequiredArgsConstructor
 @Slf4j
-@SessionAttributes({"smsForm", "smsPhone"})
 public class MessageController {
 
     private final MessageService messageService;
@@ -39,7 +37,7 @@ public class MessageController {
 
     // 메시지 양식 업로드 (엑셀)
     @PostMapping("/message")
-    public String messageUpload(@RequestParam MultipartFile file, Model model, RedirectAttributes redirectAttributes) throws IOException {
+    public String messageUpload(@RequestParam MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
         log.info("messageUpload Controller");
 
         // 파일 null 체크
@@ -59,34 +57,36 @@ public class MessageController {
         }
 
         ProductDTO.ProductList productList = messageService.messageUpload(file);
-        MessageFormDTO messageFormDTO = messageService.messageForm(productList);
 
-        // 엑셀에 등록되지 않은 가게 추가 등록
-        if (!messageFormDTO.getMissingStores().isEmpty()) {
-            log.info("messageUpload missingStores");
-            redirectAttributes.addFlashAttribute("missingStores", messageFormDTO.getMissingStores());
-            redirectAttributes.addFlashAttribute("smsForm", messageFormDTO.getSmsForm());
-            redirectAttributes.addFlashAttribute("smsPhone", messageFormDTO.getSmsPhone());
+        // 메시지 폼 생성 및 미등록 가게 확인
+        SmsFormDTO smsFormDTO = messageService.messageForm(productList);
+        List<String> missingStores = smsFormDTO.getSmsFormDTO().stream()
+                .flatMap(entry -> entry.getMissingStores().stream())
+                .distinct()
+                .toList();
+
+        log.info("messageUpload smsFormDTO size {}",smsFormDTO.getSmsFormDTO().size());
+        log.info("messageUpload missDTO {}", missingStores.size());
+
+        if (!missingStores.isEmpty()) {
+            log.info("messageUpload missingStores {}", missingStores);
+            // 미등록 가게가 있으면 메시지 폼을 생성하지 않고 미등록 가게 페이지로 리다이렉트
+            redirectAttributes.addFlashAttribute("missingStores", missingStores);
+            redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
             return "redirect:/automessage/store/miss";
         }
 
-        log.info("messageForm {}", messageFormDTO.getSmsForm());
-        log.info("messagePhone {}", messageFormDTO.getSmsPhone());
+        redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
 
-        redirectAttributes.addFlashAttribute("smsForm", messageFormDTO.getSmsForm());
-        redirectAttributes.addFlashAttribute("smsPhone", messageFormDTO.getSmsPhone());
         return "redirect:/automessage/message/content";
     }
 
     // 메시지 전송 폼
     @GetMapping("/message/content")
-    public String messageContent(@ModelAttribute("smsForm") Map<String, List<String>> smsForm,
-                                 @ModelAttribute("smsPhone") Map<String, String> smsPhone,
-                                 Model model) {
+    public String messageContent(@ModelAttribute("smsForm") SmsFormDTO smsForm, Model model) {
         log.info("messageContent Controller");
-
+        log.info("messageContent smsForm size {}", smsForm.getSmsFormDTO().size());
         model.addAttribute("smsForm", smsForm);
-        model.addAttribute("smsPhone", smsPhone);
 
         return "messageForm/messageSendForm";
     }
@@ -94,40 +94,22 @@ public class MessageController {
 
     // 메시지 전송
     @PostMapping("/message/content")
-    public ResponseEntity<?> messageSend(@RequestParam Map<String, String[]> paramMap) {
-
-        log.info("messageSend Controller");
-
-        // 폼 데이터를 MessageDTO 리스트로 변환
-        List<MessageDTO> messageDtoList = new ArrayList<>();
-        String[] phones = paramMap.get("phoneNumbers[].phone");
-        String[] contents = paramMap.get("phoneNumbers[].content");
-        String[] sendSmsValues = paramMap.get("phoneNumbers[].sendSms");
-
-
-        log.info("{} {} {}", phones[0], contents[0], sendSmsValues[0]);
-
-        if (phones != null && contents != null && sendSmsValues != null) {
-            for (int i = 0; i < phones.length; i++) {
-                if ("true".equals(sendSmsValues[i])) { // 체크된 항목만 추가
-                    MessageDTO messageDto = new MessageDTO();
-                    messageDto.setTo(phones[i]);
-                    messageDto.setContent(contents[i]);
-                    log.info("message phone {}", phones[i]);
-                    messageDtoList.add(messageDto);
-                }
-            }
-        }
-
+    public String sendMessage(@ModelAttribute("smsForm") SmsFormDTO smsForm, RedirectAttributes redirectAttributes, Model model) {
         List<Integer> errorMessage = new ArrayList<>();
 
-        List<MessageResponseDTO> responses = messageService.messageSend(messageDtoList, errorMessage);
+        log.info("sendMessage smsForm size {}",smsForm.getSmsFormDTO().size());
+//      메시지 전송
+        List<MessageResponseDTO> responses = messageService.processAndSendMessages(smsForm, errorMessage);
 
-        if (!errorMessage.isEmpty()) {
-            return ResponseEntity.badRequest().body("전화번호 오류 발생: " + errorMessage);
-        }
+//      전송 결과를 모델에 추가
+        redirectAttributes.addFlashAttribute("responses", responses);
+        redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
 
-        return ResponseEntity.ok().body(responses);
+        log.info("sendMessage response size {}", responses.size());
+        log.info("sendMessage errorMessage {}", responses.size());
+
+        // 전송 결과 페이지로 리다이렉트
+        return "redirect:/automessage/message/result";
     }
 
     // 메시지 로그 조회 폼
@@ -140,5 +122,13 @@ public class MessageController {
     // 메시지 로그 조회 -> 검색?
 //    @PostMapping("/message/log")
 //    public
+
+    // 결과 alert 페이지
+    @GetMapping("/message/result")
+    public String showResultPage(){
+
+        // 결과 페이지를 반환
+        return "common/alert";
+    }
 
 }

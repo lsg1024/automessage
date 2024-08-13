@@ -1,5 +1,7 @@
 package excel.automessage.controller;
 
+import excel.automessage.dto.message.SmsFormDTO;
+import excel.automessage.dto.message.SmsFormEntry;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
@@ -20,6 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +31,7 @@ import java.util.Map;
 @RequestMapping("/automessage")
 @RequiredArgsConstructor
 @Slf4j
-@SessionAttributes({"smsForm", "smsPhone"})
+@SessionAttributes({"smsForm"})
 public class StoreController {
 
     private final StoreService storeService;
@@ -115,38 +119,44 @@ public class StoreController {
     // 등록되지 않은 가게 폼
     @GetMapping("/store/miss")
     public String missingStore(@ModelAttribute("missingStores") List<String> missingStores,
-                               @ModelAttribute("smsForm") Map<String, List<String>> smsForm,
-                               @ModelAttribute("smsPhone") Map<String, String> smsPhone,
+                               @ModelAttribute("smsForm") SmsFormDTO smsFormDTO,
                                Model model) {
+
         log.info("missingStore Controller");
+        log.info("missingStore get miss {}", missingStores.size());
+        log.info("missingStore get smsForm {}", smsFormDTO.getSmsFormDTO().size());
+
         model.addAttribute("missingStores", missingStores);
-        model.addAttribute("smsForm", smsForm);
-        model.addAttribute("smsPhone", smsPhone);
+        model.addAttribute("smsForm", smsFormDTO);
+
+
         return "storeForm/missingStore";
     }
 
     // 등록되지 않는 가게
     @PostMapping("/store/miss")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
-                                   @ModelAttribute("smsForm") Map<String, List<String>> smsForm,
-                                   @ModelAttribute("smsPhone") Map<String, String> smsPhone,
+                                   @ModelAttribute("smsForm") SmsFormDTO smsFormDTO,
                                    RedirectAttributes redirectAttributes) {
 
         log.info("saveMissingStore StoreListDTO = {}", storeListDTO.getStores().size());
+        log.info("saveMissingStore smsFormDTO size = {}", smsFormDTO.getSmsFormDTO().size());
 
-        storeService.saveAll(storeListDTO);
+        // 미등록 가게를 저장
+        StoreListDTO result = storeService.saveAll(storeListDTO);
 
-        storeListDTO.getStores().forEach(store -> {
-            if (store.getPhone() != null) {
-                smsPhone.put(store.getName(), store.getPhone());
-            }
-        });
+        log.info("saveMissingStore StoreListDTO = {}", result.getStores().get(0).getPhone());
 
-        log.info("saveMissingStore smsForm = {}", smsForm.size());
-        log.info("saveMissingStore smsPhone = {}", smsPhone.size());
+        for (int i = 0; i < result.getStores().size(); i++) {
+            SmsFormEntry entry = smsFormDTO.getSmsFormDTO().get(i);
+            entry.getPhone().put(result.getStores().get(i).getName(), result.getStores().get(i).getPhone());
 
-        redirectAttributes.addFlashAttribute("smsForm", smsForm);
-        redirectAttributes.addFlashAttribute("smsPhone", smsPhone);
+        }
+
+        // smsFormDTO를 리다이렉트 속성에 추가
+        redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
+        log.info("Redirecting with smsFormDTO: {}", smsFormDTO.getSmsFormDTO().get(0).getPhone());
+
 
         return "redirect:/automessage/message/content";
     }

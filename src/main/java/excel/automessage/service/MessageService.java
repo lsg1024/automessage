@@ -32,9 +32,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,20 +73,69 @@ public class MessageService {
 
     // 메시지 내역
     @Transactional
-    public MessageFormDTO messageForm(ProductDTO.ProductList productList) {
-        MessageFormDTO messageFormDTO = new MessageFormDTO();
+    public SmsFormDTO messageForm(ProductDTO.ProductList productList) {
+        SmsFormDTO smsFormDTO = new SmsFormDTO();
+        List<SmsFormEntry> entries = new ArrayList<>();
 
         for (ProductDTO product : productList.getProductDTOList()) {
-            List<String> products = messageFormDTO.getSmsForm().computeIfAbsent(product.getStoreName(), k -> new ArrayList<>());
-            products.add(product.getProductName());
-            log.info("storeName = {}", product.getStoreName());
+            SmsFormEntry smsFormEntry = new SmsFormEntry();
+            String storeName = product.getStoreName();
+            String productName = product.getProductName();
 
-            Optional<Store> phoneNumber = storeRepository.findByStoreName(product.getStoreName());
+            // 기본값 설정
+            smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
+            smsFormEntry.setSendSms(true);
 
-            searchProductPhone(messageFormDTO, product, phoneNumber);
+            // 제품 목록에 추가
+            smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
+            smsFormEntry.getSmsForm().get(storeName).add(productName);
+
+            Optional<Store> phoneNumber = storeRepository.findByStoreName(storeName);
+            searchProductPhone(smsFormEntry, product, phoneNumber);
+
+            entries.add(smsFormEntry);
         }
 
-        return messageFormDTO;
+        smsFormDTO.setSmsFormDTO(entries);
+
+        return smsFormDTO;
+    }
+
+    // 메시지 전송 여부 전처리
+    @Transactional
+    public List<MessageResponseDTO> processAndSendMessages(SmsFormDTO smsForm, List<Integer> errorMessage) {
+        List<MessageDTO> messageDTOList = new ArrayList<>();
+
+        for (int i = 0; i < smsForm.getSmsFormDTO().size(); i++) {
+            SmsFormEntry entry = smsForm.getSmsFormDTO().get(i);
+
+
+            if (entry.getPhone() == null) {
+                log.error("전화 번호가 없음: {}", entry);
+                errorMessage.add(i + 1); // 오류 메시지에 인덱스를 추가
+                continue;
+            }
+
+            if (!entry.sendSms) {
+                log.info("전송 요청 거부 {}", entry.getPhone());
+                errorMessage.add(i + 1); // 오류 메시지에 인덱스를 추가
+                continue;
+            }
+
+            log.info("Processing phone map: {}", entry.getPhone());
+
+            for (Map.Entry<String, String> phoneEntry : entry.getPhone().entrySet()) {
+                MessageDTO messageDTO = MessageDTO.builder()
+                        .to(phoneEntry.getValue())
+                        .content(entry.getContent())
+                        .build();
+                messageDTOList.add(messageDTO);
+            }
+        }
+
+        log.info("sendMessage phone {}", smsForm.getSmsFormDTO().get(0).getPhone());
+
+        return messageSend(messageDTOList, errorMessage);
     }
 
     // 메시지 전송
@@ -98,7 +146,7 @@ public class MessageService {
 
         log.info("messageSend Service");
 
-        log.info(messageDTOList.get(0).getTo());
+        log.info("messageSend Service {}", messageDTOList.get(0).getTo());
 
         for (int i = 0; i < messageDTOList.size(); i++) {
             MessageDTO messageDTO = messageDTOList.get(i);
@@ -114,11 +162,10 @@ public class MessageService {
                 responses.add(response);
                 messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
                 log.info("메시지 전송 성공 {}", messageDTO.getTo());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 errorMessage.add(i + 1);
                 messageHistories.add(createMessageHistory(messageDTO, "전송 실패", e.getMessage()));
-                log.error("메시지 전송 실패 {}, {}",messageDTO.getTo(), e.getMessage());
+                log.error("메시지 전송 실패 {}, {}", messageDTO.getTo(), e.getMessage());
             }
         }
 
@@ -135,7 +182,6 @@ public class MessageService {
         messageStorageRepository.save(messageStorage);
 
         return responses;
-
     }
 
     // 메시지 전송 양식 (네이버 sms)
@@ -180,17 +226,13 @@ public class MessageService {
     // 메시지 로그 전체 조회
 
     // 미등록 가게 번호 검색
-    private void searchProductPhone(MessageFormDTO messageFormDTO, ProductDTO product, Optional<Store> phoneNumber) {
+    private void searchProductPhone(SmsFormEntry smsFormEntry, ProductDTO product, Optional<Store> phoneNumber) {
         if (phoneNumber.isPresent()) {
             String phone = phoneNumber.get().getStorePhoneNumber();
-            if (phone != null) {
-                messageFormDTO.getSmsPhone().put(product.getStoreName(), phone);
-            } else {
-                messageFormDTO.getSmsPhone().put(product.getStoreName(), "번호 없음");
-            }
-            log.info("전화번호 검색 결과 = {}", phone);
+            smsFormEntry.getPhone().put(product.getStoreName(), Objects.requireNonNullElse(phone, "번호 없음"));
         } else {
-            messageFormDTO.getMissingStores().add(product.getStoreName());
+            // 미등록 가게 추가
+            smsFormEntry.getMissingStores().add(product.getStoreName());
         }
     }
 

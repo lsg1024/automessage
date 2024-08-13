@@ -8,32 +8,35 @@
   <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
   <div class="jumbotron2" style="margin-top: 10px">
-    <h5 th:text="'오늘 내려가는 통상: ' + ${smsPhone.size()}"></h5>
+    <h5 th:text="'오늘 내려가는 통상: ' + ${smsForm.smsFormDTO.size()}"></h5>
 
-    <form th:action="@{/automessage/message/content}" method="post">
+    <form th:action="@{/automessage/message/content}" th:object="${smsForm.smsFormDTO}" method="post">
       <div style="display: flex; flex-wrap: wrap">
-        <div class="entry" th:each="entry, stat : ${smsPhone}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
+        <div class="entry" th:each="entry, stat : ${smsForm.smsFormDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
           <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <div style="display: flex; height: 30px">
-              <p th:text="${stat.index + 1}+'. ' + ${entry.key} + ':' + '  '"></p>
+            <div th:each="phoneEntry : ${entry.phone.entrySet()}" style="display: flex; height: 30px">
+              <p th:text="${stat.index + 1}+'. ' + ${phoneEntry.key} + ':' + '  '"></p>
               <input type="text" maxlength="11"
                      th:id="'phone' + ${stat.index}"
-                     th:name="'phoneNumbers[' + ${stat.index} + '].phone'"
-                     th:value="${smsPhone[entry.key]}" style="width: 110px; height: 24px; text-align: center; background: none; border: none;" readonly/>
+                     th:name="'smsFormDTO[' + ${stat.index} + '].phone[${phoneEntry.key}]'"
+                     th:value="${phoneEntry.value}"
+                     style="width: 110px; height: 24px; text-align: center; background: none; border: none;" readonly/>
             </div>
             <div>
               <button type="button" class="btn btn-dark" style="width: 55px; height: 35px; font-size: 14px;" th:data-index="${stat.index}">수정</button>
             </div>
           </div>
           <textarea style="resize: none; height: 150px"
-                    th:id="'content' + ${stat.index}"
-                    th:name="'phoneNumbers[' + ${stat.index} + '].content'"
-                    rows="4">안녕하세요 종로 칸입니다.&#10;오늘 물품이 내려갑니다.&#10;내일 통상 확인해주세요~</textarea>
-          <input type="checkbox" th:id="'checkbox' + ${stat.index}" th:name="'phoneNumbers[' + ${stat.index} + '].sendSms'" value="true" checked="checked"/> 전송
+                    th:field="${smsForm.smsFormDTO[__${stat.index}__].content}"
+                    rows="4">
+          </textarea>
+          <input type="checkbox" th:id="'checkbox' + ${stat.index}"
+                 th:field="${smsForm.smsFormDTO[__${stat.index}__].sendSms}"
+                 value="true" checked="checked"/>전송
         </div>
       </div>
       <div style="display: flex; flex-direction: row; justify-content: center;">
-        <button type="submit" class="button" id="submitButton">
+        <button type="submit" class="button">
           <p class="btnText">메시지</p>
           <div class="btnTwo">
             <p class="btnText2">전송</p>
@@ -50,13 +53,11 @@
 </body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
+<script th:inline="javascript">
   document.addEventListener("DOMContentLoaded", function() {
-    const form = document.querySelector('form');
-    const loadingDiv = document.getElementById('loading');
-    const submitButton = document.getElementById('submitButton');
     let editing = false;
 
+    // 번호 수정
     document.querySelectorAll('.btn-dark').forEach(button => {
       button.addEventListener('click', function() {
         const index = this.getAttribute('data-index');
@@ -84,58 +85,6 @@
       });
     });
 
-    form.addEventListener('submit', function(event) {
-      event.preventDefault(); // 폼 기본 제출 방지
-
-      const confirmed = confirm('SMS를 전송하시겠습니까?');
-      if (!confirmed) {
-        return;
-      }
-
-      let dataToSend = [];
-      form.querySelectorAll('.entry').forEach((div, index) => {
-        const phone = div.querySelector('input[name^="phoneNumbers["][name$="].phone"]').value;
-        const content = div.querySelector('textarea[name^="phoneNumbers["][name$="].content"]').value;
-        const sendSms = div.querySelector('input[type="checkbox"][name^="phoneNumbers["][name$="].sendSms"]').checked;
-
-        console.log(`Entry ${index}: Phone=${phone}, Content=${content}, SendSms=${sendSms}`);
-
-        dataToSend.push({
-          to: phone,
-          content: content,
-          sendSms: sendSms  // 체크 여부도 포함
-        });
-      });
-
-      console.log("Data to send:", dataToSend);
-
-      // 만약 dataToSend가 비어있다면, 여기서 확인 가능
-      if (dataToSend.length === 0) {
-        console.error("전송할 데이터가 없습니다.");
-        return;
-      }
-
-      // 기존 AJAX 요청 코드는 여기서 계속 됩니다.
-      loadingDiv.style.display = 'block';
-
-      $.ajax({
-        url: '/automessage/message/content',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(dataToSend),
-        success: function(response) {
-          alert('SMS가 성공적으로 전송되었습니다.');
-        },
-        error: function(xhr, status, error) {
-          alert('전송 실패: ' + xhr.responseText);
-        },
-        complete: function() {
-          loadingDiv.style.display = 'none';
-          submitButton.disabled = false;
-          submitButton.style.display = 'block';
-        }
-      });
-    });
   });
 </script>
 

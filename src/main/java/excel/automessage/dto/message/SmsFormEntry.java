@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.Map;
 
 @Getter @Setter
-public class MessageFormDTO {
+public class SmsFormEntry {
+    public Map<String, String> phone;
     public Map<String, List<String>> smsForm;
-    public Map<String, String> smsPhone;
     public List<String> missingStores;
-    public MessageFormDTO() {
+    public String content;
+    public boolean sendSms;
+
+    public SmsFormEntry() {
+        this.phone = new HashMap<>();
         this.smsForm = new HashMap<>();
-        this.smsPhone = new HashMap<>();
         this.missingStores = new ArrayList<>();
     }
 }
