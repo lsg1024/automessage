@@ -2,10 +2,10 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import excel.automessage.dto.message.*;
 import excel.automessage.entity.MessageHistory;
 import excel.automessage.entity.MessageStorage;
 import excel.automessage.entity.Store;
-import excel.automessage.dto.message.*;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
@@ -33,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -77,23 +76,36 @@ public class MessageService {
         SmsFormDTO smsFormDTO = new SmsFormDTO();
         List<SmsFormEntry> entries = new ArrayList<>();
 
+        // 가게 이름을 키로 사용하는 맵을 생성하여 중복을 방지
+        Map<String, SmsFormEntry> smsFormEntryMap = new HashMap<>();
+
         for (ProductDTO product : productList.getProductDTOList()) {
-            SmsFormEntry smsFormEntry = new SmsFormEntry();
             String storeName = product.getStoreName();
             String productName = product.getProductName();
 
-            // 기본값 설정
-            smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
-            smsFormEntry.setSendSms(true);
+            SmsFormEntry smsFormEntry;
 
-            // 제품 목록에 추가
-            smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
+            // 가게 이름이 이미 존재하는지 확인
+            if (smsFormEntryMap.containsKey(storeName)) {
+                // 기존의 SmsFormEntry 가져오기
+                smsFormEntry = smsFormEntryMap.get(storeName);
+            } else {
+                // 새로운 SmsFormEntry 생성
+                smsFormEntry = new SmsFormEntry();
+                smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
+                smsFormEntry.setSendSms(true);
+                smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
+                smsFormEntryMap.put(storeName, smsFormEntry);
+                entries.add(smsFormEntry);
+            }
+
+            // 제품 이름 추가
             smsFormEntry.getSmsForm().get(storeName).add(productName);
+
+            log.info("messageForm storeName {}", storeName);
 
             Optional<Store> phoneNumber = storeRepository.findByStoreName(storeName);
             searchProductPhone(smsFormEntry, product, phoneNumber);
-
-            entries.add(smsFormEntry);
         }
 
         smsFormDTO.setSmsFormDTO(entries);
@@ -112,17 +124,13 @@ public class MessageService {
 
             if (entry.getPhone() == null) {
                 log.error("전화 번호가 없음: {}", entry);
-                errorMessage.add(i + 1); // 오류 메시지에 인덱스를 추가
                 continue;
             }
 
             if (!entry.sendSms) {
                 log.info("전송 요청 거부 {}", entry.getPhone());
-                errorMessage.add(i + 1); // 오류 메시지에 인덱스를 추가
                 continue;
             }
-
-            log.info("Processing phone map: {}", entry.getPhone());
 
             for (Map.Entry<String, String> phoneEntry : entry.getPhone().entrySet()) {
                 MessageDTO messageDTO = MessageDTO.builder()
@@ -131,9 +139,11 @@ public class MessageService {
                         .build();
                 messageDTOList.add(messageDTO);
             }
-        }
 
-        log.info("sendMessage phone {}", smsForm.getSmsFormDTO().get(0).getPhone());
+            log.info("messageService messageDTOList size {}", messageDTOList.size());
+            log.info("messageService errorMessage size {}", errorMessage.size());
+
+        }
 
         return messageSend(messageDTOList, errorMessage);
     }
@@ -145,8 +155,6 @@ public class MessageService {
         List<MessageHistory> messageHistories = new ArrayList<>();
 
         log.info("messageSend Service");
-
-        log.info("messageSend Service {}", messageDTOList.get(0).getTo());
 
         for (int i = 0; i < messageDTOList.size(); i++) {
             MessageDTO messageDTO = messageDTOList.get(i);
@@ -190,9 +198,6 @@ public class MessageService {
 
         Long time = System.currentTimeMillis();
         String Sign = makeSignature(time);
-
-        log.info("Sing : {}", Sign);
-        log.info("time : {}", time);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
