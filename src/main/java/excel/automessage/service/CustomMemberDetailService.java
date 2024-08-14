@@ -10,8 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,10 +32,11 @@ public class CustomMemberDetailService implements UserDetailsService {
 
         if (String.valueOf(members.getRole()).equals("WAIT")) {
             log.info("미승인 사용자 입니다. ROLE_USER {}", memberId);
-            throw  new UsernameNotFoundException("미승인 사용자 입니다:" + memberId);
+            throw new UsernameNotFoundException("미승인 사용자 입니다:" + memberId);
         }
 
         return new CustomMemberDetails(members); //JSESSIONID 쿠키 저장
 
     }
+
 }
