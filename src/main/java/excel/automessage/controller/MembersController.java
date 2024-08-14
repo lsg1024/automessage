@@ -2,6 +2,8 @@ package excel.automessage.controller;
 
 import excel.automessage.dto.members.MembersDTO;
 import excel.automessage.service.MembersService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,32 +30,44 @@ public class MembersController {
     }
 
     @GetMapping("/login")
-    public String loginPage(Model model, Authentication authentication) {
+    public String loginPage(@ModelAttribute("response") String response, Model model, HttpServletRequest request, Authentication authentication) {
         log.info("login Page Controller");
 
         if (authentication != null && authentication.isAuthenticated()) {
             return "redirect:/automessage";
         }
 
+        HttpSession session = request.getSession();
+        String errorMessage = (String) session.getAttribute("errorMessage");
+
+        if (errorMessage != null) {
+            model.addAttribute("errorMessage", errorMessage);
+            session.removeAttribute("errorMessage");
+        }
+
+        log.info("loginPage response {}", response);
+
         model.addAttribute("loginForm", new MembersDTO());
+        model.addAttribute("message", response);
         return "membersForm/loginPage";
     }
 
     @PostMapping("/login")
-    public String login(@Validated @ModelAttribute("loginForm") MembersDTO membersDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String login(@Validated @ModelAttribute("loginForm") MembersDTO membersDTO, BindingResult bindingResult) {
         log.info("login Controller Controller");
 
         if (bindingResult.hasErrors()) {
-            return "membersForm/loginPage";
+            return "redirect:/login";
         }
 
         return "redirect:/automessage";
     }
 
     @GetMapping("/signup")
-    public String signupPage(Model model) {
+    public String signupPage(@ModelAttribute("response") String response, Model model) {
         log.info("signup Page Controller");
         model.addAttribute("signupForm", new MembersDTO());
+        model.addAttribute("response", response);
         return "membersForm/signupPage";
     }
 
@@ -66,8 +80,16 @@ public class MembersController {
         }
 
         try {
-            membersService.createUser(membersDTO);
-            redirectAttributes.addFlashAttribute("message", "회원 가입 성공 승인 대기 중");
+            Boolean member = membersService.createMember(membersDTO);
+
+            log.info("member bool {}", member);
+            if (member) {
+                redirectAttributes.addFlashAttribute("response", "회원 가입 성공 승인 대기 중");
+            }
+            else {
+                redirectAttributes.addFlashAttribute("response", "이미 가입된 아이디 입니다.");
+                return "redirect:/signup";
+            }
             return "redirect:/login";
         } catch (Exception e) {
             bindingResult.reject("signupFail", "회원가입 오류 발생");

@@ -54,5 +54,30 @@
             </div>
         </div>
 </div>
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let response = [[${errorMessage}]]
+
+        if (response) {
+            alert(response);
+        }
+
+
+    })
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let response = [[${response}]]
+
+        if (response) {
+            alert(response);
+        }
+
+
+    })
+
+</script>
 </body>
 </html>
