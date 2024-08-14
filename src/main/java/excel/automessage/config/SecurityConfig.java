@@ -1,5 +1,6 @@
 package excel.automessage.config;
 
+import excel.automessage.config.handler.CustomLoginFailHandler;
 import excel.automessage.config.handler.CustomLoginSuccessHandler;
 import excel.automessage.config.handler.CustomLogoutSuccessHandler;
 import excel.automessage.service.CustomMemberDetailService;
@@ -11,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -25,6 +25,7 @@ public class SecurityConfig {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomLoginFailHandler customLoginFailHandler;
     private final CustomMemberDetailService customMemberDetailService;
 
     @Bean
@@ -45,6 +46,7 @@ public class SecurityConfig {
                 .passwordParameter("memberPassword")
                 .loginProcessingUrl("/login")
                 .successHandler(customLoginSuccessHandler)
+                .failureHandler(customLoginFailHandler)
                 .permitAll());
 
         http.logout(logout -> logout
