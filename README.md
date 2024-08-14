@@ -50,7 +50,7 @@
 현재 프로젝트에서는 AWS가 아닌 사용자 서버인 Synology Nas를 이용해 서버 배포를 하고 있기 때문에 필연적으로 서버 속도가 느리고 
 떄문에 별도의 추가적인 자원을 사용하고 싶지 않았기 때문에 비용이 들지 않는다면 최대한 외부에서 처리하는 방식을 선택하고 싶었고 해당 조건이 Github Action과 일치하다 생각해 선택하게 되었다. 
 또한 기존 AWS와는 다르게 실제 Synology Nas에 접근해 배포하기 위한 과정에 대해 공부하는 유의미한 경험을 하게 되었다.
-
+<br>
 <a href="https://zks145.tistory.com/121">Github Action CI/CD 무중단 배포 1편</a><br>
 <a href="https://zks145.tistory.com/123">Github Action CI/CD 무중단 배포 2편</a>
 <br>
@@ -58,7 +58,7 @@
 <h3>Synology Server</h3>
 AWS 대신 Synology Nas를 이용한 이유는 비용 때문이였습니다. 
 단기간 사용할 서버였다면 AWS를 이용해 서버 배포를 통해 여러가지 기능들을 사용해볼 기회도 있었겠지만 해당 서버는 지속적으로 사용해야 되는 서버이기 때문에 서버 기능과 속도를 포기하더라도 서버 규모면과 사용 시간등을 계산했을 때 합리적이라 생각이 들어 사용하게 되었습니다.
-
+<br>
 <a href="https://zks145.tistory.com/72">시놀로지 나스 도커를 이용한 DB 배포</a><br>
 <a href="https://zks145.tistory.com/114">시놀로지 나스 도커를 이용한 Spring Server 배포</a>
 
