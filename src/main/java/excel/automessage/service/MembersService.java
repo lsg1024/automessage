@@ -17,10 +17,11 @@ public class MembersService {
     private final MembersRepository membersRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public void createUser(MembersDTO membersDTO) {
+    public Boolean createMember(MembersDTO membersDTO) {
 
+        log.info("createMember {}", membersRepository.existsByMemberId(membersDTO.getMemberId()));
         if (membersRepository.existsByMemberId(membersDTO.getMemberId())) {
-            throw new IllegalArgumentException("이미 존재하는 사용자 입니다.");
+            return false;
         }
 
         Members members = Members.builder()
@@ -30,6 +31,8 @@ public class MembersService {
                 .build();
 
         membersRepository.save(members);
+
+        return true;
     }
 
 }

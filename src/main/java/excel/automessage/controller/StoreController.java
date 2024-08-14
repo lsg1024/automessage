@@ -22,10 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/automessage")
@@ -35,16 +32,6 @@ import java.util.Map;
 public class StoreController {
 
     private final StoreService storeService;
-
-//    @ModelAttribute("smsForm")
-//    public Map<String, List<String>> initSmsForm() {
-//        return new HashMap<>();
-//    }
-//
-//    @ModelAttribute("smsPhone")
-//    public Map<String, String> initSmsPhone() {
-//        return new HashMap<>();
-//    }
 
     // 새로운 상점 url
     @GetMapping("/new")
@@ -107,7 +94,7 @@ public class StoreController {
         }
 
         StoreListDTO storeListDTO = storeService.saveStores(file);
-        log.info("newStores storeListDTO = {}", storeListDTO.getStores().get(0).getName());
+
         storeService.saveAll(storeListDTO);
 
         model.addAttribute("storeList", storeListDTO);
