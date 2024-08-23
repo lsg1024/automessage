@@ -1,7 +1,7 @@
 package excel.automessage.controller;
 
 import excel.automessage.dto.members.MembersDTO;
-import excel.automessage.service.MembersService;
+import excel.automessage.service.member.MembersService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
