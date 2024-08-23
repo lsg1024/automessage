@@ -2,10 +2,11 @@ package excel.automessage.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import excel.automessage.dto.message.*;
+import excel.automessage.dto.message.log.MessageStorageDTO;
 import excel.automessage.entity.MessageHistory;
 import excel.automessage.entity.MessageStorage;
 import excel.automessage.entity.Store;
+import excel.automessage.dto.message.*;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
@@ -14,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Base64;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -102,13 +107,15 @@ public class MessageService {
             // 제품 이름 추가
             smsFormEntry.getSmsForm().get(storeName).add(productName);
 
-            log.info("messageForm storeName {}", storeName);
+            log.info("messageForm storeName {} {}", storeName, productName);
 
             Optional<Store> phoneNumber = storeRepository.findByStoreName(storeName);
             searchProductPhone(smsFormEntry, product, phoneNumber);
         }
 
         smsFormDTO.setSmsFormDTO(entries);
+
+        log.info("entries = {}", smsFormDTO.getSmsFormDTO().get(0).smsForm.toString());
 
         return smsFormDTO;
     }
@@ -132,18 +139,23 @@ public class MessageService {
                 continue;
             }
 
+            List<String> productNames = entry.getSmsForm().values().stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+
+            log.info("processAndSend = {}", productNames);
+
             for (Map.Entry<String, String> phoneEntry : entry.getPhone().entrySet()) {
                 MessageDTO messageDTO = MessageDTO.builder()
                         .to(phoneEntry.getValue())
                         .content(entry.getContent())
+                        .productName(productNames)
                         .build();
                 messageDTOList.add(messageDTO);
             }
-
-            log.info("messageService messageDTOList size {}", messageDTOList.size());
-            log.info("messageService errorMessage size {}", errorMessage.size());
-
         }
+
+        log.info("sendMessage phone {}", smsForm.getSmsFormDTO().get(0).getPhone());
 
         return messageSend(messageDTOList, errorMessage);
     }
@@ -155,6 +167,7 @@ public class MessageService {
         List<MessageHistory> messageHistories = new ArrayList<>();
 
         log.info("messageSend Service");
+        log.info("messageSend Service {}", messageDTOList.get(0).getTo());
 
         for (int i = 0; i < messageDTOList.size(); i++) {
             MessageDTO messageDTO = messageDTOList.get(i);
@@ -166,8 +179,8 @@ public class MessageService {
             }
 
             try {
-                MessageResponseDTO response = messageSendForm(messageDTO);
-                responses.add(response);
+//                MessageResponseDTO response = messageSendForm(messageDTO);
+//                responses.add(response);
                 messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
                 log.info("메시지 전송 성공 {}", messageDTO.getTo());
             } catch (Exception e) {
@@ -199,6 +212,9 @@ public class MessageService {
         Long time = System.currentTimeMillis();
         String Sign = makeSignature(time);
 
+        log.info("Sing : {}", Sign);
+        log.info("time : {}", time);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-ncp-apigw-timestamp", time.toString());
@@ -229,6 +245,19 @@ public class MessageService {
     }
 
     // 메시지 로그 전체 조회
+    @Transactional
+    public Page<MessageStorageDTO> searchMessageLog(String end, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        log.info("searchMessageLog = {}", page);
+        Page<MessageStorage> messageLogPage = messageStorageRepository.findByLastModifiedDateAll(end, pageable);
+
+        return messageLogPage.map(this::convertDto);
+
+    }
+
+//    @Transactional
+//    public
 
     // 미등록 가게 번호 검색
     private void searchProductPhone(SmsFormEntry smsFormEntry, ProductDTO product, Optional<Store> phoneNumber) {
@@ -316,12 +345,23 @@ public class MessageService {
 
     // 메시지 로그
     private MessageHistory createMessageHistory(MessageDTO messageDTO, String status, String errorMessage) {
+
+        log.info("message getProductName = {}", messageDTO.getProductName().toString());
+
         return MessageHistory.builder()
                 .receiver(messageDTO.getTo())
                 .content(messageDTO.getContent())
                 .status(status)
                 .errorMessage(errorMessage)
+                .productNames(messageDTO.getProductName())
                 .build();
+    }
+
+    private MessageStorageDTO convertDto(MessageStorage messageStorage) {
+        return new MessageStorageDTO(
+                messageStorage.getMessageStorageId(),
+                messageStorage.getLastModifiedDate().substring(0, 10)
+        );
     }
 
 }

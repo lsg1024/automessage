@@ -33,6 +33,14 @@
           <input type="checkbox" th:id="'checkbox' + ${stat.index}"
                  th:field="${smsForm.smsFormDTO[__${stat.index}__].sendSms}"
                  value="true" checked="checked"/>전송
+
+          <!-- Hidden fields for product map -->
+          <div th:each="productEntry : ${entry.smsForm.entrySet()}">
+            <div th:each="productName : ${productEntry.value}">
+              <input type="hidden" th:name="'smsFormDTO[' + ${stat.index} + '].smsForm[${productEntry.key}]'"
+                     th:value="${productName}" />
+            </div>
+          </div>
         </div>
       </div>
       <div style="display: flex; flex-direction: row; justify-content: center;">
