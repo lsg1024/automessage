@@ -1,4 +1,4 @@
-package excel.automessage.service;
+package excel.automessage.service.store;
 
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
