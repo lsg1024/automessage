@@ -41,7 +41,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        response.sendRedirect("/automessage");
+        response.sendRedirect("/loginSuccess");
     }
 
 
