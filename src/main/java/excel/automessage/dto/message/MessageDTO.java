@@ -13,6 +13,7 @@ public class MessageDTO {
 
     String to;
     String content;
+    String storeName;
     List<String> productName;
 
 }

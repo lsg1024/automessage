@@ -1,9 +1,11 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.message.*;
+import excel.automessage.dto.message.MessageResponseDTO;
+import excel.automessage.dto.message.ProductDTO;
+import excel.automessage.dto.message.SmsFormDTO;
+import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
-import excel.automessage.entity.MessageStorage;
-import excel.automessage.service.MessageService;
+import excel.automessage.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -15,12 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/automessage")
@@ -99,7 +98,7 @@ public class MessageController {
     public String sendMessage(@ModelAttribute("smsForm") SmsFormDTO smsForm, RedirectAttributes redirectAttributes, Model model) {
         List<Integer> errorMessage = new ArrayList<>();
 
-        log.info("sendMessage smsForm size {}",smsForm.getSmsFormDTO().get(0).smsForm.toString());
+        log.info("sendMessage smsForm = {}",smsForm.getSmsFormDTO().get(0).smsForm.toString());
 //      메시지 전송
         List<MessageResponseDTO> responses = messageService.processAndSendMessages(smsForm, errorMessage);
 
@@ -120,7 +119,7 @@ public class MessageController {
         log.info("messageLogPage");
 
         int size = 10;
-        String end = LocalDateTime.now().toString().substring(0, 10);
+        String end = LocalDateTime.now().toString().substring(0, 10) + " " + "23:59:59";
         log.info("end = {}", end);
         Page<MessageStorageDTO> messageLog = messageService.searchMessageLog(end, page - 1, size);
 
@@ -146,13 +145,15 @@ public class MessageController {
         return "redirect:message/log";
     }
 
-//    @GetMapping("/message/log/${id}")
-//    public String messageLogDetailPage(@RequestParam("id") Long id, @ModelAttribute("messageLogDetail")) {
-//
-//
-//
-//        return "messageForm/messageLogDetailForm";
-//    }
+    @GetMapping("/message/log/{id}")
+    public String messageLogDetailPage(@PathVariable("id") String id, Model model) {
+
+        MessageLogDetailDTO.MessageLogsDTO messageLogs = messageService.searchMessageLogDetail(id);
+
+        model.addAttribute("messageLogs", messageLogs);
+
+        return "messageForm/messageLogDetailForm";
+    }
 
 
     // 결과 alert 페이지
