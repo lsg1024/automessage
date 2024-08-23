@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: header}">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -23,8 +22,8 @@
           <td class="log_td" th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
           <td class="log_td" th:text="${message.messageStorageDate}"></td>
           <td class="log_td">
-            <form th:action="@{/automessage/message/log/{id}(id=${message.messageStorageId})}" method="post">
-              <button type="submit" class="button">
+            <form th:action="@{/automessage/message/log/{id}(id=${message.messageStorageId})}" method="get">
+              <button type="submit" class="button" style="width: 150px">
                 <p class="btnText">상세 정보</p>
                 <div class="btnTwo">
                   <p class="btnText2">확인</p>

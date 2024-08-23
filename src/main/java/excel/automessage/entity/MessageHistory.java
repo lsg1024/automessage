@@ -21,31 +21,32 @@ public class MessageHistory {
     private String content;
     private String status;
     private String errorMessage;
+    private String storeName;
 
     @ManyToOne
     @JoinColumn(name = "messageStorageId")
     private MessageStorage messageStorage;
 
-    @ElementCollection
-    @CollectionTable(name = "productNames", joinColumns = @JoinColumn(name = "history_id"))
-    @Column(name = "productName")
-    private List<String> productNames = new ArrayList<>();
+    @OneToMany(mappedBy = "messageHistory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductHistory> productHistories = new ArrayList<>();
 
     @Builder
-    public MessageHistory(String receiver, String content, String status, String errorMessage, List<String> productNames) {
+    public MessageHistory(String receiver, String content, String status, String errorMessage, String storeName, List<ProductHistory> productNames) {
         this.receiver = receiver;
         this.content = content;
         this.status = status;
         this.errorMessage = errorMessage;
-        this.productNames = productNames;
+        this.storeName = storeName;
+        if (productNames != null) {
+            this.productHistories.addAll(productNames);
+            for (ProductHistory productHistory : productNames) {
+                productHistory.setMessageHistory(this);
+            }
+        }
     }
 
     public void setMessageStorage(MessageStorage messageStorage) {
         this.messageStorage = messageStorage;
-    }
-
-    public void addSaleItem(String productName) {
-        this.productNames.add(productName);
     }
 
 }

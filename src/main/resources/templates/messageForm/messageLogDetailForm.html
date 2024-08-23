@@ -1,10 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
+    <div class="jumbotron2">
+
+        <div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>가게 이름</th>
+                    <th>출고 제품</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="messageLog : ${messageLogs.messageLogs}">
+                    <td th:text="${messageLog.key}"></td>
+                    <td>
+                        <span th:each="productName : ${messageLog.value}">
+                            <span th:text="${productName}"></span><hr/>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
 </body>
 </html>
