@@ -1,4 +1,4 @@
-package excel.automessage.service;
+package excel.automessage.service.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

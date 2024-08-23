@@ -11,9 +11,8 @@
     <div class="jumbotron">
         <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
             <div style="display: flex; justify-content: center; flex-basis: calc(50%);" >
-
                 <div>
-                    <form action="/automessage/message" method="get">
+                    <form th:action="@{/automessage/message}" method="get">
                         <button type="submit" class="button">
                             <p class="btnText">메시지</p>
                             <div class="btnTwo">
@@ -21,7 +20,7 @@
                             </div>
                         </button>
                     </form>
-                    <form action="/automessage/stores" method="get" style="margin-top: 20px">
+                    <form th:action="@{/automessage/stores}" method="get" style="margin-top: 20px">
                         <button type="submit" class="button">
                             <p class="btnText">가게 목록</p>
                             <div class="btnTwo">
@@ -32,7 +31,7 @@
                 </div>
 
                 <div>
-                    <form method="get" style="margin-left: 20px">
+                    <form th:action="@{/automessage/message/log}" method="get" style="margin-left: 20px">
                         <button type="submit" class="button">
                             <p class="btnText">메시지 기록</p>
                             <div class="btnTwo">
@@ -40,7 +39,7 @@
                             </div>
                         </button>
                     </form>
-                    <form action="/automessage/new" method="get" style="margin-top: 20px; margin-left: 20px">
+                    <form th:action="@{/automessage/new}" method="get" style="margin-top: 20px; margin-left: 20px">
                         <button type="submit" class="button">
                             <p class="btnText">신규 가게</p>
                             <div class="btnTwo">
@@ -57,8 +56,12 @@
 
 <script th:inline="javascript">
 
-    let message = [[${success}]]
-    alert(message);
+    document.addEventListener("DOMContentLoaded", function () {
+        let message = /*[[${success}]]*/ '';
+        if (message) {
+            alert(message);
+        }
+    })
 
 </script>
 

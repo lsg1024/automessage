@@ -1,6 +1,6 @@
 package excel.automessage.config.handler;
 
-import excel.automessage.service.RedisTokenService;
+import excel.automessage.service.redis.RedisTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

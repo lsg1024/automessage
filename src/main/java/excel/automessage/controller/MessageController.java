@@ -1,10 +1,15 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.message.*;
-import excel.automessage.service.MessageService;
+import excel.automessage.dto.message.MessageResponseDTO;
+import excel.automessage.dto.message.ProductDTO;
+import excel.automessage.dto.message.SmsFormDTO;
+import excel.automessage.dto.message.log.MessageLogDetailDTO;
+import excel.automessage.dto.message.log.MessageStorageDTO;
+import excel.automessage.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +20,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static java.time.LocalDateTime.*;
 
 @Controller
 @RequestMapping("/automessage")
@@ -26,7 +28,6 @@ import static java.time.LocalDateTime.*;
 public class MessageController {
 
     private final MessageService messageService;
-
 
     // 메시지 양식 업로드 폼
     @GetMapping("/message")
@@ -65,7 +66,7 @@ public class MessageController {
                 .distinct()
                 .toList();
 
-        log.info("messageUpload smsFormDTO size {}",smsFormDTO.getSmsFormDTO().size());
+        log.info("messageUpload smsFormDTO size {}",smsFormDTO.getSmsFormDTO().get(0).smsForm.toString());
         log.info("messageUpload missDTO {}", missingStores.size());
 
         if (!missingStores.isEmpty()) {
@@ -97,7 +98,7 @@ public class MessageController {
     public String sendMessage(@ModelAttribute("smsForm") SmsFormDTO smsForm, RedirectAttributes redirectAttributes, Model model) {
         List<Integer> errorMessage = new ArrayList<>();
 
-        log.info("sendMessage smsForm size {}",smsForm.getSmsFormDTO().size());
+        log.info("sendMessage smsForm = {}",smsForm.getSmsFormDTO().get(0).smsForm.toString());
 //      메시지 전송
         List<MessageResponseDTO> responses = messageService.processAndSendMessages(smsForm, errorMessage);
 
@@ -113,15 +114,47 @@ public class MessageController {
     }
 
     // 메시지 로그 조회 폼
-//    @GetMapping("/message/log")
-//    public String messageLogPage(@ModelAttribute() ) {
-//        log.info("messageLogPage");
-//        return "messageForm/messageLogForm";
-//    }
+    @GetMapping("/message/log")
+    public String messageLogPage(@RequestParam(defaultValue = "1") int page, Model model) {
+        log.info("messageLogPage");
 
-    // 메시지 로그 조회 -> 검색?
-//    @PostMapping("/message/log")
-//    public
+        int size = 10;
+        String end = LocalDateTime.now().toString().substring(0, 10) + " " + "23:59:59";
+        log.info("end = {}", end);
+        Page<MessageStorageDTO> messageLog = messageService.searchMessageLog(end, page - 1, size);
+
+        int totalPage = messageLog.getTotalPages();
+        int currentPage = messageLog.getNumber() + 1;
+        int startPage = ((currentPage - 1) / size) * size + 1;
+        int endPage = Math.min(startPage + size - 1, totalPage);
+
+        model.addAttribute("messageLog", messageLog);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("currentPage", currentPage);
+
+        return "messageForm/messageLogForm";
+    }
+
+    // 메시지 로그 조회 -> 상세 페이지
+    @PostMapping("/message/log")
+    public String messageLogCheck(@ModelAttribute("messageLog") MessageStorageDTO messageStorageDTO, RedirectAttributes redirectAttributes) {
+        log.info("messageLogCheck");
+
+        return "redirect:message/log";
+    }
+
+    @GetMapping("/message/log/{id}")
+    public String messageLogDetailPage(@PathVariable("id") String id, Model model) {
+
+        MessageLogDetailDTO.MessageLogsDTO messageLogs = messageService.searchMessageLogDetail(id);
+
+        model.addAttribute("messageLogs", messageLogs);
+
+        return "messageForm/messageLogDetailForm";
+    }
+
 
     // 결과 alert 페이지
     @GetMapping("/message/result")

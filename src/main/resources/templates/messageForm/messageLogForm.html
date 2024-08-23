@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+
+  <div class="jumbotron2 logForm_jum">
+    <div class="logForm_div">
+      <table class="custom_table">
+        <thead>
+        <tr>
+          <th style="width: 20%" class="log_th">번호</th>
+          <th style="width: 50%" class="log_th">날짜</th>
+          <th style="width: 30%" class="log_th">상세정보</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="message, stat : ${messageLog.content}">
+          <td class="log_td" th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
+          <td class="log_td" th:text="${message.messageStorageDate}"></td>
+          <td class="log_td">
+            <form th:action="@{/automessage/message/log/{id}(id=${message.messageStorageId})}" method="get">
+              <button type="submit" class="button" style="width: 150px">
+                <p class="btnText">상세 정보</p>
+                <div class="btnTwo">
+                  <p class="btnText2">확인</p>
+                </div>
+              </button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+  </div>
+</div>
+  <nav class="pagination">
+    <ul class="d-flex justify-content-center">
+      <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
+        <button class="page-link" th:attr="onclick='navigateToPage(' + ${startPage - 1} + ')'">&laquo;</button>
+      </li>
+      <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
+        <button class="page-link"
+                th:attr="onclick='navigateToPage(' + ${i} + ')'"
+                th:text="${i}"
+                th:classappend="${i == currentPage} ? 'active' : ''">
+        </button>
+      </li>
+      <li th:if="${endPage < totalPage}" class="page-item" style="list-style-type: none">
+        <button class="page-link" th:attr="onclick='navigateToPage(' + ${endPage + 1} + ')'">&raquo;</button>
+      </li>
+    </ul>
+  </nav>
+
+</div>
+
+</body>
+
+<script th:inline="javascript">
+
+  function navigateToPage(page) {
+    location.href = `/automessage/message/log?page=${page}`;
+  }
+
+</script>
+
+</html>
