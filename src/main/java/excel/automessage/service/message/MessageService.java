@@ -1,12 +1,16 @@
-package excel.automessage.service;
+package excel.automessage.service.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import excel.automessage.dto.message.*;
+import excel.automessage.dto.message.log.MessageLogDetail;
+import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
 import excel.automessage.entity.MessageHistory;
 import excel.automessage.entity.MessageStorage;
+import excel.automessage.entity.ProductHistory;
 import excel.automessage.entity.Store;
-import excel.automessage.dto.message.*;
+import excel.automessage.repository.MessageHistoryRepository;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
@@ -59,6 +63,7 @@ public class MessageService {
 
     private final StoreRepository storeRepository;
     private final MessageStorageRepository messageStorageRepository;
+    private final MessageHistoryRepository messageHistoryRepository;
 
     // 메시지 정보 업로드
     @Transactional
@@ -149,13 +154,16 @@ public class MessageService {
                 MessageDTO messageDTO = MessageDTO.builder()
                         .to(phoneEntry.getValue())
                         .content(entry.getContent())
+                        .storeName(phoneEntry.getKey())
                         .productName(productNames)
                         .build();
                 messageDTOList.add(messageDTO);
+
+                log.info("phone Key = {}", phoneEntry.getKey());
             }
         }
 
-        log.info("sendMessage phone {}", smsForm.getSmsFormDTO().get(0).getPhone());
+        log.info("sendMessage phone {}", messageDTOList.get(0).getStoreName());
 
         return messageSend(messageDTOList, errorMessage);
     }
@@ -179,8 +187,8 @@ public class MessageService {
             }
 
             try {
-//                MessageResponseDTO response = messageSendForm(messageDTO);
-//                responses.add(response);
+                MessageResponseDTO response = messageSendForm(messageDTO);
+                responses.add(response);
                 messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
                 log.info("메시지 전송 성공 {}", messageDTO.getTo());
             } catch (Exception e) {
@@ -256,8 +264,24 @@ public class MessageService {
 
     }
 
-//    @Transactional
-//    public
+    @Transactional
+    public MessageLogDetailDTO.MessageLogsDTO searchMessageLogDetail(String id) {
+
+        List<MessageLogDetail> detailLogs = messageHistoryRepository.findDetailLog(id);
+
+        HashMap<String, List<String>> messageLogs = new HashMap<>();
+
+        for (MessageLogDetail detailLog : detailLogs) {
+            String storeName = detailLog.getStoreName();
+            String productName = detailLog.getProductName();
+
+            List<String> products = messageLogs.getOrDefault(storeName, new ArrayList<>());
+            products.add(productName);
+            messageLogs.put(storeName, products);
+        }
+
+        return new MessageLogDetailDTO.MessageLogsDTO(messageLogs);
+    }
 
     // 미등록 가게 번호 검색
     private void searchProductPhone(SmsFormEntry smsFormEntry, ProductDTO product, Optional<Store> phoneNumber) {
@@ -348,12 +372,19 @@ public class MessageService {
 
         log.info("message getProductName = {}", messageDTO.getProductName().toString());
 
+        List<ProductHistory> productHistoryList = messageDTO.getProductName().stream().map(productName ->
+            ProductHistory.builder()
+                    .productName(productName)
+                    .build()
+        ).toList();
+
         return MessageHistory.builder()
                 .receiver(messageDTO.getTo())
                 .content(messageDTO.getContent())
                 .status(status)
                 .errorMessage(errorMessage)
-                .productNames(messageDTO.getProductName())
+                .storeName(messageDTO.getStoreName())
+                .productNames(productHistoryList)
                 .build();
     }
 
