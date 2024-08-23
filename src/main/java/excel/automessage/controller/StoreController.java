@@ -5,7 +5,7 @@ import excel.automessage.dto.message.SmsFormEntry;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
-import excel.automessage.service.StoreService;
+import excel.automessage.service.store.StoreService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

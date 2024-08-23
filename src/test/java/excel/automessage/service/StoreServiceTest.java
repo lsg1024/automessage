@@ -4,6 +4,7 @@ import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
 import excel.automessage.repository.StoreRepository;
+import excel.automessage.service.store.StoreService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;

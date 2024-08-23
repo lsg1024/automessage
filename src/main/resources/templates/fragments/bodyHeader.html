@@ -5,7 +5,7 @@
   <a href="/automessage"><h4 class="text-muted">홈</h4></a>
   <div sec:authorize="isAuthenticated()">
     <form th:action="@{/logout}" method="post">
-      <button type="submit">로그아웃</button>
+      <button class="logout_btn" type="submit">로그아웃</button>
     </form>
   </div>
 

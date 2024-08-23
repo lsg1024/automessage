@@ -1,4 +1,4 @@
-package excel.automessage.service;
+package excel.automessage.service.member;
 
 import excel.automessage.dto.members.CustomMemberDetails;
 import excel.automessage.entity.Members;
