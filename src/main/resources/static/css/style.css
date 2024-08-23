@@ -323,4 +323,27 @@ table td.storeList_td {
     margin-right: 5px
 }
 
+.logForm_jum {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logForm_div {
+    display: flex;
+    height: 700px;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.custom_table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.log_td, .log_th {
+    padding: .75rem;
+    border-top: 1px solid #dee2e6;
+}
 
