@@ -8,11 +8,11 @@
   <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
   <div class="jumbotron2" style="margin-top: 10px">
-    <h5 th:text="'오늘 내려가는 통상: ' + ${smsForm.smsFormDTO.size()}"></h5>
+    <h5 th:text="'오늘 내려가는 통상: ' + ${messageForm.messageListDTO.size()}"></h5>
 
-    <form th:action="@{/automessage/message/content}" th:object="${smsForm.smsFormDTO}" method="post">
+    <form th:action="@{/automessage/message/content}" th:object="${messageForm.messageListDTO}" method="post">
       <div style="display: flex; flex-wrap: wrap">
-        <div class="entry" th:each="entry, stat : ${smsForm.smsFormDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
+        <div class="entry" th:each="entry, stat : ${messageForm.messageListDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
           <div style="display: flex; flex-direction: row; justify-content: space-between;">
             <div th:each="phoneEntry : ${entry.phone.entrySet()}" style="display: flex; height: 30px">
               <p th:text="${stat.index + 1}+'. ' + ${phoneEntry.key} + ':' + '  '"></p>
@@ -27,17 +27,17 @@
             </div>
           </div>
           <textarea style="resize: none; height: 150px"
-                    th:field="${smsForm.smsFormDTO[__${stat.index}__].content}"
+                    th:field="${messageForm.messageListDTO[__${stat.index}__].content}"
                     rows="4">
           </textarea>
           <input type="checkbox" th:id="'checkbox' + ${stat.index}"
-                 th:field="${smsForm.smsFormDTO[__${stat.index}__].sendSms}"
+                 th:field="${messageForm.messageListDTO[__${stat.index}__].sendSms}"
                  value="true" checked="checked"/>전송
 
           <!-- Hidden fields for product map -->
           <div th:each="productEntry : ${entry.smsForm.entrySet()}">
             <div th:each="productName : ${productEntry.value}">
-              <input type="hidden" th:name="'smsFormDTO[' + ${stat.index} + '].smsForm[' + ${productEntry.key} + ']'"
+              <input type="hidden" th:name="'messageListDTO[' + ${stat.index} + '].messageForm[' + ${productEntry.key} + ']'"
                      th:value="${productName}" />
             </div>
           </div>
