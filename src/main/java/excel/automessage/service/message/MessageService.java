@@ -82,18 +82,18 @@ public class MessageService {
 
     // 메시지 내역
     @Transactional
-    public SmsFormDTO messageForm(ProductDTO.ProductList productList) {
-        SmsFormDTO smsFormDTO = new SmsFormDTO();
-        List<SmsFormEntry> entries = new ArrayList<>();
+    public MessageListDTO messageForm(ProductDTO.ProductList productList) {
+        MessageListDTO messageListDTO = new MessageListDTO();
+        List<MessageFormEntry> entries = new ArrayList<>();
 
         // 가게 이름을 키로 사용하는 맵을 생성하여 중복을 방지
-        Map<String, SmsFormEntry> smsFormEntryMap = new HashMap<>();
+        Map<String, MessageFormEntry> smsFormEntryMap = new HashMap<>();
 
         for (ProductDTO product : productList.getProductDTOList()) {
             String storeName = product.getStoreName();
             String productName = product.getProductName();
 
-            SmsFormEntry smsFormEntry;
+            MessageFormEntry smsFormEntry;
 
             // 가게 이름이 이미 존재하는지 확인
             if (smsFormEntryMap.containsKey(storeName)) {
@@ -101,7 +101,7 @@ public class MessageService {
                 smsFormEntry = smsFormEntryMap.get(storeName);
             } else {
                 // 새로운 SmsFormEntry 생성
-                smsFormEntry = new SmsFormEntry();
+                smsFormEntry = new MessageFormEntry();
                 smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
                 smsFormEntry.setSendSms(true);
                 smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
@@ -118,20 +118,20 @@ public class MessageService {
             searchProductPhone(smsFormEntry, product, phoneNumber);
         }
 
-        smsFormDTO.setSmsFormDTO(entries);
+        messageListDTO.setMessageListDTO(entries);
 
-        log.info("entries = {}", smsFormDTO.getSmsFormDTO().get(0).smsForm.toString());
+        log.info("entries = {}", messageListDTO.getMessageListDTO().get(0).smsForm.toString());
 
-        return smsFormDTO;
+        return messageListDTO;
     }
 
     // 메시지 전송 여부 전처리
     @Transactional
-    public List<MessageResponseDTO> processAndSendMessages(SmsFormDTO smsForm, List<Integer> errorMessage) {
+    public List<MessageResponseDTO> processAndSendMessages(MessageListDTO messageListDTO, List<Integer> errorMessage) {
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
-        for (int i = 0; i < smsForm.getSmsFormDTO().size(); i++) {
-            SmsFormEntry entry = smsForm.getSmsFormDTO().get(i);
+        for (int i = 0; i < messageListDTO.getMessageListDTO().size(); i++) {
+            MessageFormEntry entry = messageListDTO.getMessageListDTO().get(i);
 
 
             if (entry.getPhone() == null) {
@@ -284,7 +284,7 @@ public class MessageService {
     }
 
     // 미등록 가게 번호 검색
-    private void searchProductPhone(SmsFormEntry smsFormEntry, ProductDTO product, Optional<Store> phoneNumber) {
+    private void searchProductPhone(MessageFormEntry smsFormEntry, ProductDTO product, Optional<Store> phoneNumber) {
         if (phoneNumber.isPresent()) {
             String phone = phoneNumber.get().getStorePhoneNumber();
             smsFormEntry.getPhone().put(product.getStoreName(), Objects.requireNonNullElse(phone, "번호 없음"));

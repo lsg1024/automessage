@@ -3,6 +3,7 @@ package excel.automessage.controller;
 import excel.automessage.dto.members.MembersDTO;
 import excel.automessage.service.member.MembersService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,10 +73,11 @@ public class MembersController {
     }
 
     @PostMapping("/signup")
-    public String signup(@Validated @ModelAttribute("signupForm") MembersDTO membersDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String signup(@Validated @ModelAttribute("signupForm") MembersDTO membersDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes, HttpServletResponse response) {
         log.info("signup Controller");
 
         if (bindingResult.hasErrors()) {
+            response.setStatus(400);
             return "membersForm/signupPage";
         }
 

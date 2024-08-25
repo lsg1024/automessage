@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
-public class SmsFormDTO {
-    private List<SmsFormEntry> smsFormDTO = new ArrayList<>();
+public class MessageListDTO {
+    private List<MessageFormEntry> messageListDTO = new ArrayList<>();
 }
 

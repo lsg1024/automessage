@@ -19,8 +19,9 @@ public class MembersService {
 
     public Boolean createMember(MembersDTO membersDTO) {
 
-        log.info("createMember {}", membersRepository.existsByMemberId(membersDTO.getMemberId()));
-        if (membersRepository.existsByMemberId(membersDTO.getMemberId())) {
+        boolean result = membersRepository.existsByMemberId(membersDTO.getMemberId());
+        log.info("createMember {}", result);
+        if (result) {
             return false;
         }
 

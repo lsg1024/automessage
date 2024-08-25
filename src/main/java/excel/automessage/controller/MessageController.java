@@ -2,7 +2,7 @@ package excel.automessage.controller;
 
 import excel.automessage.dto.message.MessageResponseDTO;
 import excel.automessage.dto.message.ProductDTO;
-import excel.automessage.dto.message.SmsFormDTO;
+import excel.automessage.dto.message.MessageListDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
 import excel.automessage.service.message.MessageService;
@@ -60,54 +60,45 @@ public class MessageController {
         ProductDTO.ProductList productList = messageService.messageUpload(file);
 
         // 메시지 폼 생성 및 미등록 가게 확인
-        SmsFormDTO smsFormDTO = messageService.messageForm(productList);
-        List<String> missingStores = smsFormDTO.getSmsFormDTO().stream()
+        MessageListDTO messageListDTO = messageService.messageForm(productList);
+        List<String> missingStores = messageListDTO.getMessageListDTO().stream()
                 .flatMap(entry -> entry.getMissingStores().stream())
                 .distinct()
                 .toList();
-
-        log.info("messageUpload smsFormDTO size {}",smsFormDTO.getSmsFormDTO().get(0).smsForm.toString());
-        log.info("messageUpload missDTO {}", missingStores.size());
 
         if (!missingStores.isEmpty()) {
             log.info("messageUpload missingStores {}", missingStores);
             // 미등록 가게가 있으면 메시지 폼을 생성하지 않고 미등록 가게 페이지로 리다이렉트
             redirectAttributes.addFlashAttribute("missingStores", missingStores);
-            redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
+            redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
             return "redirect:/automessage/store/miss";
         }
 
-        redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
+        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
 
         return "redirect:/automessage/message/content";
     }
 
     // 메시지 전송 폼
     @GetMapping("/message/content")
-    public String messageContent(@ModelAttribute("smsForm") SmsFormDTO smsForm, Model model) {
+    public String messageContent(@ModelAttribute("messageForm") MessageListDTO messageListDTO, Model model) {
         log.info("messageContent Controller");
-        log.info("messageContent smsForm size {}", smsForm.getSmsFormDTO().size());
-        model.addAttribute("smsForm", smsForm);
-
+        model.addAttribute("messageForm", messageListDTO);
         return "messageForm/messageSendForm";
     }
 
 
     // 메시지 전송
     @PostMapping("/message/content")
-    public String sendMessage(@ModelAttribute("smsForm") SmsFormDTO smsForm, RedirectAttributes redirectAttributes, Model model) {
+    public String sendMessage(@ModelAttribute("messageForm") MessageListDTO messageListDTO, RedirectAttributes redirectAttributes) {
         List<Integer> errorMessage = new ArrayList<>();
 
-        log.info("sendMessage smsForm = {}",smsForm.getSmsFormDTO().get(0).smsForm.toString());
 //      메시지 전송
-        List<MessageResponseDTO> responses = messageService.processAndSendMessages(smsForm, errorMessage);
+        List<MessageResponseDTO> responses = messageService.processAndSendMessages(messageListDTO, errorMessage);
 
 //      전송 결과를 모델에 추가
         redirectAttributes.addFlashAttribute("responses", responses);
         redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-
-        log.info("sendMessage response size {}", responses.size());
-        log.info("sendMessage errorMessage {}", responses.size());
 
         // 전송 결과 페이지로 리다이렉트
         return "redirect:/automessage/message/result";
@@ -137,14 +128,7 @@ public class MessageController {
         return "messageForm/messageLogForm";
     }
 
-    // 메시지 로그 조회 -> 상세 페이지
-    @PostMapping("/message/log")
-    public String messageLogCheck(@ModelAttribute("messageLog") MessageStorageDTO messageStorageDTO, RedirectAttributes redirectAttributes) {
-        log.info("messageLogCheck");
-
-        return "redirect:message/log";
-    }
-
+    // 메시지 상세 페이지
     @GetMapping("/message/log/{id}")
     public String messageLogDetailPage(@PathVariable("id") String id, Model model) {
 

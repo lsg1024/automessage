@@ -1,7 +1,7 @@
 package excel.automessage.controller;
 
-import excel.automessage.dto.message.SmsFormDTO;
-import excel.automessage.dto.message.SmsFormEntry;
+import excel.automessage.dto.message.MessageListDTO;
+import excel.automessage.dto.message.MessageFormEntry;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequestMapping("/automessage")
 @RequiredArgsConstructor
 @Slf4j
-@SessionAttributes({"smsForm"})
+@SessionAttributes({"messageForm"})
 public class StoreController {
 
     private final StoreService storeService;
@@ -106,15 +106,14 @@ public class StoreController {
     // 등록되지 않은 가게 폼
     @GetMapping("/store/miss")
     public String missingStore(@ModelAttribute("missingStores") List<String> missingStores,
-                               @ModelAttribute("smsForm") SmsFormDTO smsFormDTO,
+                               @ModelAttribute("messageForm") MessageListDTO messageListDTO,
                                Model model) {
 
         log.info("missingStore Controller");
         log.info("missingStore get miss {}", missingStores.size());
-        log.info("missingStore get smsForm {}", smsFormDTO.getSmsFormDTO().size());
 
         model.addAttribute("missingStores", missingStores);
-        model.addAttribute("smsForm", smsFormDTO);
+        model.addAttribute("messageForm", messageListDTO);
 
 
         return "storeForm/missingStore";
@@ -123,27 +122,20 @@ public class StoreController {
     // 등록되지 않는 가게
     @PostMapping("/store/miss")
     public String saveMissingStore(@ModelAttribute StoreListDTO storeListDTO,
-                                   @ModelAttribute("smsForm") SmsFormDTO smsFormDTO,
+                                   @ModelAttribute("messageForm") MessageListDTO messageListDTO,
                                    RedirectAttributes redirectAttributes) {
-
-        log.info("saveMissingStore StoreListDTO = {}", storeListDTO.getStores().size());
-        log.info("saveMissingStore smsFormDTO size = {}", smsFormDTO.getSmsFormDTO().size());
 
         // 미등록 가게를 저장
         StoreListDTO result = storeService.saveAll(storeListDTO);
 
-        log.info("saveMissingStore StoreListDTO = {}", result.getStores().get(0).getPhone());
-
         for (int i = 0; i < result.getStores().size(); i++) {
-            SmsFormEntry entry = smsFormDTO.getSmsFormDTO().get(i);
+            MessageFormEntry entry = messageListDTO.getMessageListDTO().get(i);
             entry.getPhone().put(result.getStores().get(i).getName(), result.getStores().get(i).getPhone());
-
         }
 
-        // smsFormDTO를 리다이렉트 속성에 추가
-        redirectAttributes.addFlashAttribute("smsForm", smsFormDTO);
-        log.info("Redirecting with smsFormDTO: {}", smsFormDTO.getSmsFormDTO().get(0).getPhone());
-
+        // messageListDTO 리다이렉트 속성에 추가
+        redirectAttributes.addFlashAttribute("messageListDTO", messageListDTO);
+        log.info("Redirecting with messageListDTO: {}", messageListDTO.getMessageListDTO().get(0).getPhone());
 
         return "redirect:/automessage/message/content";
     }
@@ -191,7 +183,6 @@ public class StoreController {
     @PostMapping("/stores/{id}")
     public String updateStoreName(@RequestParam("id") Long id, @Validated @ModelAttribute("storeDTO") StoreDTO.Update storeDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes, HttpServletResponse response) {
         log.info("updateStoreName");
-        log.info("storeId = {}", id);
 
         if (bindingResult.hasErrors()) {
             log.error("bindingResult 에러");
