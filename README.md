@@ -5,7 +5,7 @@
 
 프로젝트 진행 사유: 매일 사진을 찍어 오늘 내려가는 배송품을 카카오톡으로 직접 가게별로 전송하는 작업은 시간적으로 비효율적이기에 해당 작업을 자동화해 소요하는 시간을 줄이기 위해 시작하였다.<br>
 프로젝트 리펙토링 기간: 24.07.24 ~ <br>
-프로젝트 리펙토링 사유: 기존 HTML에서 사용된 javascript 코드를 thymeleaf 문법으로 최소화, 보안 강화를 위한 로그인 기능 추가
+프로젝트 리펙토링 사유: 기존 HTML에서 사용된 javascript 코드를 thymeleaf 문법으로 최소화, 보안 강화를 위한 Spring Security 로그인 기능 추가
 </p>
  
 <h2>사용 언어 및 기술</h2>
@@ -77,4 +77,39 @@ soft delete <br>
 Spring Security + Redis 이용한 세션 로그인 <br>
 
 <h2>테스트</h2>
- 
+
+<h2>Commit Role</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>feat</strong></td>
+            <td>새로운 기능 추가</td>
+        </tr>
+        <tr>
+            <td><strong>chore</strong></td>
+            <td>자잘한 수정</td>
+        </tr>
+        <tr>
+            <td><strong>fix</strong></td>
+            <td>오류 코드 수정</td>
+        </tr>
+        <tr>
+            <td><strong>update</strong></td>
+            <td>자잘한 수정 -> chore 통합</td>
+        </tr>
+        <tr>
+            <td><strong>delete</strong></td>
+            <td>필요없는 파일 삭제</td>
+        </tr>
+        <tr>
+            <td><strong>test</strong></td>
+            <td>테스트 코드</td>
+        </tr>
+    </tbody>
+</table>
