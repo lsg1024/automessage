@@ -1,10 +1,8 @@
 package excel.automessage;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class AutomessageApplicationTests {
+class AutomessageApplicationTests extends BaseTest {
 
 	@Test
 	void contextLoads() {
