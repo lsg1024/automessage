@@ -1,10 +1,7 @@
 package excel.automessage.dto.members;
 
-import excel.automessage.entity.Members;
-import excel.automessage.entity.Role;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @NoArgsConstructor
 @AllArgsConstructor
