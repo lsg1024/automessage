@@ -27,9 +27,10 @@ class MembersServiceTest extends BaseTest {
     @DisplayName("테스트용 아이디 생성")
     static void ApprovedID(@Autowired MembersRepository membersRepository,
                            @Autowired BCryptPasswordEncoder encoder) {
+
         Members members = Members.builder()
-                .memberId("UserId")
-                .memberPassword(encoder.encode("UserPw"))
+                .memberId("memberId")
+                .memberPassword(encoder.encode("memberPw"))
                 .role(Role.USER)
                 .build();
 
@@ -61,7 +62,7 @@ class MembersServiceTest extends BaseTest {
     void duplicateMember() {
 
         //given
-        MembersDTO membersDTO = new MembersDTO("UserId", "UserPw");
+        MembersDTO membersDTO = new MembersDTO("memberId", "memberPw");
 
         //when
         Boolean result = membersService.createMember(membersDTO);
