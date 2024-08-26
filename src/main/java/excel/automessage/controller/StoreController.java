@@ -7,6 +7,7 @@ import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
 import excel.automessage.service.store.StoreService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -41,10 +42,19 @@ public class StoreController {
     }
 
     @GetMapping("/new/store")
-    public String newStore(Model model) {
+    public String newStore(Model model, HttpSession session) {
         log.info("newStore controller");
         StoreListDTO storeListDTO = new StoreListDTO();
         storeListDTO.getStores().add(new StoreDTO());
+
+        String message = (String) session.getAttribute("success");
+
+        if (message != null) {
+            model.addAttribute("success", message);
+            log.info("newStore Controller success = {}", message);
+            session.removeAttribute("success");
+        }
+
         model.addAttribute("storeFormData", storeListDTO);
         return "storeForm/storeInput";
     }
@@ -54,7 +64,6 @@ public class StoreController {
     public String newStore(@Validated @ModelAttribute("storeFormData") StoreListDTO storeListDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes, HttpServletResponse response) {
 
         if (bindingResult.hasErrors()) {
-            log.error("bindingResult 에러");
             response.setStatus(400);
             return "storeForm/storeInput";
         }
@@ -66,7 +75,7 @@ public class StoreController {
             bindingResult.reject("storeSaveError", e.getMessage());
             return "storeForm/storeInput";
         }
-        redirectAttributes.addFlashAttribute("message", "저장되었습니다.");
+        redirectAttributes.addFlashAttribute("success", "저장되었습니다.");
         return "redirect:/automessage/new/store";
     }
 
