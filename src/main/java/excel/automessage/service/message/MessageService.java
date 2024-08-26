@@ -185,8 +185,8 @@ public class MessageService {
             }
 
             try {
-//                MessageResponseDTO response = messageSendForm(messageDTO);
-//                responses.add(response);
+                MessageResponseDTO response = messageSendForm(messageDTO);
+                responses.add(response);
                 messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
                 log.info("메시지 전송 성공 {}", messageDTO.getTo());
             } catch (Exception e) {
