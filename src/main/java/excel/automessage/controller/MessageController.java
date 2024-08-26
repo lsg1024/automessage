@@ -93,6 +93,7 @@ public class MessageController {
     public String sendMessage(@ModelAttribute("messageForm") MessageListDTO messageListDTO, RedirectAttributes redirectAttributes) {
         List<Integer> errorMessage = new ArrayList<>();
 
+        log.info("sendMessage = {}", messageListDTO.getMessageListDTO().get(0).smsForm.toString());
 //      메시지 전송
         List<MessageResponseDTO> responses = messageService.processAndSendMessages(messageListDTO, errorMessage);
 

@@ -37,7 +37,7 @@
           <!-- Hidden fields for product map -->
           <div th:each="productEntry : ${entry.smsForm.entrySet()}">
             <div th:each="productName : ${productEntry.value}">
-              <input type="hidden" th:name="'messageListDTO[' + ${stat.index} + '].messageForm[' + ${productEntry.key} + ']'"
+              <input type="hidden" th:name="'messageListDTO[' + ${stat.index} + '].smsForm[' + ${productEntry.key} + ']'"
                      th:value="${productName}" />
             </div>
           </div>
