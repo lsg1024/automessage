@@ -1,5 +1,6 @@
 package excel.automessage.service.store;
 
+import excel.automessage.BaseTest;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Slf4j
-public class StoreServiceTest {
+public class StoreServiceTest extends BaseTest {
 
     @Autowired
     private Validator validator;
