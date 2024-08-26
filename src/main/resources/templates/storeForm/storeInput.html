@@ -69,7 +69,16 @@
 </div>
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+         let response = [[${success}]]
+
+        if (response) {
+            alert(response);
+        }
+    })
+
     $(document).ready(function() {
         let index = $('#storeTable tbody tr').length; // 기존 행의 수를 가져옵니다.
 
