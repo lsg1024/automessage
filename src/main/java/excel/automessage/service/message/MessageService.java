@@ -163,8 +163,6 @@ public class MessageService {
             }
         }
 
-        log.info("sendMessage phone {}", messageDTOList.get(0).getStoreName());
-
         return messageSend(messageDTOList, errorMessage);
     }
 
