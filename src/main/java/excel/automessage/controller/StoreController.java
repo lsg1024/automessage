@@ -143,7 +143,7 @@ public class StoreController {
         }
 
         // messageListDTO 리다이렉트 속성에 추가
-        redirectAttributes.addFlashAttribute("messageListDTO", messageListDTO);
+        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
         log.info("Redirecting with messageListDTO: {}", messageListDTO.getMessageListDTO().get(0).getPhone());
 
         return "redirect:/automessage/message/content";
