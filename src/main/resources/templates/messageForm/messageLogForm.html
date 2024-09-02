@@ -60,6 +60,16 @@
 
 <script th:inline="javascript">
 
+  document.addEventListener("DOMContentLoaded", function () {
+
+    let response = [[${errorMessage}]];
+
+    if (response) {
+      alert(response);
+    }
+
+  })
+
   function navigateToPage(page) {
     location.href = `/automessage/message/log?page=${page}`;
   }

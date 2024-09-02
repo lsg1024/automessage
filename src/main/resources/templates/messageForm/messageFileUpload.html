@@ -28,8 +28,14 @@
     </div>
 </div>
 </body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let response = [[${errorMessage}]]
+        if (response) {
+            alert(response);
+        }
+    })
 
     let fileBox = document.getElementById("filebox");
     let fileInput = document.getElementById('file');
@@ -63,14 +69,6 @@
             $(".upload-name").val(fileName);
         });
 
-        $("#submitBtn").on('click', function(e) {
-            let fileName = $("#file").val();
-            if (!fileName) {
-                e.preventDefault(); // 폼 제출 막기
-                alert('파일을 첨부해주세요.');
-            }
-        });
     });
 </script>
-
 </html>
