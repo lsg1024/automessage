@@ -1,9 +1,6 @@
 package excel.automessage.service;
 
 import excel.automessage.BaseTest;
-import excel.automessage.dto.message.MessageFormEntry;
-import excel.automessage.dto.message.MessageListDTO;
-import excel.automessage.dto.message.MessageResponseDTO;
 import excel.automessage.dto.message.ProductDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
@@ -19,20 +16,21 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,13 +51,6 @@ class MessageServiceTest extends BaseTest {
     private MessageHistoryRepository messageHistoryRepository;
 
     private static MockMultipartFile file;
-
-    @AfterEach
-    void tearDown() {
-        productHistoryRepository.deleteAll();
-        messageHistoryRepository.deleteAll();
-        messageStorageRepository.deleteAll();
-    }
 
     @BeforeAll
     @DisplayName("테스트용 엑셀 더미 데이터 생성")
@@ -96,58 +87,11 @@ class MessageServiceTest extends BaseTest {
 
         workbook.close();
 
-        // log 검색용 더미 데이터
-        ProductHistory productHistory1 = ProductHistory.builder()
-                .productName("Product 1")
-                .build();
-        ProductHistory productHistory2 = ProductHistory.builder()
-                .productName("Product 2")
-                .build();
-
-        List<ProductHistory> productHistories = new ArrayList<>();
-        productHistories.add(productHistory1);
-        productHistories.add(productHistory2);
-
-        // MessageHistory 더미 데이터 생성
-        MessageHistory messageHistory1 = MessageHistory.builder()
-                .receiver("010-1234-5678")
-                .content("Test message content 1")
-                .status("전송 성공")
-                .errorMessage(null)
-                .storeName("Store 1")
-                .productNames(productHistories)
-                .build();
-
-        MessageHistory messageHistory2 = MessageHistory.builder()
-                .receiver("010-9876-5432")
-                .content("Test message content 2")
-                .status("전송 실패")
-                .errorMessage("Network error")
-                .storeName("Store 2")
-                .productNames(productHistories)
-                .build();
-
-        List<MessageHistory> messageHistories = new ArrayList<>();
-        messageHistories.add(messageHistory1);
-        messageHistories.add(messageHistory2);
-
-        // MessageStorage 더미 데이터 생성 및 MessageHistory 추가
-        MessageStorage messageStorage = MessageStorage.builder()
-                .messageHistories(messageHistories)
-                .build();
-
-        // 각 MessageHistory에 MessageStorage 설정
-        messageHistory1.setMessageStorage(messageStorage);
-        messageHistory2.setMessageStorage(messageStorage);
-
-        // 데이터 저장
-        messageStorageRepository.save(messageStorage);
-
     }
 
     @Test
     @DisplayName("메시지 정보 업로드 성공")
-    @Transactional
+
     void messageUploadSuccess() throws IOException {
 
         // 테스트할 메서드 호출
@@ -161,7 +105,7 @@ class MessageServiceTest extends BaseTest {
 
     @Test
     @DisplayName("메시지 정보 업로드 실패")
-    @Transactional
+
     void messageUploadFail_type() throws IOException {
 
         //given
@@ -187,52 +131,52 @@ class MessageServiceTest extends BaseTest {
         assertThat(productList.getProductDTOList()).hasSize(0);
     }
 
-    @Test
-    @DisplayName("메시지 전송 여부 전처리")
-    @Transactional
-    void checkMessageTransmissionSuccess() {
+//    @Test
+//    @DisplayName("메시지 전송 여부 전처리")
+//    @Transactional
+//    void checkMessageTransmissionSuccess() {
 
-        List<Integer> errorMessage = new ArrayList<>();
+//        List<Integer> errorMessage = new ArrayList<>();
+//
+//        MessageFormEntry messageFormEntry = new MessageFormEntry();
+//        Map<String, String> phone = new HashMap<>();
+//        phone.put("store1", "01012344321");
+//        messageFormEntry.setPhone(phone);
+//
+//        Map<String, List<String>> smsFormMap = new HashMap<>();
+//        smsFormMap.put("store1", Arrays.asList("테스트 제품 1", "테스트 제품 2"));
+//        messageFormEntry.setSmsForm(smsFormMap);
+//
+//        List<String> missingStoresList = List.of("");
+//        messageFormEntry.setMissingStores(missingStoresList);
+//
+//        String content = "테스트 내용";
+//        messageFormEntry.setContent(content);
+//
+//        boolean sendSms = true;
+//        messageFormEntry.setSendSms(sendSms);
+//
+//        MessageListDTO messageListDTO = new MessageListDTO();
+//        messageListDTO.getMessageListDTO().add(messageFormEntry);
 
-        MessageFormEntry messageFormEntry = new MessageFormEntry();
-        Map<String, String> phone = new HashMap<>();
-        phone.put("store1", "01012344321");
-        messageFormEntry.setPhone(phone);
+//        List<MessageResponseDTO> response = messageService.checkMessageTransmission(messageListDTO, errorMessage);
 
-        Map<String, List<String>> smsFormMap = new HashMap<>();
-        smsFormMap.put("store1", Arrays.asList("테스트 제품 1", "테스트 제품 2"));
-        messageFormEntry.setSmsForm(smsFormMap);
-
-        List<String> missingStoresList = List.of("");
-        messageFormEntry.setMissingStores(missingStoresList);
-
-        String content = "테스트 내용";
-        messageFormEntry.setContent(content);
-
-        boolean sendSms = true;
-        messageFormEntry.setSendSms(sendSms);
-
-        MessageListDTO messageListDTO = new MessageListDTO();
-        messageListDTO.getMessageListDTO().add(messageFormEntry);
-
-        List<MessageResponseDTO> response = messageService.checkMessageTransmission(messageListDTO, errorMessage);
-
-        for (MessageResponseDTO messageResponseDTO : response) {
-            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestId());
-            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
-            log.info("messageResponseDTO = {}", messageResponseDTO.getStatusCode());
-            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
-        }
+//        for (MessageResponseDTO messageResponseDTO : response) {
+//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestId());
+//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
+//            log.info("messageResponseDTO = {}", messageResponseDTO.getStatusCode());
+//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
+//        }
 
         // 외부 naver api를 사용해야됨..
 //        assertEquals(response.get(0).getStatusCode(), 200);
 
-    }
+//    }
 
     // 메시지 로그 조회
     @Test
     @DisplayName("메시지 로그 조회 성공")
-    @Transactional
+
     void messageLogSearchSuccess() {
 
         //given
@@ -258,39 +202,83 @@ class MessageServiceTest extends BaseTest {
     // 메시지 상세 페이지 조회
     @Test
     @DisplayName("메시지 상세 페이지 조회 성공")
-    @Transactional
     void messageDetailLogSearchSuccess() {
-
         //given
         HashMap<String, List<String>> productList = new HashMap<>();
         List<String> products = new ArrayList<>();
         products.add("Product 1");
         products.add("Product 2");
 
-        productList.put("Store 2", products);
+        productList.put("Store 1", products);
+
+        MessageStorage history = createHistory();
 
         //when
-        MessageLogDetailDTO.MessageLogsDTO detailLogs = messageService.searchMessageLogDetail("1");
+        Long messageStorageId = history.getMessageHistories().get(0).getMessageStorage().getMessageStorageId();
+        MessageLogDetailDTO.MessageLogsDTO detailLogs = messageService.searchMessageLogDetail(messageStorageId.toString());
 
         //then
-        assertEquals(detailLogs.getMessageLogs().keySet(), productList.keySet());
+        Set<String> expectedStoreNames = productList.keySet();
+        Set<String> actualStoreNames = detailLogs.getMessageLogs().keySet();
+
+        assertEquals(expectedStoreNames, actualStoreNames, "스토어 이름이 일치해야 합니다.");
 
     }
 
     @Test
     @DisplayName("메시지 상세 페이지 조회 실패 (null data)")
-    @Transactional
+
     void messageDetailLogSearchFail() {
 
         //given
         HashMap<String, List<String>> messageLogs = new HashMap<>();
 
         //when
-        MessageLogDetailDTO.MessageLogsDTO detailLogs = messageService.searchMessageLogDetail("2");
+        MessageLogDetailDTO.MessageLogsDTO detailLogs = messageService.searchMessageLogDetail("999");
 
         //then
         assertEquals(detailLogs.getMessageLogs().keySet(), messageLogs.keySet());
 
+    }
+
+    private MessageStorage createHistory() {
+
+        messageHistoryRepository.deleteAll();
+        messageStorageRepository.deleteAll();
+
+        // log 검색용 더미 데이터
+        ProductHistory productHistory1 = ProductHistory.builder()
+                .productName("Product 1")
+                .build();
+        ProductHistory productHistory2 = ProductHistory.builder()
+                .productName("Product 2")
+                .build();
+
+        List<ProductHistory> productHistories = new ArrayList<>();
+        productHistories.add(productHistory1);
+        productHistories.add(productHistory2);
+
+        // MessageHistory 더미 데이터 생성
+        MessageHistory messageHistory1 = MessageHistory.builder()
+                .receiver("010-1234-5678")
+                .content("Test message content 1")
+                .status("전송 성공")
+                .errorMessage(null)
+                .storeName("Store 1")
+                .productNames(productHistories)
+                .build();
+
+        List<MessageHistory> messageHistories = new ArrayList<>();
+        messageHistories.add(messageHistory1);
+
+        MessageStorage messageStorage = MessageStorage.builder()
+                .messageHistories(messageHistories)
+                .build();
+
+        messageHistory1.setMessageStorage(messageStorage);
+
+        // 데이터 저장
+        return messageStorageRepository.save(messageStorage);
     }
 
 }
