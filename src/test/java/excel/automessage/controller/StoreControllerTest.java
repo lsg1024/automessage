@@ -1,6 +1,8 @@
 package excel.automessage.controller;
 
 import excel.automessage.BaseTest;
+import excel.automessage.dto.message.MessageFormEntry;
+import excel.automessage.dto.message.MessageListDTO;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Members;
@@ -20,11 +22,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.FlashMap;
 
+import java.util.Arrays;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,10 +49,12 @@ class StoreControllerTest extends BaseTest {
 
     @BeforeAll
     @DisplayName("API 테스트 로그인")
-    static void SetUp(@Autowired MembersRepository membersRepository,
-                      @Autowired StoreRepository storeRepository,
+    static void setUp(@Autowired MembersRepository membersRepository,
                       @Autowired BCryptPasswordEncoder encoder,
                       @Autowired MockMvc mockMvc) throws Exception {
+
+        membersRepository.deleteAll();
+
         Members members = Members.builder()
                 .memberId("TestId")
                 .memberPassword(encoder.encode("TestPw"))
@@ -70,6 +78,9 @@ class StoreControllerTest extends BaseTest {
     @BeforeEach
     @DisplayName("가게 테스트 더미 데이터 초기화")
     void setUp() {
+
+        storeRepository.deleteAll();
+
         Store store = new Store("테스트가게", "01012341234");
 
         Store save = storeRepository.save(store);
@@ -192,7 +203,7 @@ class StoreControllerTest extends BaseTest {
     @Test
     @Transactional
     @DisplayName("가게 삭제 성공")
-    void deleteStore() throws Exception {
+    void deleteStoreSuccess() throws Exception {
 
         Optional<Store> findStore = storeRepository.findByStoreName("테스트가게");
 
@@ -206,14 +217,117 @@ class StoreControllerTest extends BaseTest {
                         .param("id", String.valueOf(storeId))
                         .param("category", "all")
                         .param("query", "")
+                        .param("storeName", findStore.get().getStoreName())
+                        .param("storePhoneNumber", findStore.get().getStorePhoneNumber())
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/automessage/stores?category=all&query="));
 
     }
 
-    // 가게 검색 성공, 실패
+    @Test
+    @Transactional
+    @DisplayName("가게 삭제 실패 form data 다름")
+    void deleteStoreFail() throws Exception {
 
-    // 미등록 가게 성공, 실패
+        Optional<Store> findStore = storeRepository.findByStoreName("테스트가게");
+
+        String userName = "잘못된 이름";
+        String userPhone = "잘못된 번호";
+
+        MvcResult result = mockMvc.perform(post("/automessage/store/{id}", findStore.get().getStoreId())
+                        .session(session)
+                        .param("id", String.valueOf(findStore.get().getStoreId()))
+                        .param("category", "all")
+                        .param("query", "")
+                        .param("storeName", userName)
+                        .param("storePhoneNumber", userPhone)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/automessage/stores?category=all&query="))
+                .andReturn();
+
+        FlashMap flashMap = result.getFlashMap();
+        assertThat(flashMap.get("errorMessage")).isEqualTo("잘못된 정보가 들어왔습니다");
+
+    }
+
+    // 가게 조회 검색
+    @Test
+    @Transactional
+    @DisplayName("가게 목록 조회 성공")
+    void getStore() throws Exception {
+
+        mockMvc.perform(get("/automessage/stores?")
+                        .session(session)
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(redirectedUrl(null));
+
+    }
+
+    // 가게 검색 성공
+    @Test
+    @Transactional
+    @DisplayName("가게 검색 성공")
+    void searchStoreSuccess() throws Exception {
+
+        mockMvc.perform(get("/automessage/stores?category={category}&query={query}", "all", "테스트")
+                        .session(session)
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(redirectedUrl(null));
+
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("가게 검색 실패 (잘못된 카테고리 유형)")
+    void searchStore_FailCategory() throws Exception {
+
+        MvcResult result = mockMvc.perform(get("/automessage/stores?category={category}&query={query}", "234", "테스트")
+                .session(session)
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/automessage/stores"))
+                .andReturn();
+
+        FlashMap flashMap = result.getFlashMap();
+        assertThat(flashMap.get("errorMessage")).isEqualTo("잘못된 카테고리 유형");
+
+    }
+
+    // 미등록 가게 성공
+    @Test
+    @Transactional
+    @DisplayName("미등록 가게 성공")
+    void missStoreCreateSuccess() throws Exception {
+
+        StoreListDTO storeListDTO = new StoreListDTO();
+
+        StoreDTO store = StoreDTO.builder()
+                .name("홍길동")
+                .phone("010-2345-6789")
+                .build();
+
+        storeListDTO.getStores().add(store);
+
+        // 세션에 저장할 객체를 메시지 폼으로 변경
+        MessageListDTO messageListDTO = new MessageListDTO();
+
+        // 미등록 데이터
+        MessageFormEntry entry = new MessageFormEntry();
+        entry.setMissingStores(Arrays.asList("홍길동")); // 미등록 가게 이름
+        messageListDTO.getMessageListDTO().add(entry);
+        session.setAttribute("messageForm", messageListDTO);
+
+        mockMvc.perform(post("/automessage/store/miss")
+                        .session(session)
+                        .with(csrf())
+                        .param("stores[0].name", storeListDTO.getStores().get(0).getName())
+                        .param("stores[0].phone", storeListDTO.getStores().get(0).getPhone()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/automessage/message/content"));
+    }
 
 }
