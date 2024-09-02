@@ -1,7 +1,6 @@
 package excel.automessage.controller;
 
 import excel.automessage.dto.message.MessageListDTO;
-import excel.automessage.dto.message.MessageFormEntry;
 import excel.automessage.dto.store.StoreDTO;
 import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
@@ -102,7 +101,7 @@ public class StoreController {
             return "redirect:/automessage/new/stores";
         }
 
-        StoreListDTO storeListDTO = storeService.saveStores(file);
+        StoreListDTO storeListDTO = storeService.saveExcelStores(file);
 
         storeService.saveAll(storeListDTO);
 
@@ -117,13 +116,10 @@ public class StoreController {
     public String missingStore(@ModelAttribute("missingStores") List<String> missingStores,
                                @ModelAttribute("messageForm") MessageListDTO messageListDTO,
                                Model model) {
-
         log.info("missingStore Controller");
-        log.info("missingStore get miss {}", missingStores.size());
 
         model.addAttribute("missingStores", missingStores);
         model.addAttribute("messageForm", messageListDTO);
-
 
         return "storeForm/missingStore";
     }
@@ -135,16 +131,10 @@ public class StoreController {
                                    RedirectAttributes redirectAttributes) {
 
         // 미등록 가게를 저장
-        StoreListDTO result = storeService.saveAll(storeListDTO);
-
-        for (int i = 0; i < result.getStores().size(); i++) {
-            MessageFormEntry entry = messageListDTO.getMessageListDTO().get(i);
-            entry.getPhone().put(result.getStores().get(i).getName(), result.getStores().get(i).getPhone());
-        }
+        MessageListDTO result = storeService.saveMissingStore(storeListDTO, messageListDTO);
 
         // messageListDTO 리다이렉트 속성에 추가
-        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
-        log.info("Redirecting with messageListDTO: {}", messageListDTO.getMessageListDTO().get(0).getPhone());
+        redirectAttributes.addFlashAttribute("messageForm", result);
 
         return "redirect:/automessage/message/content";
     }
@@ -154,23 +144,30 @@ public class StoreController {
     public String getStores(@RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "") String query,
                             @RequestParam(defaultValue = "all") String category,
+                            RedirectAttributes redirectAttributes,
                             Model model) {
 
         log.info("getStores Controller");
 
         int size = 10;
-        Page<Store> storePage = storeService.searchStores(category, query, page - 1, size);
 
-        int totalPages = storePage.getTotalPages();
-        int currentPage = storePage.getNumber() + 1; // Thymeleaf에서 페이지는 1부터 시작
-        int startPage = ((currentPage - 1)/ size) * size + 1;
-        int endPage = Math.min(startPage + size - 1, totalPages);
+        try {
+            Page<Store> storePage = storeService.searchStores(category, query, page - 1, size);
+            int totalPages = storePage.getTotalPages();
+            int currentPage = storePage.getNumber() + 1; // Thymeleaf에서 페이지는 1부터 시작
+            int startPage = ((currentPage - 1)/ size) * size + 1;
+            int endPage = Math.min(startPage + size - 1, totalPages);
 
-        model.addAttribute("storePage", storePage);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", totalPages);
+            model.addAttribute("storePage", storePage);
+            model.addAttribute("startPage", startPage);
+            model.addAttribute("endPage", endPage);
+            model.addAttribute("currentPage", currentPage);
+            model.addAttribute("totalPages", totalPages);
+        } catch (IllegalArgumentException e) {
+            log.info("store Controller errorMessage = {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/automessage/stores";
+        }
 
         return "storeForm/storeList";
     }
@@ -210,10 +207,20 @@ public class StoreController {
             @PathVariable("id") Long id,
             @RequestParam(value = "category", defaultValue = "all") String category,
             @RequestParam(value = "query", defaultValue = "") String query,
+            @RequestParam(value = "storeName") String storeName,
+            @RequestParam(value = "storePhoneNumber") String storePhoneNumber,
             RedirectAttributes redirectAttributes) {
 
-        storeService.deleteStore(id);
-        redirectAttributes.addFlashAttribute("message", "삭제 성공");
+        try {
+            storeService.deleteStore(id, storeName, storePhoneNumber);
+            log.info("deleteStore storeName = {} storePhoneNumber = {}", storeName, storePhoneNumber);
+            redirectAttributes.addFlashAttribute("message", "삭제 성공");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+
+
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         // 현재 쿼리 파라미터를 포함하여 리다이렉트
         return "redirect:/automessage/stores?category=" + category + "&query=" + encodedQuery;

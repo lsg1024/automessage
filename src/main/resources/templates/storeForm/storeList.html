@@ -15,7 +15,7 @@
                     <span id="selectedCategory" class="dropbtn_content"
                           th:text="${#strings.equals(param.category, 'all') ? '전체 보기' :
                                    #strings.equals(param.category, 'null') ? '미등록 번호' :
-                                   #strings.equals(param.category, 'notnull') ? '등록 번호' : '전체 번호'}">전체 번호</span>
+                                   #strings.equals(param.category, 'notnull') ? '등록 번호' : '전체 보기'}">전체 보기</span>
                 </button>
                 <div id="dropdownMenu" class="dropdown-content">
                     <div onclick="selectCategory('전체 보기', 'all')">전체 보기</div>
@@ -44,16 +44,23 @@
                 <td class="storeList_td" th:text="${store.storeName}"></td>
                 <td class="storeList_td" th:text="${store.storePhoneNumber}"></td>
                 <td>
-                    <button class="btn btn-primary" th:onclick="'location.href=\''+ @{/automessage/stores/{id}(id=${store.storeId})} + '\''">수정</button>
-                    <form th:action="@{/automessage/store/{id}(id=${store.storeId})}" method="post" style="display:inline;">
-                        <input type="hidden" name="_method" value="delete"/> <!-- hidden input to simulate DELETE method -->
-                        <input type="hidden" name="category" th:value="${param.category}">
-                        <input type="hidden" name="query" th:value="${param.query}">
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('정말로 삭제하시겠습니까?')">
-                            삭제
-                        </button>
-                    </form>
+                    <div style="display: flex">
+                        <form th:action="@{/automessage/stores/{id}(id=${store.storeId})}" method="get" style="margin-right: 5px">
+                            <button class="btn btn-primary">수정</button>
+                        </form>
+                        <form th:action="@{/automessage/store/{id}(id=${store.storeId})}" method="post" style="display:inline;">
+                            <input type="hidden" name="_method" value="delete"/> <!-- hidden input to simulate DELETE method -->
+                            <input type="hidden" name="category" th:value="${param.category}"/>
+                            <input type="hidden" name="query" th:value="${param.query}"/>
+                            <input type="hidden" name="storeName" th:value="${store.storeName}"/>
+                            <input type="hidden" name="storePhoneNumber" th:value="${store.storePhoneNumber}"/>
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('정말로 삭제하시겠습니까?')">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+
                 </td>
             </tr>
             </tbody>
@@ -82,7 +89,17 @@
 </div>
 
 </body>
-<script>
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let response = [[${errorMessage}]]
+
+        if (response) {
+            alert(response);
+        }
+
+    })
     function toggleDropdown() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
