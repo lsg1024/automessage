@@ -30,9 +30,12 @@ class MembersControllerTest extends BaseTest {
     @DisplayName("테스트용 아이디 생성")
     static void ApprovedID(@Autowired MembersRepository membersRepository,
                            @Autowired BCryptPasswordEncoder encoder) {
+
+        membersRepository.deleteAll();
+
         Members members = Members.builder()
-                .memberId("UserId")
-                .memberPassword(encoder.encode("UserPw"))
+                .memberId("TestId")
+                .memberPassword(encoder.encode("TestPw"))
                 .role(Role.USER)
                 .build();
 
@@ -75,8 +78,8 @@ class MembersControllerTest extends BaseTest {
     void loginSuccess() throws Exception {
 
         mockMvc.perform(post("/login")
-                        .param("memberId", "UserId")
-                        .param("memberPassword", "UserPw")
+                        .param("memberId", "TestId")
+                        .param("memberPassword", "TestPw")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/loginSuccess"));
