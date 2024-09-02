@@ -12,12 +12,14 @@ import excel.automessage.entity.MessageStorage;
 import excel.automessage.entity.ProductHistory;
 import excel.automessage.repository.MessageHistoryRepository;
 import excel.automessage.repository.MessageStorageRepository;
+import excel.automessage.repository.ProductHistoryRepository;
 import excel.automessage.service.message.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,23 @@ class MessageServiceTest extends BaseTest {
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private ProductHistoryRepository productHistoryRepository;
+
+    @Autowired
+    private MessageStorageRepository messageStorageRepository;
+
+    @Autowired
+    private MessageHistoryRepository messageHistoryRepository;
+
     private static MockMultipartFile file;
+
+    @AfterEach
+    void tearDown() {
+        productHistoryRepository.deleteAll();
+        messageHistoryRepository.deleteAll();
+        messageStorageRepository.deleteAll();
+    }
 
     @BeforeAll
     @DisplayName("테스트용 엑셀 더미 데이터 생성")
@@ -77,9 +95,6 @@ class MessageServiceTest extends BaseTest {
         file = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", inputStream);
 
         workbook.close();
-
-        messageStorageRepository.deleteAll();
-        messageHistoryRepository.deleteAll();
 
         // log 검색용 더미 데이터
         ProductHistory productHistory1 = ProductHistory.builder()
