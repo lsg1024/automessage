@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface MessageStorageRepository extends JpaRepository<MessageStorage, Long> {
 
     //전체 조회
-    @Query("SELECT m FROM MessageStorage m WHERE m.lastModifiedDate <= :end")
+    @Query("SELECT m FROM MessageStorage m WHERE m.lastModifiedDate <= :end ORDER BY m.lastModifiedDate DESC")
     Page<MessageStorage> findByLastModifiedDateAll(@Param("end") String end, Pageable pageable);
 
     //기간 조회
