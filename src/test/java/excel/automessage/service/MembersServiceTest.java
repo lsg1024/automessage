@@ -1,10 +1,11 @@
-package excel.automessage.service.member;
+package excel.automessage.service;
 
 import excel.automessage.BaseTest;
 import excel.automessage.dto.members.MembersDTO;
 import excel.automessage.entity.Members;
 import excel.automessage.entity.Role;
 import excel.automessage.repository.MembersRepository;
+import excel.automessage.service.member.MembersService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,8 @@ class MembersServiceTest extends BaseTest {
     @DisplayName("테스트용 아이디 생성")
     static void ApprovedID(@Autowired MembersRepository membersRepository,
                            @Autowired BCryptPasswordEncoder encoder) {
+
+        membersRepository.deleteAll();
 
         Members members = Members.builder()
                 .memberId("memberId")

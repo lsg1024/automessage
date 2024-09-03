@@ -11,7 +11,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE khanMessage.store SET deleted = true where store_id = ?")
+@SQLDelete(sql = "UPDATE store SET deleted = true where store_id = ?")
 @SQLRestriction("deleted = false")
 public class Store {
 
@@ -34,9 +34,15 @@ public class Store {
     }
 
     public void setStorePhoneNumber(String storePhoneNumber) {
-
         if (storePhoneNumber != null) {
             this.storePhoneNumber = storePhoneNumber;
+        }
+    }
+    public void setStoreNameAndPhoneNumber(String storeName, String storePhoneNumber) {
+
+        if (storePhoneNumber != null && storeName != null) {
+            this.storePhoneNumber = storePhoneNumber;
+            this.storeName = storeName;
         }
     }
 }

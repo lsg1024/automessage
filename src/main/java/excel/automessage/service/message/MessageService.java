@@ -89,112 +89,40 @@ public class MessageService {
         // 가게 이름을 키로 사용하는 맵을 생성하여 중복을 방지
         Map<String, MessageFormEntry> smsFormEntryMap = new HashMap<>();
 
-        for (ProductDTO product : productList.getProductDTOList()) {
-            String storeName = product.getStoreName();
-            String productName = product.getProductName();
-
-            MessageFormEntry smsFormEntry;
-
-            // 가게 이름이 이미 존재하는지 확인
-            if (smsFormEntryMap.containsKey(storeName)) {
-                // 기존의 SmsFormEntry 가져오기
-                smsFormEntry = smsFormEntryMap.get(storeName);
-            } else {
-                // 새로운 SmsFormEntry 생성
-                smsFormEntry = new MessageFormEntry();
-                smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
-                smsFormEntry.setSendSms(true);
-                smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
-                smsFormEntryMap.put(storeName, smsFormEntry);
-                entries.add(smsFormEntry);
-            }
-
-            // 제품 이름 추가
-            smsFormEntry.getSmsForm().get(storeName).add(productName);
-
-            log.info("messageForm storeName {} {}", storeName, productName);
-
-            Optional<Store> phoneNumber = storeRepository.findByStoreName(storeName);
-            searchProductPhone(smsFormEntry, product, phoneNumber);
-        }
+        // 메시지 기본 폼 전달
+        BasicMessageForm(productList, entries, smsFormEntryMap);
 
         messageListDTO.setMessageListDTO(entries);
 
-        log.info("entries = {}", messageListDTO.getMessageListDTO().get(0).smsForm.toString());
+        for (MessageFormEntry messageFormEntry : messageListDTO.getMessageListDTO()) {
+            log.info("entries = {}", messageFormEntry.getSmsForm().entrySet());
+            log.info("entries phone = {}", messageFormEntry.getPhone().entrySet());
+        }
 
         return messageListDTO;
     }
 
     // 메시지 전송 여부 전처리
     @Transactional
-    public List<MessageResponseDTO> processAndSendMessages(MessageListDTO messageListDTO, List<Integer> errorMessage) {
+    public List<MessageResponseDTO> checkMessageTransmission(MessageListDTO messageListDTO, List<Integer> errorMessage) {
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
-        for (int i = 0; i < messageListDTO.getMessageListDTO().size(); i++) {
-            MessageFormEntry entry = messageListDTO.getMessageListDTO().get(i);
-
-
-            if (entry.getPhone() == null) {
-                log.error("전화 번호가 없음: {}", entry);
-                continue;
-            }
-
-            if (!entry.sendSms) {
-                log.info("전송 요청 거부 {}", entry.getPhone());
-                continue;
-            }
-
-            List<String> productNames = entry.getSmsForm().values().stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList());
-
-            log.info("processAndSend = {}", productNames);
-
-            for (Map.Entry<String, String> phoneEntry : entry.getPhone().entrySet()) {
-                MessageDTO messageDTO = MessageDTO.builder()
-                        .to(phoneEntry.getValue())
-                        .content(entry.getContent())
-                        .storeName(phoneEntry.getKey())
-                        .productName(productNames)
-                        .build();
-                messageDTOList.add(messageDTO);
-
-                log.info("phone Key = {}", phoneEntry.getKey());
-            }
-        }
+        // 메시지 전송 여부 구분
+        isCheckMessageSending(messageListDTO, messageDTOList);
 
         return messageSend(messageDTOList, errorMessage);
     }
 
     // 메시지 전송
-    @Transactional
-    public List<MessageResponseDTO> messageSend(List<MessageDTO> messageDTOList, List<Integer> errorMessage) {
+    private List<MessageResponseDTO> messageSend(List<MessageDTO> messageDTOList, List<Integer> errorMessage) {
         List<MessageResponseDTO> responses = new ArrayList<>();
         List<MessageHistory> messageHistories = new ArrayList<>();
 
         log.info("messageSend Service");
         log.info("messageSend Service {}", messageDTOList.get(0).getTo());
-
-        for (int i = 0; i < messageDTOList.size(); i++) {
-            MessageDTO messageDTO = messageDTOList.get(i);
-            if (!isNumber(messageDTO.getTo())) {
-                log.error("전화번호 형식 오류로 인한 메시지 전송 실패 {}", messageDTO.getTo());
-                errorMessage.add(i + 1);
-                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", "잘못된 전화번호 입니다."));
-                continue;
-            }
-
-            try {
-                MessageResponseDTO response = messageSendForm(messageDTO);
-                responses.add(response);
-                messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
-                log.info("메시지 전송 성공 {}", messageDTO.getTo());
-            } catch (Exception e) {
-                errorMessage.add(i + 1);
-                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", e.getMessage()));
-                log.error("메시지 전송 실패 {}, {}", messageDTO.getTo(), e.getMessage());
-            }
-        }
+        
+        // 전송 승인된 메시지 전송 및 에러 처리
+        messageSendingLogic(messageDTOList, errorMessage, responses, messageHistories);
 
         // 메시지 스토리지 초기화
         MessageStorage messageStorage = MessageStorage.builder()
@@ -262,6 +190,7 @@ public class MessageService {
 
     }
 
+    // 메시지 로그 상세조회
     @Transactional
     public MessageLogDetailDTO.MessageLogsDTO searchMessageLogDetail(String id) {
 
@@ -279,6 +208,37 @@ public class MessageService {
         }
 
         return new MessageLogDetailDTO.MessageLogsDTO(messageLogs);
+    }
+
+    private void BasicMessageForm(ProductDTO.ProductList productList, List<MessageFormEntry> entries, Map<String, MessageFormEntry> smsFormEntryMap) {
+        for (ProductDTO product : productList.getProductDTOList()) {
+            String storeName = product.getStoreName();
+            String productName = product.getProductName();
+
+            MessageFormEntry smsFormEntry;
+
+            // 가게 이름이 이미 존재하는지 확인
+            if (smsFormEntryMap.containsKey(storeName)) {
+                // 기존의 SmsFormEntry 가져오기
+                smsFormEntry = smsFormEntryMap.get(storeName);
+            } else {
+                // 새로운 SmsFormEntry 생성
+                smsFormEntry = new MessageFormEntry();
+                smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
+                smsFormEntry.setSendSms(true);
+                smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
+                smsFormEntryMap.put(storeName, smsFormEntry);
+                entries.add(smsFormEntry);
+            }
+
+            // 제품 이름 추가
+            smsFormEntry.getSmsForm().get(storeName).add(productName);
+
+            log.info("messageForm storeName {} {}", storeName, productName);
+
+            Optional<Store> phoneNumber = storeRepository.findByStoreName(storeName);
+            searchProductPhone(smsFormEntry, product, phoneNumber);
+        }
     }
 
     // 미등록 가게 번호 검색
@@ -340,7 +300,6 @@ public class MessageService {
                 }
             }
 
-
             cell = row.getCell(14); // 상품 정보
             if (cell != null && cell.getCellType() == CellType.STRING) {
                 String productName = cell.getStringCellValue();
@@ -360,9 +319,67 @@ public class MessageService {
         }
     }
 
+    private void messageSendingLogic(List<MessageDTO> messageDTOList, List<Integer> errorMessage, List<MessageResponseDTO> responses, List<MessageHistory> messageHistories) {
+        for (int i = 0; i < messageDTOList.size(); i++) {
+            MessageDTO messageDTO = messageDTOList.get(i);
+            if (!isNumber(messageDTO.getTo())) {
+                log.error("전화번호 형식 오류로 인한 메시지 전송 실패 {}", messageDTO.getTo());
+                errorMessage.add(i + 1);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", "잘못된 전화번호 입니다."));
+                continue;
+            }
+
+            try {
+                MessageResponseDTO response = messageSendForm(messageDTO);
+                responses.add(response);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 성공", null));
+                log.info("메시지 전송 성공 {}", messageDTO.getTo());
+            } catch (Exception e) {
+                errorMessage.add(i + 1);
+                messageHistories.add(createMessageHistory(messageDTO, "전송 실패", e.getMessage()));
+                log.error("메시지 전송 실패 {}, {}", messageDTO.getTo(), e.getMessage());
+            }
+        }
+    }
+    
     // 숫자만 있는지 확인
     private static boolean isNumber(String str) {
         return str.chars().allMatch(Character::isDigit);
+    }
+
+    private static void isCheckMessageSending(MessageListDTO messageListDTO, List<MessageDTO> messageDTOList) {
+        for (int i = 0; i < messageListDTO.getMessageListDTO().size(); i++) {
+            MessageFormEntry entry = messageListDTO.getMessageListDTO().get(i);
+
+
+            if (entry.getPhone() == null) {
+                log.error("전화 번호가 없음: {}", entry);
+                continue;
+            }
+
+            if (!entry.sendSms) {
+                log.info("전송 요청 거부 {}", entry.getPhone());
+                continue;
+            }
+
+            List<String> productNames = entry.getSmsForm().values().stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+
+            log.info("processAndSend = {}", productNames);
+
+            for (Map.Entry<String, String> phoneEntry : entry.getPhone().entrySet()) {
+                MessageDTO messageDTO = MessageDTO.builder()
+                        .to(phoneEntry.getValue())
+                        .content(entry.getContent())
+                        .storeName(phoneEntry.getKey())
+                        .productName(productNames)
+                        .build();
+                messageDTOList.add(messageDTO);
+
+                log.info("phone Key = {}", phoneEntry.getKey());
+            }
+        }
     }
 
     // 메시지 로그
