@@ -10,7 +10,7 @@
   <div class="jumbotron2" style="margin-top: 10px">
     <h5 th:text="'오늘 내려가는 통상: ' + ${messageForm.messageListDTO.size()}"></h5>
 
-    <form th:action="@{/automessage/message/content}" th:object="${messageForm.messageListDTO}" method="post">
+    <form th:action="@{/automessage/message/content}" th:object="${messageForm.messageListDTO}" method="post" id="send_form">
       <div style="display: flex; flex-wrap: wrap">
         <div class="entry" th:each="entry, stat : ${messageForm.messageListDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
           <div style="display: flex; flex-direction: row; justify-content: space-between;">
@@ -44,7 +44,7 @@
         </div>
       </div>
       <div style="display: flex; flex-direction: row; justify-content: center;">
-        <button type="submit" class="button">
+        <button id="send_submit" type="submit" class="button">
           <p class="btnText">메시지</p>
           <div class="btnTwo">
             <p class="btnText2">전송</p>
@@ -54,10 +54,35 @@
     </form>
   </div>
 </div>
+
+<div id="loading" style="display: none; text-align: center;">
+  <img src="/images/loading.gif" alt="Loading..." />
+</div>
+
 </body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script th:inline="javascript">
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById('send_form');
+    const submitButton = document.getElementById('send_submit');
+    const loading = document.getElementById('loading');
+
+    form.addEventListener('submit', function(e) {
+      if (submitButton.disabled) {
+        e.preventDefault(); // 이미 비활성화된 경우 전송 방지
+        return;
+      }
+
+      console.log("실행 중")
+
+      submitButton.disabled = true;
+      loading.style.display = 'block';
+
+    });
+  })
+
   document.addEventListener("DOMContentLoaded", function() {
     let editing = false;
 
