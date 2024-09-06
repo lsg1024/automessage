@@ -105,6 +105,7 @@ public class MessageService {
     // 메시지 전송 여부 전처리
     @Transactional
     public List<MessageResponseDTO> checkMessageTransmission(MessageListDTO messageListDTO, List<Integer> errorMessage) {
+        log.info("checkMessageTransmission Service");
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
         // 메시지 전송 여부 구분
@@ -340,6 +341,8 @@ public class MessageService {
                 log.error("메시지 전송 실패 {}, {}", messageDTO.getTo(), e.getMessage());
             }
         }
+
+        log.info("messageSendingLogic finish");
     }
     
     // 숫자만 있는지 확인
