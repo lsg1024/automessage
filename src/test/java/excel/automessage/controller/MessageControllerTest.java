@@ -5,6 +5,7 @@ import excel.automessage.dto.message.MessageDTO;
 import excel.automessage.entity.*;
 import excel.automessage.repository.MembersRepository;
 import excel.automessage.repository.MessageStorageRepository;
+import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,10 @@ class MessageControllerTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private IdempotencyRedisService idempotencyRedisService;
+
     private static MockHttpSession session;
 
     @BeforeAll
@@ -156,6 +161,42 @@ class MessageControllerTest extends BaseTest {
         assertThat(flashMap.get("errorMessage")).isEqualTo("파일을 선택해주세요.");
 
     }
+
+    // 메시지 중복 전송
+//    @Test
+//    @DisplayName("메시지 중복 전송")
+//    @Transactional
+//    void messageDuplicateSend() throws Exception {
+//        String idempotencyKey = UUID.randomUUID().toString();
+//
+//        MessageDTO messageDTO = new MessageDTO();
+//        messageDTO.setTo("testReceiver");
+//        messageDTO.setContent("testContent");
+//        messageDTO.setStoreName("testStore");
+//        messageDTO.setProductName(List.of("testProduct1", "testProduct2"));
+//
+//        // 첫 번째 요청
+//        mockMvc.perform(post("/automessage/message/content")
+//                        .param("idempotencyKey", idempotencyKey)
+//                        .session(session)
+//                        .flashAttr("messageForm", messageDTO)
+//                        .with(csrf()))
+//                .andExpect(status().is3xxRedirection())
+//                .andExpect(redirectedUrl("/automessage/message/result"));
+//
+//        // 두 번째 요청 - 중복 요청
+//        mockMvc.perform(post("/automessage/message/content")
+//                        .param("idempotencyKey", idempotencyKey)
+//                        .session(session)
+//                        .flashAttr("messageForm", messageDTO)
+//                        .with(csrf()))
+//                .andExpect(status().is3xxRedirection())
+//                .andExpect(redirectedUrl("/automessage/message/result"))
+//                .andExpect(result -> {
+//                    FlashMap flashMap = result.getFlashMap();
+//                    assertThat(flashMap.get("responses")).isEqualTo("중복데이터 발생");
+//                });
+//    }
 
     // 메시지 전송
 //    @Test

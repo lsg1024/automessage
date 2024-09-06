@@ -6,6 +6,7 @@ import excel.automessage.dto.message.MessageListDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
 import excel.automessage.service.message.MessageService;
+import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/automessage")
@@ -28,6 +30,7 @@ import java.util.List;
 public class MessageController {
 
     private final MessageService messageService;
+    private final IdempotencyRedisService idempotencyRedisService;
 
     // 메시지 양식 업로드 폼
     @GetMapping("/message")
@@ -85,19 +88,35 @@ public class MessageController {
     @GetMapping("/message/content")
     public String messageContent(@ModelAttribute("messageForm") MessageListDTO messageListDTO, Model model) {
         log.info("messageContent Controller");
-        log.info("messageForm DTO = {}", messageListDTO.getMessageListDTO().size());
+
+        // 멱등성을 위한 키 생성
+        String idempotencyKey = UUID.randomUUID().toString();
+        log.info("messageContent idempotencyKey = {}", idempotencyKey);
         model.addAttribute("messageForm", messageListDTO);
+        model.addAttribute("idempotencyKey", idempotencyKey);
         return "messageForm/messageSendForm";
     }
 
 
     // 메시지 전송
     @PostMapping("/message/content")
-    public String sendMessage(@ModelAttribute("messageForm") MessageListDTO messageListDTO, RedirectAttributes redirectAttributes) {
+    public String sendMessage(@ModelAttribute("messageForm") MessageListDTO messageListDTO,
+                              @RequestParam("idempotencyKey") String idempotencyKey,
+                              RedirectAttributes redirectAttributes) {
         log.info("sendMessage Controller");
 
-        List<Integer> errorMessage = new ArrayList<>();
+        log.info("idempotencyKey = {}", idempotencyKey);
 
+        //중복 요청 체크
+        if (idempotencyRedisService.isDuplicateRequest(idempotencyKey)) {
+            log.info("중복 요청 감지: " + idempotencyKey);
+            redirectAttributes.addFlashAttribute("responses", "중복데이터 발생");
+            return "redirect:/automessage/message/result";
+        }
+
+        idempotencyRedisService.saveIdempotencyKey(idempotencyKey);
+
+        List<Integer> errorMessage = new ArrayList<>();
 //      메시지 전송
         List<MessageResponseDTO> responses = messageService.checkMessageTransmission(messageListDTO, errorMessage);
 
