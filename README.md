@@ -45,8 +45,6 @@
 
 </div> 
 
-<br>
-
 <div>
     <details><summary style="font-size: large; font-weight: bold">사용 기술 및 이유</summary>
         <h3>Synology Server</h3>
