@@ -100,8 +100,7 @@ jobs:
           }" | sudo -S tee /etc/logrotate.d/docker-container-logs <<< "$NAS_PASSWORD"
       
             # logrotate 실행 테스트
-            echo "$NAS_PASSWORD" | sudo -S logrotate -f /etc/logrotate.d/docker-container-logs
-          EOF
+          echo "$NAS_PASSWORD" | sudo -S logrotate -f /etc/logrotate.d/docker-container-logs
           
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker pull $DOCKER_IMAGE
