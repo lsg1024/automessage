@@ -97,16 +97,17 @@ jobs:
                 dateext
                 copytruncate
                 olddir /docker/automessage/logs
-          }" > /etc/logrotate.d/docker-container-logs
+          }" > sudo tee /etc/logrotate.d/docker-container-logs
       
             # logrotate 실행 테스트
-            logrotate -f /etc/logrotate.d/docker-container-logs
+            sudo logrotate -f /etc/logrotate.d/docker-container-logs
           EOF
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull $DOCKER_IMAGE
-            docker stop automessage || true
-            docker rm automessage || true
-            docker run -d --name automessage \
-              -v /etc/localtime:/etc/localtime:ro -e TZ=Asia/Seoul \
-              -p 8002:8002 ${{ env.DOCKER_IMAGE }}
+          
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker pull $DOCKER_IMAGE
+          docker stop automessage || true
+          docker rm automessage || true
+          docker run -d --name automessage \
+            -v /etc/localtime:/etc/localtime:ro -e TZ=Asia/Seoul \
+            -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
