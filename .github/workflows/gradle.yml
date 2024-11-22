@@ -97,10 +97,10 @@ jobs:
                 dateext
                 copytruncate
                 olddir /docker/automessage/logs
-          }" > sudo tee /etc/logrotate.d/docker-container-logs
+          }" | sudo -S tee /etc/logrotate.d/docker-container-logs <<< "$NAS_PASSWORD"
       
             # logrotate 실행 테스트
-            sudo logrotate -f /etc/logrotate.d/docker-container-logs
+            echo "$NAS_PASSWORD" | sudo -S logrotate -f /etc/logrotate.d/docker-container-logs
           EOF
           
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
