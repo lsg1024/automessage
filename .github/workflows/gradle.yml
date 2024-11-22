@@ -107,7 +107,7 @@ jobs:
           docker stop automessage || true
           docker rm automessage || true
           docker run -d --name automessage \
-            -v /volume1/docker/automessage/logs:/docker/automessage/logs \
+            -v /volume1/docker/automessage:/logs:rw \
             -e TZ=Asia/Seoul \
             -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
