@@ -96,7 +96,7 @@ jobs:
                 create 0644 root root
                 dateext
                 copytruncate
-                olddir /docker/automessage/logs
+                olddir /volume1/docker/automessage/logs
           }" | sudo -S tee /etc/logrotate.d/docker-container-logs <<< "$NAS_PASSWORD"
       
             # logrotate 실행 테스트
@@ -107,6 +107,7 @@ jobs:
           docker stop automessage || true
           docker rm automessage || true
           docker run -d --name automessage \
-            -v /etc/localtime:/etc/localtime:ro -e TZ=Asia/Seoul \
+            -v /volume1/docker/automessage/logs
+            -e TZ=Asia/Seoul \
             -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
