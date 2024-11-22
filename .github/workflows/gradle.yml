@@ -88,7 +88,7 @@ jobs:
           sshpass -p "$NAS_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SSH_PORT $NAS_USERNAME@$NAS_HOST << EOF
           echo "/var/lib/docker/containers/*/*.log {
                 daily
-                rotate 60
+                rotate 30
                 compress
                 delaycompress
                 missingok
@@ -98,9 +98,6 @@ jobs:
                 copytruncate
                 olddir /docker/automessage/logs
           }" > /etc/logrotate.d/docker-container-logs
-      
-            # 로그 저장 디렉토리 생성
-            mkdir -p /docker/automessage/logs
       
             # logrotate 실행 테스트
             logrotate -f /etc/logrotate.d/docker-container-logs
