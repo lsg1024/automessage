@@ -63,11 +63,11 @@ public class StoreService {
 
         Store store = findById(storeId);
 
-        boolean existingStoreByName = storeRepository.existsByStoreName(storeDTO.getName());
-        boolean existingStoreByPhone = storeRepository.existsByStorePhoneNumber(storeDTO.getPhone());
+        boolean existsByStoreNameAndStoreIdNot = storeRepository.existsByStoreNameAndStoreIdNot(storeDTO.getName(), storeId);
+        boolean existsByStorePhoneNumberAndStoreIdNot = storeRepository.existsByStorePhoneNumberAndStoreIdNot(storeDTO.getPhone(), storeId);
 
-        existStoreName(existingStoreByName, storeDTO.getName());
-        existStorePhoneNumber(existingStoreByPhone, storeDTO.getPhone());
+        existStoreName(existsByStoreNameAndStoreIdNot, storeDTO.getName());
+        existStorePhoneNumber(existsByStorePhoneNumberAndStoreIdNot, storeDTO.getPhone());
 
         store.setStoreNameAndPhoneNumber(storeDTO.getName(), storeDTO.getPhone());
 
