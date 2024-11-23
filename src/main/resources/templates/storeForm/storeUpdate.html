@@ -61,4 +61,10 @@
 </div>
 
 </body>
+<script th:inline="javascript">
+  let message = /*[[${errorMessage}]]*/ '';
+  if (message && message.trim() !== '') {
+    alert(message);
+  }
+</script>
 </html>

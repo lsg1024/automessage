@@ -10,8 +10,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
-
     Optional<Store> findByStoreName(String storeName);
+
+    boolean existsByStorePhoneNumber(String storePhoneNumber);
+    boolean existsByStoreName(String storeName);
+    boolean existsByStoreNameAndStoreIdNot(String storeName, Long storeId);
+    boolean existsByStorePhoneNumberAndStoreIdNot(String storePhoneNumber, Long storeId);
 
     // 조건과 검색어에 따른 동적 쿼리
     @Query("SELECT s FROM Store s WHERE " +

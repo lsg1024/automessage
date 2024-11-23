@@ -169,26 +169,33 @@ class MessageControllerTest extends BaseTest {
 //    void messageDuplicateSend() throws Exception {
 //        String idempotencyKey = UUID.randomUUID().toString();
 //
-//        MessageDTO messageDTO = new MessageDTO();
-//        messageDTO.setTo("testReceiver");
-//        messageDTO.setContent("testContent");
-//        messageDTO.setStoreName("testStore");
-//        messageDTO.setProductName(List.of("testProduct1", "testProduct2"));
+//        MessageFormEntry messageFormEntry = new MessageFormEntry();
+//        messageFormEntry.getPhone().put("testKey", "testPhoneNumber");
+//        messageFormEntry.getSmsForm().put("testSmsKey", List.of("testContent1", "testContent2"));
+//        messageFormEntry.setMissingStores(List.of("testStore1", "testStore2"));
+//        messageFormEntry.setContent("testContent");
+//        messageFormEntry.setSendSms(true);
+//
+//        MessageListDTO messageListDTO = new MessageListDTO();
+//        messageListDTO.getMessageListDTO().add(messageFormEntry);
 //
 //        // 첫 번째 요청
 //        mockMvc.perform(post("/automessage/message/content")
 //                        .param("idempotencyKey", idempotencyKey)
 //                        .session(session)
-//                        .flashAttr("messageForm", messageDTO)
+//                        .flashAttr("messageForm", messageListDTO)
 //                        .with(csrf()))
 //                .andExpect(status().is3xxRedirection())
 //                .andExpect(redirectedUrl("/automessage/message/result"));
+//
+//        // 중복 요청 확인
+//        assertThat(idempotencyRedisService.isDuplicateRequest(idempotencyKey)).isTrue();
 //
 //        // 두 번째 요청 - 중복 요청
 //        mockMvc.perform(post("/automessage/message/content")
 //                        .param("idempotencyKey", idempotencyKey)
 //                        .session(session)
-//                        .flashAttr("messageForm", messageDTO)
+//                        .flashAttr("messageForm", messageListDTO)
 //                        .with(csrf()))
 //                .andExpect(status().is3xxRedirection())
 //                .andExpect(redirectedUrl("/automessage/message/result"))
@@ -196,7 +203,11 @@ class MessageControllerTest extends BaseTest {
 //                    FlashMap flashMap = result.getFlashMap();
 //                    assertThat(flashMap.get("responses")).isEqualTo("중복데이터 발생");
 //                });
+//
+//        // 중복 요청이 제대로 처리되었는지 확인
+//        assertThat(idempotencyRedisService.isDuplicateRequest(idempotencyKey)).isTrue();
 //    }
+
 
     // 메시지 전송
 //    @Test

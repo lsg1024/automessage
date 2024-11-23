@@ -16,12 +16,13 @@ import org.hibernate.annotations.SQLRestriction;
 public class Store {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "storeId")
     private Long storeId;
-    @Column(name = "storeName")
+    @Column(unique = true)
     private String storeName;
+
+    @Column(unique = true)
     private String storePhoneNumber;
-    private boolean deleted = Boolean.FALSE;
+    private final boolean deleted = Boolean.FALSE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "historyId")
