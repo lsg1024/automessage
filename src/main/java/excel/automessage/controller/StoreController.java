@@ -196,7 +196,14 @@ public class StoreController {
             return "storeForm/storeUpdate";
         }
 
-        storeService.updateStore(id, storeDTO);
+        try {
+            storeService.updateStore(id, storeDTO);
+        } catch (IllegalArgumentException e) {
+            log.error("중복 이름 에러");
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/automessage/stores/" + id;
+        }
+
         redirectAttributes.addFlashAttribute("success", "수정 완료");
         return "redirect:/automessage/stores";
     }
