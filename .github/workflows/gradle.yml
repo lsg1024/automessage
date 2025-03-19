@@ -97,7 +97,7 @@ jobs:
                 create 0644 root root
                 dateext
                 copytruncate
-                olddir /volume1/docker/automessage/logs
+                olddir /volume1/docker/ubuntu/excel
           }" | sudo -S tee /etc/logrotate.d/docker-container-logs <<< "$NAS_PASSWORD"
       
             # logrotate 실행 테스트
