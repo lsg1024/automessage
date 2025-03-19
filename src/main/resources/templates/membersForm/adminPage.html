@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+    <div class="jumbotron4">
+        <div style="display: flex; height: 700px; flex-direction: column;">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width: 20%" class="log_th">번호</th>
+                    <th style="width: 30%" class="log_th">아이디</th>
+                    <th style="width: 20%" class="log_th">권한</th>
+                    <th style="width: 30%;">수정/삭제</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="members, stat : ${membersPage.content}">
+                    <td class="storeList_td" th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
+                    <td class="storeList_td" th:text="${members.memberId}"></td>
+                    <td class="storeList_td" th:text="${members.role}"></td>
+                    </td>
+                    <td class="storeList_td" style="display: flex">
+                        <form th:action="@{/automessage/admin/role/{id}(id=${members.userId})}" th:method="get">
+                            <button type="submit"
+                                    class="btn btn-primary" style="background: #007bff; color: #ffffff">변경</button>
+                        </form>
+                        <form th:action="@{/automessage/admin/{id}(id=${members.userId})}" th:method="post">
+                            <button type="submit" onclick="return confirm('삭제하시겠습니까?')"
+                                    class="btn btn-danger" style="background: #dc3545; color: #ffffff; margin-left: 10px;">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:replace="~{util/navigation :: pagination(${url}, ${startPage}, ${endPage}, ${currentPage}, ${totalPage})}"></div>
+    </div>
+
+</div>
+</body>
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let response = [[${response}]];
+
+        if (response) {
+            alert(response);
+        }
+
+    })
+
+    function navigateToPage(url , page) {
+        location.href = `/automessage/${url}?page=${page}`;
+    }
+
+</script>
+</html>

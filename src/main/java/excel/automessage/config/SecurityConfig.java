@@ -1,5 +1,6 @@
 package excel.automessage.config;
 
+import excel.automessage.config.handler.CustomAccessDeniedHandler;
 import excel.automessage.config.handler.CustomLoginFailHandler;
 import excel.automessage.config.handler.CustomLoginSuccessHandler;
 import excel.automessage.config.handler.CustomLogoutSuccessHandler;
@@ -27,18 +28,22 @@ public class SecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomLoginFailHandler customLoginFailHandler;
     private final CustomMemberDetailService customMemberDetailService;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/").hasRole("WAIT")
+                        .requestMatchers("automessage/admin").hasRole("ADMIN")
                         .requestMatchers("/automessage/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated());
 
         http.exceptionHandling((except) -> except
                 .accessDeniedPage("/login"));
+
+        http.exceptionHandling((e) -> e
+                .accessDeniedHandler(customAccessDeniedHandler));
 
         http.formLogin((auth) -> auth
                 .loginPage("/login")
