@@ -8,34 +8,16 @@
 <div class="container">
     <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
 
-    <div style="display: flex; flex-direction: row-reverse;">
-        <form class="search-box" method="get" action="/automessage/stores" style="display: flex">
-            <div class="dropdown">
-                <button class="dropbtn" type="button" onclick="toggleDropdown()">
-                    <span id="selectedCategory" class="dropbtn_content"
-                          th:text="${#strings.equals(param.category, 'all') ? '전체 보기' :
-                                   #strings.equals(param.category, 'null') ? '미등록 번호' :
-                                   #strings.equals(param.category, 'notnull') ? '등록 번호' : '전체 보기'}">전체 보기</span>
-                </button>
-                <div id="dropdownMenu" class="dropdown-content">
-                    <div onclick="selectCategory('전체 보기', 'all')">전체 보기</div>
-                    <div onclick="selectCategory('미등록 번호', 'null')">미등록 번호</div>
-                    <div onclick="selectCategory('저장 번호', 'notnull')">저장 번호</div>
-                </div>
-            </div>
-            <input type="hidden" name="category" id="category" th:value="${param.category ?: 'all'}">
-            <input class="search-input" type="text" name="query" placeholder="검색" th:value="${param.query}">
-        </form>
-    </div>
+    <div th:replace="~{util/searchFrom :: search(${url})}"></div>
 
     <div style="display: flex; height: 700px; align-content: flex-start; flex-wrap: wrap;">
         <table class="table" style="margin-top: 10px">
             <thead>
             <tr>
-                <th>번호</th>
-                <th>이름</th>
-                <th>전화번호</th>
-                <th>수정/삭제</th>
+                <th style="width: 10%;">번호</th>
+                <th style="width: 30%;">이름</th>
+                <th style="width: 30%;">전화번호</th>
+                <th style="width: 30%;">수정/삭제</th>
             </tr>
             </thead>
             <tbody>
@@ -67,25 +49,9 @@
         </table>
     </div>
 
+    <input type="hidden" id="errorMessage" th:value="${errorMessage}">
 
-    <nav class="pagination">
-        <ul class="d-flex justify-content-center">
-            <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + ${startPage - 1} + ')'">&laquo;</button>
-            </li>
-            <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
-                <button class="page-link"
-                        th:attr="onclick='navigateToPage(' + ${i} + ')'"
-                        th:text="${i}"
-                        th:classappend="${i == currentPage} ? 'active' : ''">
-                </button>
-            </li>
-            <li th:if="${endPage < totalPages}" class="page-item" style="list-style-type: none">
-                <button class="page-link" th:attr="onclick='navigateToPage(' + ${endPage + 1} + ')'">&raquo;</button>
-            </li>
-        </ul>
-    </nav>
-
+    <div th:replace="~{util/navigation :: pagination(${url}, ${startPage}, ${endPage}, ${currentPage}, ${totalPages})}"></div>
 </div>
 
 </body>
@@ -93,13 +59,24 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        let response = [[${errorMessage}]]
+        let response = [[${errorMessage}]];
 
         if (response) {
             alert(response);
         }
 
     })
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let response = [[${response}]];
+
+        if (response) {
+            alert(response);
+        }
+
+    })
+
     function toggleDropdown() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
@@ -107,24 +84,24 @@
     function selectCategory(categoryName, categoryValue) {
         document.getElementById("selectedCategory").innerText = categoryName;
         document.getElementById("category").value = categoryValue;
+        const custom_toggle = document.getElementById("search");
+
         toggleDropdown();
+        custom_toggle.submit();
     }
 
-    function navigateToPage(page) {
+    function navigateToPage(url , page) {
         const query = document.querySelector('.search-input').value;
         const category = document.getElementById("category").value;
-        location.href = `/automessage/stores?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
+        location.href = `/automessage/${url}?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
     }
 
     window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn') && !event.target.matches('.dropbtn_click') && !event.target.matches('.dropbtn_content') && !event.target.matches('.dropbtn_icon')) {
-            let dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                let openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
+        if (!event.target.closest('.dropdown')) { // 부모 요소 확인 방식으로 개선
+            document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
         }
     }
+
 </script>
