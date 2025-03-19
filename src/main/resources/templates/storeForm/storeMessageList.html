@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<body>
+<div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+
+  <div th:replace="~{util/searchFrom :: search(${url})}"></div>
+    <div style="display: flex; height: 700px; align-content: flex-start; flex-wrap: wrap;">
+      <table class="table" style="margin-top: 10px">
+        <thead>
+        <tr>
+          <th style="width: 10%;">번호</th>
+          <th style="width: 30%;">이름</th>
+          <th style="width: 30%;">전화번호</th>
+          <th style="width: 30%;">선택</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="store, stat : ${storePage.content}">
+          <td class="storeList_td" th:text="${(currentPage - 1) * 10 + stat.index + 1}"></td>
+          <td class="storeList_td" th:text="${store.storeName}"></td>
+          <td class="storeList_td" th:text="${store.storePhoneNumber}"></td>
+          <td>
+            <form th:action="@{/automessage/stores_add}" method="post" style="margin-right: 5px">
+              <input type="hidden" name="storeName" th:value="${store.storeName}">
+              <input type="hidden" name="storePhoneNumber" th:value="${store.storePhoneNumber}">
+              <button class="btn btn-primary">확인</button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  <input type="hidden" id="errorMessage" th:value="${errorMessage}">
+
+  <div th:replace="~{util/navigation :: pagination(${url}, ${startPage}, ${endPage}, ${currentPage}, ${totalPages})}"></div>
+</div>
+
+</body>
+<script th:inline="javascript">
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    let response = [[${errorMessage}]];
+
+    if (response) {
+      alert(response);
+    }
+
+  })
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    let response = [[${response}]];
+
+    if (response) {
+      alert(response);
+    }
+
+  })
+
+  function toggleDropdown() {
+    document.getElementById("dropdownMenu").classList.toggle("show");
+  }
+
+  function selectCategory(categoryName, categoryValue) {
+    document.getElementById("selectedCategory").innerText = categoryName;
+    document.getElementById("category").value = categoryValue;
+    const custom_toggle = document.getElementById("search");
+
+    toggleDropdown();
+    custom_toggle.submit();
+  }
+
+  function navigateToPage(url , page) {
+    const query = document.querySelector('.search-input').value;
+    const category = document.getElementById("category").value;
+    location.href = `/automessage/${url}?page=${page}&query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`;
+  }
+
+  window.onclick = function(event) {
+    if (!event.target.closest('.dropdown')) { // 부모 요소 확인 방식으로 개선
+      document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
+        dropdown.classList.remove('show');
+      });
+    }
+  }
+
+</script>
+</html>
