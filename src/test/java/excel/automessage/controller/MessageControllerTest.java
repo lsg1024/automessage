@@ -109,7 +109,10 @@ class MessageControllerTest extends BaseTest {
     @Test
     @DisplayName("메시지 양식 업로드 성공")
     void messageUploadSuccess() throws Exception {
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "test file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("file",
+                "test.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "test file".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/automessage/message/file_send")
                         .file(mockMultipartFile)

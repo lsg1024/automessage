@@ -301,9 +301,9 @@ public class MessageService {
         Row row;
         LocalDate today = LocalDate.now();
 
-        row = worksheet.getRow(1);
-        cell = row.getCell(3); //자동화 옵션의 경우 엑셀에서 날짜 체크
         if (option) {
+            row = worksheet.getRow(1);
+            cell = row.getCell(3); //자동화 옵션의 경우 엑셀에서 날짜 체크
             if (cell != null && cell.getCellType() == CellType.STRING) {
                 String sellType = cell.getStringCellValue();
                 if (!sellType.equals(today.toString())) {
