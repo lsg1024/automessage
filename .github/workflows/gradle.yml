@@ -108,7 +108,7 @@ jobs:
           docker stop automessage || true
           docker rm automessage || true
           docker run -d --name automessage \
-            -v /volume1/docker/ubuntu/excel:/excel:rw
+            -v /volume1/docker/ubuntu/excel:/excel:rw \
             -e TZ=Asia/Seoul \
             -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
