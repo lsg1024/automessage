@@ -14,6 +14,7 @@ import excel.automessage.repository.MessageHistoryRepository;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Base64;
@@ -40,6 +41,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,7 +69,7 @@ public class MessageService {
 
     // 메시지 정보 업로드
     @Transactional
-    public ProductDTO.ProductList messageUpload(MultipartFile file) throws IOException {
+    public ProductDTO.ProductList messageUpload(MultipartFile file, boolean option) throws IOException {
 
         Workbook workbook = ExcelSheetUtils.getSheets(file);
 
@@ -75,7 +77,7 @@ public class MessageService {
 
         ProductDTO.ProductList productList = new ProductDTO.ProductList();
 
-        extractedProductAndName(worksheet, productList);
+        extractedProductAndName(worksheet, productList, option);
 
         return productList;
     }
@@ -174,9 +176,8 @@ public class MessageService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        MessageResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, MessageResponseDTO.class);
 
-        return response;
+        return restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, MessageResponseDTO.class);
     }
 
     // 메시지 로그 전체 조회
@@ -209,6 +210,15 @@ public class MessageService {
         }
 
         return new MessageLogDetailDTO.MessageLogsDTO(messageLogs);
+    }
+
+    // 메시지 로그 삭제
+    @Transactional
+    public void deleteLog(String id) {
+        MessageStorage messageStorage = messageStorageRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new EntityNotFoundException("잘못된 로그 아이디 입니다: " + id));
+
+        messageStorageRepository.delete(messageStorage);
     }
 
     private void BasicMessageForm(ProductDTO.ProductList productList, List<MessageFormEntry> entries, Map<String, MessageFormEntry> smsFormEntryMap) {
@@ -283,17 +293,32 @@ public class MessageService {
     }
 
     // 엑셀 데이터 포멧팅
-    private void extractedProductAndName(Sheet worksheet, ProductDTO.ProductList productList) {
+    private void extractedProductAndName(Sheet worksheet, ProductDTO.ProductList productList, boolean option) {
 
         DataFormatter dataFormatter = new DataFormatter();
 
+        Cell cell;
+        Row row;
+        LocalDate today = LocalDate.now();
+
+        row = worksheet.getRow(1);
+        cell = row.getCell(3); //자동화 옵션의 경우 엑셀에서 날짜 체크
+        if (option) {
+            if (cell != null && cell.getCellType() == CellType.STRING) {
+                String sellType = cell.getStringCellValue();
+                if (!sellType.equals(today.toString())) {
+                    throw new IllegalArgumentException("오늘 판매 데이터가 아닙니다.\n수동으로 입력해주세요.");
+                }
+            }
+        }
+
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            Row row = worksheet.getRow(i);
+            row = worksheet.getRow(i);
             if (row == null) continue;
 
             ProductDTO productDTO = new ProductDTO();
 
-            Cell cell = row.getCell(11); // 판매 정보
+            cell = row.getCell(11); // 판매 정보
             if (cell != null && cell.getCellType() == CellType.STRING) {
                 String sellType = cell.getStringCellValue();
                 if (!sellType.startsWith("판매")) {
@@ -412,7 +437,6 @@ public class MessageService {
                 messageStorage.getLastModifiedDate().substring(0, 10)
         );
     }
-
 }
 
 
