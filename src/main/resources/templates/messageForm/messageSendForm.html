@@ -10,54 +10,64 @@
   <div class="jumbotron2" style="margin-top: 10px">
     <h5 th:text="'오늘 내려가는 통상: ' + ${messageForm.messageListDTO.size()}"></h5>
 
-    <form th:action="@{/automessage/message/content}" th:object="${messageForm.messageListDTO}" method="post" id="send_form">
-      <div style="display: flex; flex-wrap: wrap">
-        <div class="entry" th:each="entry, stat : ${messageForm.messageListDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <div th:each="phoneEntry : ${entry.phone.entrySet()}" style="display: flex; height: 30px">
-              <p th:text="${stat.index + 1}+'. ' + ${phoneEntry.key} + ':' + '  '"></p>
-              <input type="text" maxlength="11"
-                     th:id="'phone' + ${stat.index}"
-                     th:name="'messageListDTO[' + ${stat.index} + '].phone[' + ${phoneEntry.key} + ']'"
-                     th:value="${phoneEntry.value}"
-                     style="width: 110px; height: 24px; text-align: center; background: none; border: none;" readonly/>
+    <div style="display: flex; flex-direction: row; justify-content: center;">
+      <form th:action="@{/automessage/message/content}" th:object="${messageForm.messageListDTO}" method="post" id="send_form">
+        <div style="display: flex; flex-wrap: wrap">
+          <div class="entry" th:each="entry, stat : ${messageForm.messageListDTO}" style="flex-basis: calc(33.333% - 7px); box-sizing: border-box; padding: 10px;">
+            <div style="display: flex; flex-direction: row; justify-content: space-between;">
+              <div th:each="phoneEntry : ${entry.phone.entrySet()}" style="display: flex; height: 30px">
+                <p th:text="${stat.index + 1}+'. ' + ${phoneEntry.key} + ':' + '  '"></p>
+                <input type="text" maxlength="11"
+                       th:id="'phone' + ${stat.index}"
+                       th:name="'messageListDTO[' + ${stat.index} + '].phone[' + ${phoneEntry.key} + ']'"
+                       th:value="${phoneEntry.value}"
+                       style="width: 110px; height: 24px; text-align: center; background: none; border: none;" readonly/>
+              </div>
+              <div>
+                <button type="button" class="btn btn-dark" style="width: 46px; height: 30px; font-size: 11px;" th:data-index="${stat.index}">수정</button>
+              </div>
             </div>
-            <div>
-              <button type="button" class="btn btn-dark" style="width: 55px; height: 35px; font-size: 14px;" th:data-index="${stat.index}">수정</button>
-            </div>
-          </div>
-          <textarea style="resize: none; height: 150px"
-                    th:field="${messageForm.messageListDTO[__${stat.index}__].content}"
-                    rows="4">
+            <textarea style="resize: none; height: 150px"
+                      th:field="${messageForm.messageListDTO[__${stat.index}__].content}"
+                      rows="4">
           </textarea>
-          <input type="checkbox" th:id="'checkbox' + ${stat.index}"
-                 th:field="${messageForm.messageListDTO[__${stat.index}__].sendSms}"
-                 value="true" checked="checked"/>전송
+            <input type="checkbox" th:id="'checkbox' + ${stat.index}"
+                   th:field="${messageForm.messageListDTO[__${stat.index}__].sendSms}"
+                   value="true" checked="checked"/>전송
 
-          <!-- Hidden fields for product map -->
-          <div th:each="productEntry : ${entry.smsForm.entrySet()}">
-            <div th:each="productName : ${productEntry.value}">
-              <input type="hidden" th:name="'messageListDTO[' + ${stat.index} + '].smsForm[' + ${productEntry.key} + ']'"
-                     th:value="${productName}" />
+            <!-- Hidden fields for product map -->
+            <div th:each="productEntry : ${entry.smsForm.entrySet()}">
+              <div th:each="productName : ${productEntry.value}">
+                <input type="hidden" th:name="'messageListDTO[' + ${stat.index} + '].smsForm[' + ${productEntry.key} + ']'"
+                       th:value="${productName}" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}">
-      <div style="display: flex; flex-direction: row; justify-content: center;">
-        <button id="send_submit" type="submit" class="button">
-          <p class="btnText">메시지</p>
-          <div class="btnTwo">
-            <p class="btnText2">전송</p>
-          </div>
-        </button>
-      </div>
-    </form>
+        <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}">
+        <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 10px">
+          <button id="add" type="button" class="button">
+            <p class="btnText">추가</p>
+            <div class="btnTwo">
+              <p class="btnText2">메시지</p>
+            </div>
+          </button>
+          <button id="send_submit" type="submit" class="button" style="margin-left: 10px">
+            <p class="btnText">메시지</p>
+            <div class="btnTwo">
+              <p class="btnText2">전송</p>
+            </div>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
-<div id="loading" style="display: none; text-align: center;">
-  <img src="/images/loading.gif" alt="Loading..." />
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 9999;">
+  <div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+    <img src="/images/loading.gif" alt="Loading..." />
+  </div>
 </div>
 
 </body>
@@ -69,6 +79,7 @@
     const form = document.getElementById('send_form');
     const submitButton = document.getElementById('send_submit');
     const loading = document.getElementById('loading');
+    const overlay = document.getElementById('overlay');
 
     form.addEventListener('submit', function(e) {
       if (submitButton.disabled) {
@@ -76,13 +87,12 @@
         return;
       }
 
-      console.log("실행 중")
+      console.log("실행 중");
 
       submitButton.disabled = true;
-      loading.style.display = 'block';
-
+      overlay.style.display = 'block';  // 오버레이와 로딩 창을 표시합니다.
     });
-  })
+  });
 
   document.addEventListener("DOMContentLoaded", function() {
     let editing = false;
@@ -116,6 +126,16 @@
     });
 
   });
+
+  document.getElementById("add").addEventListener("click", function () {
+    const originalForm = document.getElementById("send_form");
+
+    // 기존 폼의 action을 변경하여 전송
+    originalForm.action = "/automessage/message/content/add";
+    originalForm.submit();
+  });
+
+
 </script>
 
 </html>

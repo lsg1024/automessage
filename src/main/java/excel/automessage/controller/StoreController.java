@@ -91,13 +91,15 @@ public class StoreController {
         log.info("newStores (엑셀) Controller");
 
         if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "파일을 선택해주세요.");
+            log.info("file isEmpty");
+            redirectAttributes.addFlashAttribute("errorMessage", "파일을 선택해주세요.");
             return "redirect:/automessage/new/stores";
         }
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         if (extension == null || (!extension.equalsIgnoreCase("xlsx") && !extension.equalsIgnoreCase("xls"))) {
-            redirectAttributes.addFlashAttribute("message", "엑셀 파일만 업로드 가능합니다.");
+            log.info("file is Not Excel");
+            redirectAttributes.addFlashAttribute("errorMessage", "엑셀 파일만 업로드 가능합니다.");
             return "redirect:/automessage/new/stores";
         }
 
@@ -158,6 +160,7 @@ public class StoreController {
             int startPage = ((currentPage - 1)/ size) * size + 1;
             int endPage = Math.min(startPage + size - 1, totalPages);
 
+            model.addAttribute("url", "stores");
             model.addAttribute("storePage", storePage);
             model.addAttribute("startPage", startPage);
             model.addAttribute("endPage", endPage);
@@ -233,6 +236,63 @@ public class StoreController {
         return "redirect:/automessage/stores?category=" + category + "&query=" + encodedQuery;
     }
 
+    // 추가할 가게 선택
+    @GetMapping("/stores_add")
+    public String messageStoreList(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "all") String category,
+            @ModelAttribute("messageForm") MessageListDTO messageListDTO,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
+        log.info("messageStoreList Controller");
+        log.info("messageStoreList Controller messageForm {}", messageListDTO.getMessageListDTO().size());
+
+        int size = 10;
+
+        try {
+            Page<Store> storePage = storeService.searchStores(category, query, page - 1, size);
+            int totalPages = storePage.getTotalPages();
+            int currentPage = storePage.getNumber() + 1;
+            int startPage = ((currentPage - 1)/ size) * size + 1;
+            int endPage = Math.min(startPage + size - 1, totalPages);
+
+            model.addAttribute("url", "stores_add");
+            model.addAttribute("storePage", storePage);
+            model.addAttribute("startPage", startPage);
+            model.addAttribute("endPage", endPage);
+            model.addAttribute("currentPage", currentPage);
+            model.addAttribute("totalPages", totalPages);
+
+            model.addAttribute("messageForm", messageListDTO);
+        } catch (IllegalArgumentException e) {
+            log.info("store Controller errorMessage = {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/automessage/message";
+        }
+
+        return "storeForm/storeMessageList";
+    }
+
+    @PostMapping("/stores_add")
+    public String messageStoreAdd(
+            @RequestParam("storeName") String storeName,
+            @RequestParam("storePhoneNumber") String storePhoneNumber,
+            @ModelAttribute("messageForm") MessageListDTO messageListDTO,
+            RedirectAttributes redirectAttributes) {
+
+        log.info("messageAdd Controller MessageListDTO bf {}", messageListDTO.getMessageListDTO().size());
+
+        // 선택한 가게 정보를 messageForm에 추가
+        messageListDTO.addStore(storeName, storePhoneNumber);
+
+        // 리다이렉트 시 데이터 유지
+        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
+
+        log.info("messageAdd Controller MessageListDTO af {}", messageListDTO.getMessageListDTO().size());
+
+        return "redirect:/automessage/message/content";
+    }
 
 }
