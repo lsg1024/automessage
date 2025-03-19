@@ -1,10 +1,11 @@
 package excel.automessage.controller;
 
+import excel.automessage.dto.message.MessageListDTO;
 import excel.automessage.dto.message.MessageResponseDTO;
 import excel.automessage.dto.message.ProductDTO;
-import excel.automessage.dto.message.MessageListDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
+import excel.automessage.service.message.LatestFileService;
 import excel.automessage.service.message.MessageService;
 import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.RequiredArgsConstructor;
@@ -27,22 +28,56 @@ import java.util.UUID;
 @RequestMapping("/automessage")
 @RequiredArgsConstructor
 @Slf4j
+@SessionAttributes({"messageForm"})
 public class MessageController {
 
     private final MessageService messageService;
+    private final LatestFileService latestFileService;
     private final IdempotencyRedisService idempotencyRedisService;
 
-    // 메시지 양식 업로드 폼
     @GetMapping("/message")
-    public String message() {
+    public String messageMenu() {
         log.info("message controller");
+        return "messageForm/messageMenu";
+    }
+
+    // 메시지 양식 자동 호출
+    @GetMapping("/message/auto_send")
+    public String messageAuto(RedirectAttributes redirectAttributes) throws IOException {
+        log.info("message Auto Controller");
+
+        boolean autoFile = latestFileService.messageAutoLoad();
+
+        //파일 업로드 메서드 호출
+        if (autoFile) {
+            MultipartFile file = latestFileService.getExcelFileAsMultipart();
+            if (file != null) {
+                return messageUpload(file, redirectAttributes, true);
+            }
+        }
+        redirectAttributes.addFlashAttribute("errorMessage", "자동으로 저장된 파일이 없습니다.\n수동으로 기능을 사용해 주십시오.");
+
+        return "redirect:/automessage/message";
+    }
+
+    // 메시지 양식 수동 작성
+    @GetMapping("/message/manual_send")
+    public String messageManual() {
+        log.info("message Manual Controller");
+        return "messageForm/messageSendForm";
+    }
+
+    // 메시지 양식 업로드 폼
+    @GetMapping("/message/file_send")
+    public String messageFile() {
+        log.info("message File Controller");
         return "messageForm/messageFileUpload";
     }
 
     // 메시지 양식 업로드 (엑셀)
-    @PostMapping("/message")
-    public String messageUpload(@RequestParam MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
-        log.info("messageUpload Controller");
+    @PostMapping("/message/file_send")
+    public String messageUpload(@RequestParam MultipartFile file, RedirectAttributes redirectAttributes, boolean option) throws IOException {
+        log.info("messageUpload Controller {}", file.getOriginalFilename());
 
         // 파일 null 체크
         if (file.isEmpty()) {
@@ -60,28 +95,34 @@ public class MessageController {
             return "redirect:/automessage/message";
         }
 
-        ProductDTO.ProductList productList = messageService.messageUpload(file);
+        try {
+            ProductDTO.ProductList productList = messageService.messageUpload(file, option);
 
-        // 메시지 폼 생성 및 미등록 가게 확인
-        MessageListDTO messageListDTO = messageService.messageForm(productList);
+            // 메시지 폼 생성 및 미등록 가게 확인
+            MessageListDTO messageListDTO = messageService.messageForm(productList);
 
-        // 중복되는 미등록 가게 이름 하나로 통합 -> [가게1, 가게1] -> [가게1]
-        List<String> missingStores = messageListDTO.getMessageListDTO().stream()
-                .flatMap(entry -> entry.getMissingStores().stream())
-                .distinct()
-                .toList();
+            // 중복되는 미등록 가게 이름 하나로 통합 -> [가게1, 가게1] -> [가게1]
+            List<String> missingStores = messageListDTO.getMessageListDTO().stream()
+                    .flatMap(entry -> entry.getMissingStores().stream())
+                    .distinct()
+                    .toList();
 
-        if (!missingStores.isEmpty()) {
-            log.info("messageUpload missingStores {}", missingStores);
-            // 미등록 가게가 있으면 메시지 폼을 생성하지 않고 미등록 가게 페이지로 리다이렉트
-            redirectAttributes.addFlashAttribute("missingStores", missingStores);
+            if (!missingStores.isEmpty()) {
+                log.info("messageUpload missingStores {}", missingStores);
+                // 미등록 가게가 있으면 메시지 폼을 생성하지 않고 미등록 가게 페이지로 리다이렉트
+                redirectAttributes.addFlashAttribute("missingStores", missingStores);
+                redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
+                return "redirect:/automessage/store/miss";
+            }
+
             redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
-            return "redirect:/automessage/store/miss";
+            return "redirect:/automessage/message/content";
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/automessage/message";
         }
 
-        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
-
-        return "redirect:/automessage/message/content";
     }
 
     // 메시지 전송 폼
@@ -96,7 +137,6 @@ public class MessageController {
         model.addAttribute("idempotencyKey", idempotencyKey);
         return "messageForm/messageSendForm";
     }
-
 
     // 메시지 전송
     @PostMapping("/message/content")
@@ -128,6 +168,20 @@ public class MessageController {
         return "redirect:/automessage/message/result";
     }
 
+    // 메시지 추가
+    @PostMapping("/message/content/add")
+    public String messageAdd(@ModelAttribute("messageForm") MessageListDTO messageListDTO,
+                             RedirectAttributes redirectAttributes) {
+
+        log.info("messageAdd Controller");
+
+        redirectAttributes.addFlashAttribute("messageForm", messageListDTO);
+
+        log.info("messageAdd Controller messageFormDto {}", messageListDTO.getMessageListDTO().size());
+
+        return "redirect:/automessage/stores_add";
+    }
+
     // 메시지 로그 조회 폼
     @GetMapping("/message/log")
     public String messageLogPage(@RequestParam(defaultValue = "1") int page,
@@ -152,6 +206,7 @@ public class MessageController {
                 return "redirect:/automessage/message/log?";
             }
 
+            model.addAttribute("url", "록message/log");
             model.addAttribute("messageLog", messageLog);
             model.addAttribute("totalPage", totalPage);
             model.addAttribute("startPage", startPage);
@@ -166,12 +221,14 @@ public class MessageController {
         return "messageForm/messageLogForm";
     }
 
-    // 메시지 상세 페이지
+    // 메시지 로그 상세 페이지
     @GetMapping("/message/log/{id}")
     public String messageLogDetailPage(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
 
         try {
             MessageLogDetailDTO.MessageLogsDTO messageLogs = messageService.searchMessageLogDetail(id);
+
+            log.info("messageLogs {}", messageLogs.getMessageLogs().entrySet());
 
             if (messageLogs.getMessageLogs().size() > 0) {
                 model.addAttribute("messageLogs", messageLogs);
@@ -190,6 +247,20 @@ public class MessageController {
         return "messageForm/messageLogDetailForm";
     }
 
+    // 메시지 로그 삭제
+    @PostMapping("/message/log/delete/{id}")
+    public String messageLogDelete(@PathVariable("id") String id,  RedirectAttributes redirectAttributes) {
+
+        try {
+            messageService.deleteLog(id);
+            redirectAttributes.addFlashAttribute("response", "삭제 완료");
+            return "redirect:/automessage/message/log";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("response", e.getMessage());
+            return "redirect:/automessage/message/log";
+        }
+
+    }
 
     // 결과 alert 페이지
     @GetMapping("/message/result")
