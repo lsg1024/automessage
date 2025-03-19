@@ -111,7 +111,7 @@ class MessageControllerTest extends BaseTest {
     void messageUploadSuccess() throws Exception {
         MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "test file".getBytes(StandardCharsets.UTF_8));
 
-        mockMvc.perform(multipart("/automessage/message")
+        mockMvc.perform(multipart("/automessage/message/file_send")
                         .file(mockMultipartFile)
                         .session(session)
                         .with(csrf()))
@@ -128,7 +128,7 @@ class MessageControllerTest extends BaseTest {
 
         MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.html", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "test file".getBytes(StandardCharsets.UTF_8));
 
-        MvcResult result = mockMvc.perform(multipart("/automessage/message")
+        MvcResult result = mockMvc.perform(multipart("/automessage/message/file_send")
                         .file(mockMultipartFile)
                         .session(session)
                         .with(csrf()))
@@ -149,7 +149,7 @@ class MessageControllerTest extends BaseTest {
 
         MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new byte[0]);
 
-        MvcResult result = mockMvc.perform(multipart("/automessage/message")
+        MvcResult result = mockMvc.perform(multipart("/automessage/message/file_send")
                         .file(mockMultipartFile)
                         .session(session)
                         .with(csrf()))
