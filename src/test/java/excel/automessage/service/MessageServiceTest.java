@@ -95,7 +95,7 @@ class MessageServiceTest extends BaseTest {
     void messageUploadSuccess() throws IOException {
 
         // 테스트할 메서드 호출
-        ProductDTO.ProductList productList = messageService.messageUpload(file);
+        ProductDTO.ProductList productList = messageService.messageUpload(file, false);
 
         // 결과 검증
         assertThat(productList.getProductDTOList()).hasSize(2);
@@ -125,7 +125,7 @@ class MessageServiceTest extends BaseTest {
         MockMultipartFile file = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", inputStream);
 
         //when
-        ProductDTO.ProductList productList = messageService.messageUpload(file);
+        ProductDTO.ProductList productList = messageService.messageUpload(file, false);
 
         //then
         assertThat(productList.getProductDTOList()).hasSize(0);

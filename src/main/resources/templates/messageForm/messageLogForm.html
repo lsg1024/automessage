@@ -9,12 +9,13 @@
 
   <div class="jumbotron2 logForm_jum">
     <div class="logForm_div">
-      <table class="custom_table">
+      <table class="table">
         <thead>
         <tr>
           <th style="width: 20%" class="log_th">번호</th>
-          <th style="width: 50%" class="log_th">날짜</th>
-          <th style="width: 30%" class="log_th">상세정보</th>
+          <th style="width: 35%" class="log_th">날짜</th>
+          <th style="width: 25%" class="log_th">상세정보</th>
+          <th style="width: 20%;">선택</th>
         </tr>
         </thead>
         <tbody>
@@ -31,33 +32,23 @@
               </button>
             </form>
           </td>
+          <td class="log_td">
+            <form th:action="@{/automessage/message/log/delete/{id}(id=${message.messageStorageId})}" method="post">
+              <button type="submit" class="btn btn-danger" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+            </form>
+          </td>
         </tr>
         </tbody>
       </table>
   </div>
+
+    <div th:replace="~{util/navigation :: pagination(${url}, ${startPage}, ${endPage}, ${currentPage}, ${totalPage})}"></div>
+
 </div>
-  <nav class="pagination">
-    <ul class="d-flex justify-content-center">
-      <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
-        <button class="page-link" th:attr="onclick='navigateToPage(' + ${startPage - 1} + ')'">&laquo;</button>
-      </li>
-      <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
-        <button class="page-link"
-                th:attr="onclick='navigateToPage(' + ${i} + ')'"
-                th:text="${i}"
-                th:classappend="${i == currentPage} ? 'active' : ''">
-        </button>
-      </li>
-      <li th:if="${endPage < totalPage}" class="page-item" style="list-style-type: none">
-        <button class="page-link" th:attr="onclick='navigateToPage(' + ${endPage + 1} + ')'">&raquo;</button>
-      </li>
-    </ul>
-  </nav>
 
 </div>
 
 </body>
-
 <script th:inline="javascript">
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -70,8 +61,18 @@
 
   })
 
-  function navigateToPage(page) {
-    location.href = `/automessage/message/log?page=${page}`;
+  document.addEventListener("DOMContentLoaded", function () {
+
+    let response = [[${response}]];
+
+    if (response) {
+      alert(response);
+    }
+
+  })
+
+  function navigateToPage(url , page) {
+    location.href = `/automessage/${url}?page=${page}`;
   }
 
 </script>

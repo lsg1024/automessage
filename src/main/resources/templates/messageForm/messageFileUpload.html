@@ -7,10 +7,9 @@
     <div class="jumbotron">
         <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
             <div style="display: flex; justify-content: center;" >
-
-                <form th:action="@{/automessage/message}" method="post" enctype="multipart/form-data">
+                <form th:action="@{/automessage/message/file_send}" method="post" enctype="multipart/form-data">
                     <div class="filebox" id='filebox' style="display: flex">
-                        <input class="upload-name" value="파일 드래그 혹은 첨부" placeholder="파일 드래그 혹은 첨부" disabled="disabled">
+                        <input id="upload_file" class="upload-name" value="파일 드래그 혹은 첨부" placeholder="파일 드래그 혹은 첨부" disabled="disabled">
                         <label for="file">파일찾기</label>
                         <input type="file" name="file" id="file">
                     </div>
@@ -37,38 +36,36 @@
         }
     })
 
-    let fileBox = document.getElementById("filebox");
-    let fileInput = document.getElementById('file');
+    document.addEventListener("DOMContentLoaded", function () {
+        let fileBox = document.getElementById("filebox");
+        let fileInput = document.getElementById("file");
+        let uploadName = document.getElementById("upload_file");
 
-    fileBox.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        console.log("dragover");
-    })
-
-    fileBox.addEventListener("drop", function(e) {
-        e.preventDefault();
-
-        let files = e.dataTransfer.files;
-        if (files.length > 0) {
-            let file = files[0];
-            if (file.type.includes('excel') || file.type.includes('sheet')) {
-                fileInput.files = files;
-                $(".upload-name").val(file.name);
-            } else {
-                alert('엑셀 파일만 업로드 가능합니다.');
-            }
-        }
-    })
-
-
-    $(document).ready(function() {
-        $("#file").on('change', function() {
-            // 파일 이름 가져오기
-            let fileName = $(this).val().split('\\').pop();
-            // 파일 이름을 upload-name 클래스의 입력 필드에 설정
-            $(".upload-name").val(fileName);
+        fileBox.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            console.log("dragover");
         });
 
+        fileBox.addEventListener("drop", function (e) {
+            e.preventDefault();
+
+            let files = e.dataTransfer.files;
+            if (files.length > 0) {
+                let file = files[0];
+                if (file.type.includes("excel") || file.type.includes("sheet")) {
+                    fileInput.files = files;
+                    uploadName.value = file.name; // 파일명 표시
+                } else {
+                    alert("엑셀 파일만 업로드 가능합니다.");
+                }
+            }
+        });
+
+        fileInput.addEventListener("change", function () {
+            let fileName = this.value.split("\\").pop();
+            uploadName.value = fileName; // 파일명 표시
+        });
     });
+
 </script>
 </html>

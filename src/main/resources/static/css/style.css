@@ -281,6 +281,12 @@ table td.storeList_td {
     align-items: flex-end;
 }
 
+.update-div label {
+    width: 100px;  /* 고정된 너비 설정 */
+    text-align: left;  /* 오른쪽 정렬 */
+    margin-right: 10px;  /* 입력 필드와 간격 */
+}
+
 .flex-normal {
     display: flex;
     justify-content: center;
@@ -305,16 +311,11 @@ table td.storeList_td {
 .login-div {
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
 .login-remember-div {
     display: flex;
-    flex-direction: row;
-    width: 60%;
     margin-top: 10px;
-    justify-content: flex-start;
-    align-items: flex-start;
 }
 
 .login-remember-input {
@@ -332,8 +333,7 @@ table td.storeList_td {
 .logForm_div {
     display: flex;
     height: 700px;
-    align-content: flex-start;
-    flex-wrap: wrap;
+    flex-direction: column;
 }
 
 .custom_table {
@@ -342,9 +342,10 @@ table td.storeList_td {
     color: #212529;
 }
 
-.log_td, .log_th {
+table td.log_td{
     padding: .75rem;
     border-top: 1px solid #dee2e6;
+    vertical-align: middle;
 }
 
 .logout_btn {

@@ -36,6 +36,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-api.properties
           echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> src/main/resources/application-api.properties
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> src/main/resources/application-api.properties
+          echo "FILE_PATH=${{ secrets.FILE_PATH }}" >> src/main/resources/application-api.properties
 
       - name: Display application-api.properties content for verification
         run: cat src/main/resources/application-api.properties
@@ -85,10 +86,10 @@ jobs:
           SSH_PORT: ${{ secrets.NAS_SSH_PORT }}
           DOCKER_IMAGE: "zks145/automessage:latest"
         run: |
-          sshpass -p "$NAS_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SSH_PORT $NAS_USERNAME@$NAS_HOST << EOF
+          sshpass -p "$NAS_PASSWORD" ssh -t -o StrictHostKeyChecking=no -p $SSH_PORT $NAS_USERNAME@$NAS_HOST << EOF
           echo "/var/lib/docker/containers/*/*.log {
                 daily
-                rotate 60
+                rotate 30
                 compress
                 delaycompress
                 missingok
@@ -96,20 +97,18 @@ jobs:
                 create 0644 root root
                 dateext
                 copytruncate
-                olddir /docker/automessage/logs
-          }" > /etc/logrotate.d/docker-container-logs
-      
-            # 로그 저장 디렉토리 생성
-            mkdir -p /docker/automessage/logs
+                olddir /volume1/docker/ubuntu/excel
+          }" | sudo -S tee /etc/logrotate.d/docker-container-logs <<< "$NAS_PASSWORD"
       
             # logrotate 실행 테스트
-            logrotate -f /etc/logrotate.d/docker-container-logs
-          EOF
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull $DOCKER_IMAGE
-            docker stop automessage || true
-            docker rm automessage || true
-            docker run -d --name automessage \
-              -v /etc/localtime:/etc/localtime:ro -e TZ=Asia/Seoul \
-              -p 8002:8002 ${{ env.DOCKER_IMAGE }}
+          echo "$NAS_PASSWORD" | sudo -S logrotate -f /etc/logrotate.d/docker-container-logs
+          
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker pull $DOCKER_IMAGE
+          docker stop automessage || true
+          docker rm automessage || true
+          docker run -d --name automessage \
+            -v /volume1/docker/ubuntu/excel:/excel:rw \
+            -e TZ=Asia/Seoul \
+            -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF

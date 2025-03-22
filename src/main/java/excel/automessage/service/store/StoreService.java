@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
+
+import static excel.automessage.service.store.validate.StoreValidate.existStoreName;
+import static excel.automessage.service.store.validate.StoreValidate.existStorePhoneNumber;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +62,12 @@ public class StoreService {
         log.info("store.getId() = {} store.getName = {} store.getPhone() = {}", storeDTO.getId(), storeDTO.getName(), storeDTO.getPhone());
 
         Store store = findById(storeId);
+
+        boolean existsByStoreNameAndStoreIdNot = storeRepository.existsByStoreNameAndStoreIdNot(storeDTO.getName(), storeId);
+        boolean existsByStorePhoneNumberAndStoreIdNot = storeRepository.existsByStorePhoneNumberAndStoreIdNot(storeDTO.getPhone(), storeId);
+
+        existStoreName(existsByStoreNameAndStoreIdNot, storeDTO.getName());
+        existStorePhoneNumber(existsByStorePhoneNumberAndStoreIdNot, storeDTO.getPhone());
 
         store.setStoreNameAndPhoneNumber(storeDTO.getName(), storeDTO.getPhone());
 
@@ -133,11 +141,6 @@ public class StoreService {
         // MissingStores에서 해당 값을 찾아 phone에 추가
         updateMissingStoresWithPhone(messageListDTO, storeListDTO);
 
-//        for (MessageFormEntry entry : messageListDTO.getMessageListDTO()) {
-//            log.info("saveMissingStore message entry = {}", entry.smsForm.entrySet());
-//            log.info("saveMissingStore message entry = {}", entry.phone.entrySet());
-//        }
-
         return messageListDTO;
     }
 
@@ -165,28 +168,24 @@ public class StoreService {
     private void saveStores(StoreListDTO storeListDTO, StoreListDTO result) {
         for (StoreDTO saveStore : storeListDTO.getStores()) {
 
-            Store store;
-
             log.info("saveStores name {}, number {}", saveStore.getName(), saveStore.getPhone());
 
             //- 제거
             saveStore.setPhone(removeHyphens(saveStore.getPhone()));
 
-            Optional<Store> existingStore = storeRepository.findByStoreName(saveStore.getName());
+            boolean existsByStoreName = storeRepository.existsByStoreName(saveStore.getName());
+            boolean existByStorePhoneNumber = storeRepository.existsByStorePhoneNumber(saveStore.getPhone());
 
-            if (existingStore.isPresent()) {
-                // Store가 이미 존재하는 경우 업데이트
-                store = existingStore.get();
-                store.setStorePhoneNumber(saveStore.getPhone());
-                storeRepository.save(store);
-            } else {
-                // Store가 존재하지 않는 경우 새로 저장
-                store = Store.builder()
-                        .storeName(saveStore.getName())
-                        .storePhoneNumber(saveStore.getPhone())
-                        .build();
-                storeRepository.save(store);
+            if (existsByStoreName || existByStorePhoneNumber) {
+                log.error("중복된 이름 혹은 전화번호가 포함되었습니다.");
+                continue;
             }
+
+            Store store = Store.builder()
+                    .storeName(saveStore.getName())
+                    .storePhoneNumber(saveStore.getPhone())
+                    .build();
+            storeRepository.save(store);
 
             StoreDTO savedStoreDTO = StoreDTO.builder()
                     .id(store.getStoreId())

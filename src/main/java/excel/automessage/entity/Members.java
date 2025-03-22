@@ -27,4 +27,19 @@ public class Members  {
         this.role = role;
     }
 
+    public void updateRole(String memberId, String role) {
+        if (role.isEmpty()) {
+            throw new IllegalArgumentException("권한 설정을 옳바르게 해주세요.");
+        }
+
+        if (!this.memberId.equals(memberId)) {
+            throw new IllegalArgumentException("사용자 이름 변경은 불가능합니다.");
+        }
+
+        if (role.equals("USER") || role.equals("WAIT") || role.equals("ADMIN")) {
+            this.role = Role.valueOf(role);
+        }
+        throw new IllegalArgumentException("잘못된 권한 설정 입니다.");
+    }
+
 }

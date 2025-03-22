@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<nav th:fragment="pagination(url, startPage, endPage, currentPage, totalPages)" class="pagination">
+  <ul class="d-flex justify-content-center">
+    <li th:if="${startPage > 1}" class="page-item" style="list-style-type: none">
+      <button class="page-link" th:attr="onclick='navigateToPage(\'' + ${url} + '\', ' + ${startPage - 1} + ')'">&laquo;</button>
+    </li>
+    <li th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item" style="list-style-type: none">
+      <button class="page-link"
+              th:attr="onclick='navigateToPage(\'' + ${url} + '\', ' + ${i} + ')'"
+              th:text="${i}"
+              th:classappend="${i == currentPage} ? 'active' : ''">
+      </button>
+    </li>
+    <li th:if="${endPage < totalPages}" class="page-item" style="list-style-type: none">
+      <button class="page-link" th:attr="onclick='navigateToPage(\'' + ${url} + '\', '  + ${endPage + 1} + ')'">&raquo;</button>
+    </li>
+  </ul>
+</nav>
