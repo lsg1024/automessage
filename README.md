@@ -4,8 +4,10 @@
 프로젝트 진행 기간: 24.04.28 ~ 24.07.01<br>
 
 프로젝트 진행 사유: 매일 사진을 찍어 오늘 내려가는 배송품을 카카오톡으로 직접 가게별로 전송하는 작업은 시간적으로 비효율적이기에 해당 작업을 자동화해 소요하는 시간을 줄이기 위해 시작하였습니다.<br>
-프로젝트 리펙토링 기간: 24.07.24 ~ 24.08.31<br>
-프로젝트 리펙토링 사유: 기존 Thymeleaf에서 사용된 javascript 코드를 thymeleaf 문법으로 최소화, 보안 강화를 위한 로그인 기능 추가였습니다.
+프로젝트 1차 리펙토링 기간: 24.07.24 ~ 24.08.31<br>
+프로젝트 리펙토링: 기존 Thymeleaf에서 사용된 javascript 코드를 thymeleaf 문법으로 최소화, 보안 강화를 위한 로그인 기능 추가였습니다.
+프로젝트 2차 리펙토링 기간: 25.03.10 ~ 25.03.20<br>
+프로젝트 리펙토링: 파이썬 크롤링 서버 api 추가, 자동 메시지 호출 기능 추가, 관리자 로그인 관리 기능 추가, 상품 로그 삭제 기능 추가
 </p>
 
 <h2>사용 언어 및 기술</h2>
@@ -13,9 +15,12 @@
 <p style="font-weight: bolder">사용 언어 및 프레임 워크</p>
     <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
     <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+    <img src="https://img.shields.io/badge/Python-3776AB.svg?&style=for-the-badge&logo=Python&logoColor=white">
+    <img src="https://img.shields.io/badge/flask-000000.svg?&style=for-the-badge&logo=flask&logoColor=white">
     <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
     <img src="https://img.shields.io/badge/thymeleaf-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white">
     <img src="https://img.shields.io/badge/mariadb-003545?style=for-the-badge&logo=mariadb&logoColor=white">
+    <img src="https://img.shields.io/badge/redis-FF4438.svg?&style=for-the-badge&logo=redis&logoColor=white">
 <p style="font-weight: bolder">사용 기술</p>
     <img src="https://img.shields.io/badge/synology-black?style=for-the-badge&logo=synology&logoColor=white">
     <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
@@ -72,7 +77,7 @@
         <li><a href="https://zks145.tistory.com/114">Spring Boot Jar 배포 및 DB 연결</a></li>
         <li><a href="https://zks145.tistory.com/121">Github Action CI/CD 무중단 배포 1편</a></li>
         <li><a href="https://zks145.tistory.com/123">Github Action CI/CD 무중단 배포 2편</a></li>
-        <h3>리펙토링: Spring Security와 Redis 세션 로그인 + 로그인 유지</h3>
+        <h3>리펙토링-1: Spring Security와 Redis 세션 로그인 + 로그인 유지</h3>
         기존 서버는 로그인 서비스가 없어서 URL 접근만으로 내부 정보를 쉽게 볼 수 있는 보안 문제가 있었습니다. 
         이를 해결하기 위해 Spring Security를 도입하여 사용자 인증 및 권한 관리를 강화했습니다. 또한 Redis를 활용하여 세션 관리와 자동 로그인을 구현했습니다.
         <ol>
@@ -87,11 +92,14 @@
         <h5>참고 자료</h5>
         <li><a href="https://zks145.tistory.com/130">Spring Security와 Redis 이용한 로그인 세션 유지</a></li>
         <li><a href="https://zks145.tistory.com/106">SSR에서 JWT를 이용한 인증/인가 방식을 사용하지 않는 이유</a></li>
+        <h3>리펙토링-2: 파이썬 크롤링 서버와 연동된 자동 메시지 호출 기능</h3>
+        이전 버전까지는 매일 보내는 메시지를 별도의 서버에서 엑셀 양식을 다운 받아 그것을 업로드하는 방식으로 데이터를 받아 전송하는 과정을 수행하였습니다.
+        하지만 크롤링 서버를 통해 일정 시간에 맞춰 파일을 미리 다운 받을 수 있는 서버를 생성해 이후 Redis와 날짜 비교를 통해 당일 메시지 파일을 자동으로 호출하는 기능을 추가하였습니다.
     </details>
 </div>
 
 <div>
-    <details><summary style="font-size: large; font-weight: bold">성과 및 아쉬운 점</summary>
+    <details><summary style="font-size: large; font-weight: bold; margin-top: 10px">성과 및 아쉬운 점</summary>
     <h5>성과</h5>
         <p>
             이번 프로젝트를 진행하며 단순히 이론적으로 알고 있던 지식을 활용하는 기회를 가지게 되었고 단순 기능 구현이 아닌 생각하고 필요에 따른 새로운 기술 구현을 할 기회가 생겼습니다.<br>
