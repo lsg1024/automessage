@@ -18,7 +18,9 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
         String remoteAddr = request.getRemoteAddr();
         String requestURI = request.getRequestURI();
 
-        log.info("접속 ip {}", remoteAddr);
+        String remoteAdd2 = getClientIp(request);
+
+        log.info("접속 ip {} {}", remoteAddr, remoteAdd2);
 
         // 로그인 URL 제외
         if (requestURI.contains("/login")) {
@@ -37,5 +39,17 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
     private boolean isInternalNetwork(String ip) {
         return ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.") || ip.startsWith("127.") || ip.equals("0:0:0:0:0:0:0:1");
     }
+
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("X-Real-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+
 }
 

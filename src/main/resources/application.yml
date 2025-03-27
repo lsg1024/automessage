@@ -60,4 +60,5 @@ server:
     mbeanregistry:
       enabled: true
   port: 8002
+  forward-headers-strategy: native
 
