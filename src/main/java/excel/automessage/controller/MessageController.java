@@ -5,7 +5,7 @@ import excel.automessage.dto.message.MessageResponseDTO;
 import excel.automessage.dto.message.ProductDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
-import excel.automessage.service.message.LatestFileService;
+import excel.automessage.service.message.util.LatestFileService;
 import excel.automessage.service.message.MessageService;
 import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.RequiredArgsConstructor;
@@ -158,7 +158,7 @@ public class MessageController {
 
         List<Integer> errorMessage = new ArrayList<>();
 //      메시지 전송
-        List<MessageResponseDTO> responses = messageService.checkMessageTransmission(messageListDTO, errorMessage);
+        List<MessageResponseDTO> responses = messageService.checkMessageSend(messageListDTO, errorMessage);
 
 //      전송 결과를 모델에 추가
         redirectAttributes.addFlashAttribute("responses", responses);

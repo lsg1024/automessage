@@ -7,6 +7,7 @@ import excel.automessage.dto.store.StoreListDTO;
 import excel.automessage.entity.Store;
 import excel.automessage.repository.StoreRepository;
 import excel.automessage.util.ExcelSheetUtils;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -23,8 +24,9 @@ import static excel.automessage.service.store.validate.StoreValidate.existStoreN
 import static excel.automessage.service.store.validate.StoreValidate.existStorePhoneNumber;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@Timed("otalk.store")
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StoreService {
 
