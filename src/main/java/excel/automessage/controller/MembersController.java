@@ -58,7 +58,7 @@ public class MembersController {
 
     @PostMapping("/login")
     public String login(@Validated @ModelAttribute("loginForm") MembersDTO membersDTO, BindingResult bindingResult) {
-        log.info("login Controller Controller");
+        log.info("login Controller");
 
         if (bindingResult.hasErrors()) {
             return "redirect:/login";

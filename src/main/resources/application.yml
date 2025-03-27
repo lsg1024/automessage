@@ -34,10 +34,30 @@ spring:
     console:
       enabled: true
 
+management:
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+
+  endpoints:
+    web:
+      exposure:
+        include: ${INCLUDE}
+      base-path: ${BASE_PATH}
+
+logging:
+  level:
+    hello.controller: debug
+
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: trace
 
 server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
   port: 8002
 

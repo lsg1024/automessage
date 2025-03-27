@@ -1,4 +1,4 @@
-package excel.automessage.service.message;
+package excel.automessage.service.message.util;
 
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;

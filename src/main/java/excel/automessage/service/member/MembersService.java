@@ -5,6 +5,7 @@ import excel.automessage.dto.members.MembersDTO;
 import excel.automessage.entity.Members;
 import excel.automessage.entity.Role;
 import excel.automessage.repository.MembersRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -12,15 +13,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@Timed("otalk.member")
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MembersService {
 
     private final MembersRepository membersRepository;
     private final BCryptPasswordEncoder encoder;
 
+    @Transactional
     public Boolean createMember(MembersDTO membersDTO) {
 
         boolean result = membersRepository.existsByMemberId(membersDTO.getMemberId());
@@ -59,6 +64,7 @@ public class MembersService {
         member.updateRole(memberDTO.getMemberId(), memberDTO.getMemberRole());
     }
 
+    @Transactional
     public void adminDelete(Long id) {
         membersRepository.deleteById(id);
     }
