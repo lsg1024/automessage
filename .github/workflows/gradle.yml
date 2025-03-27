@@ -114,8 +114,5 @@ jobs:
           docker run -d --name automessage \
             -v /volume1/docker/ubuntu/excel:/excel:rw \
             -e TZ=Asia/Seoul \
-            -e LANG=ko_KR.UTF-8 \
-            -e LC_ALL=ko_KR.UTF-8 \
-            -e LANGUAGE=ko_KR.UTF-8 \
             -p 8002:8002 ${{ env.DOCKER_IMAGE }}
           EOF
