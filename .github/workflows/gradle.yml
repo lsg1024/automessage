@@ -37,6 +37,10 @@ jobs:
           echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> src/main/resources/application-api.properties
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> src/main/resources/application-api.properties
           echo "FILE_PATH=${{ secrets.FILE_PATH }}" >> src/main/resources/application-api.properties
+          echo "BASE_PATH=${{ secrets.BASE_PATH }}" >> src/main/resources/application-api.properties
+          echo "INCLUDE=${{ secrets.INCLUDE }}" >> src/main/resources/application-api.properties
+          echo "MESSAGE_CONTENT=${{ secrets.MESSAGE_CONTENT }}" >> src/main/resources/application-api.properties
+          
 
       - name: Display application-api.properties content for verification
         run: cat src/main/resources/application-api.properties
