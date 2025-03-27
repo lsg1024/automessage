@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,9 +42,6 @@ import static excel.automessage.service.message.util.MessageUtil.isCheckboxSelec
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MessageService {
-
-    @Value("${MESSAGE_CONTENT}")
-    private String message;
 
     private final StoreRepository storeRepository;
     private final MessageStorageRepository messageStorageRepository;
@@ -179,7 +175,7 @@ public class MessageService {
             } else {
                 // 새로운 SmsFormEntry 생성
                 smsFormEntry = new MessageFormEntry();
-                smsFormEntry.setContent(message + "\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
+                smsFormEntry.setContent("안녕하세요 종로 칸입니다.\n오늘 물품이 내려갑니다.\n내일 통상 확인해주세요~"); // 기본값 설정, 필요에 따라 수정
                 smsFormEntry.setSendSms(true);
                 smsFormEntry.getSmsForm().put(storeName, new ArrayList<>());
                 smsFormEntryMap.put(storeName, smsFormEntry);
