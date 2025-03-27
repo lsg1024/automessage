@@ -2,10 +2,11 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.4'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 group = 'excel'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.4-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
@@ -53,6 +54,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
+	//actuator && prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
@@ -65,4 +70,8 @@ tasks.named('test') {
 
 jar {
 	enabled = false
+}
+
+springBoot {
+	buildInfo()
 }
