@@ -18,17 +18,13 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
         String remoteAddr = request.getRemoteAddr();
         String requestURI = request.getRequestURI();
 
-        log.info("접속 ip {}", remoteAddr);
-
         // 로그인 URL 제외
         if (requestURI.contains("/login")) {
-            log.info("로그인 URL 제외");
             filterChain.doFilter(request, response);
             return;
         }
 
         if (!isInternalNetwork(remoteAddr)) {
-            log.info("외부 ip 주소 입니다");
             response.sendRedirect("/login");
             return;
         }
