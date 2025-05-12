@@ -23,7 +23,7 @@ public class LatestFileService {
 
         File file = new File(FILE_PATH + "판매관리.xls");
 
-        return response.equals("success") || file.exists();
+        return "success".equals(response) || file.exists();
     }
 
     public MultipartFile getExcelFileAsMultipart() {
