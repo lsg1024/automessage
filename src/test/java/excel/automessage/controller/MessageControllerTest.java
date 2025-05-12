@@ -5,7 +5,6 @@ import excel.automessage.dto.message.MessageDTO;
 import excel.automessage.entity.*;
 import excel.automessage.repository.MembersRepository;
 import excel.automessage.repository.MessageStorageRepository;
-import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -36,9 +35,6 @@ class MessageControllerTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private IdempotencyRedisService idempotencyRedisService;
 
     private static MockHttpSession session;
 
@@ -164,63 +160,6 @@ class MessageControllerTest extends BaseTest {
         assertThat(flashMap.get("errorMessage")).isEqualTo("파일을 선택해주세요.");
 
     }
-
-    // 메시지 중복 전송
-//    @Test
-//    @DisplayName("메시지 중복 전송")
-//    @Transactional
-//    void messageDuplicateSend() throws Exception {
-//        String idempotencyKey = UUID.randomUUID().toString();
-//
-//        MessageFormEntry messageFormEntry = new MessageFormEntry();
-//        messageFormEntry.getPhone().put("testKey", "testPhoneNumber");
-//        messageFormEntry.getSmsForm().put("testSmsKey", List.of("testContent1", "testContent2"));
-//        messageFormEntry.setMissingStores(List.of("testStore1", "testStore2"));
-//        messageFormEntry.setContent("testContent");
-//        messageFormEntry.setSendSms(true);
-//
-//        MessageListDTO messageListDTO = new MessageListDTO();
-//        messageListDTO.getMessageListDTO().add(messageFormEntry);
-//
-//        // 첫 번째 요청
-//        mockMvc.perform(post("/automessage/message/content")
-//                        .param("idempotencyKey", idempotencyKey)
-//                        .session(session)
-//                        .flashAttr("messageForm", messageListDTO)
-//                        .with(csrf()))
-//                .andExpect(status().is3xxRedirection())
-//                .andExpect(redirectedUrl("/automessage/message/result"));
-//
-//        // 중복 요청 확인
-//        assertThat(idempotencyRedisService.isDuplicateRequest(idempotencyKey)).isTrue();
-//
-//        // 두 번째 요청 - 중복 요청
-//        mockMvc.perform(post("/automessage/message/content")
-//                        .param("idempotencyKey", idempotencyKey)
-//                        .session(session)
-//                        .flashAttr("messageForm", messageListDTO)
-//                        .with(csrf()))
-//                .andExpect(status().is3xxRedirection())
-//                .andExpect(redirectedUrl("/automessage/message/result"))
-//                .andExpect(result -> {
-//                    FlashMap flashMap = result.getFlashMap();
-//                    assertThat(flashMap.get("responses")).isEqualTo("중복데이터 발생");
-//                });
-//
-//        // 중복 요청이 제대로 처리되었는지 확인
-//        assertThat(idempotencyRedisService.isDuplicateRequest(idempotencyKey)).isTrue();
-//    }
-
-
-    // 메시지 전송
-//    @Test
-//    @DisplayName("메시지 전송 성공")
-//    void messageSendSuccess() throws Exception {
-//
-//        mockMvc.perform(post("/automessage/message/content")
-//                .session(session)
-//                .with(csrf()));
-//    }
 
     // 메시지 로그 조회 (get)
     @Test

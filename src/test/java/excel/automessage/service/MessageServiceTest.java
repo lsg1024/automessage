@@ -105,7 +105,6 @@ class MessageServiceTest extends BaseTest {
 
     @Test
     @DisplayName("메시지 정보 업로드 실패")
-
     void messageUploadFail_type() throws IOException {
 
         //given
@@ -131,52 +130,19 @@ class MessageServiceTest extends BaseTest {
         assertThat(productList.getProductDTOList()).hasSize(0);
     }
 
-//    @Test
-//    @DisplayName("메시지 전송 여부 전처리")
-//    @Transactional
-//    void checkMessageTransmissionSuccess() {
+    @Test
+    @DisplayName("자동 메시지 조회")
+    void autoMessageLoad() {
+        //given
 
-//        List<Integer> errorMessage = new ArrayList<>();
-//
-//        MessageFormEntry messageFormEntry = new MessageFormEntry();
-//        Map<String, String> phone = new HashMap<>();
-//        phone.put("store1", "01012344321");
-//        messageFormEntry.setPhone(phone);
-//
-//        Map<String, List<String>> smsFormMap = new HashMap<>();
-//        smsFormMap.put("store1", Arrays.asList("테스트 제품 1", "테스트 제품 2"));
-//        messageFormEntry.setSmsForm(smsFormMap);
-//
-//        List<String> missingStoresList = List.of("");
-//        messageFormEntry.setMissingStores(missingStoresList);
-//
-//        String content = "테스트 내용";
-//        messageFormEntry.setContent(content);
-//
-//        boolean sendSms = true;
-//        messageFormEntry.setSendSms(sendSms);
-//
-//        MessageListDTO messageListDTO = new MessageListDTO();
-//        messageListDTO.getMessageListDTO().add(messageFormEntry);
+        //when
 
-//        List<MessageResponseDTO> response = messageService.checkMessageTransmission(messageListDTO, errorMessage);
-
-//        for (MessageResponseDTO messageResponseDTO : response) {
-//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestId());
-//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
-//            log.info("messageResponseDTO = {}", messageResponseDTO.getStatusCode());
-//            log.info("messageResponseDTO = {}", messageResponseDTO.getRequestTime());
-//        }
-
-        // 외부 naver api를 사용해야됨..
-//        assertEquals(response.get(0).getStatusCode(), 200);
-
-//    }
+        //then
+    }
 
     // 메시지 로그 조회
     @Test
     @DisplayName("메시지 로그 조회 성공")
-
     void messageLogSearchSuccess() {
 
         //given
