@@ -22,7 +22,7 @@ public class Store {
 
     @Column(unique = true)
     private String storePhoneNumber;
-    private final boolean deleted = Boolean.FALSE;
+    private boolean deleted = Boolean.FALSE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "historyId")
