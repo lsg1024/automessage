@@ -62,8 +62,9 @@ public class MessageController {
 
     // 메시지 양식 수동 작성
     @GetMapping("/message/manual_send")
-    public String messageManual() {
+    public String messageManual(Model model) {
         log.info("message Manual Controller");
+        model.addAttribute("messageForm", new MessageListDTO());
         return "messageForm/messageSendForm";
     }
 
@@ -206,7 +207,7 @@ public class MessageController {
                 return "redirect:/automessage/message/log?";
             }
 
-            model.addAttribute("url", "록message/log");
+            model.addAttribute("url", "message/log");
             model.addAttribute("messageLog", messageLog);
             model.addAttribute("totalPage", totalPage);
             model.addAttribute("startPage", startPage);
