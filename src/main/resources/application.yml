@@ -61,5 +61,5 @@ server:
       enabled: true
   port: 8002
   forward-headers-strategy: native
-  address: 127.0.0.1
+
 
