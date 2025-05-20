@@ -17,6 +17,9 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
 
         String remoteAddr = request.getRemoteAddr();
         String requestURI = request.getRequestURI();
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+
+        log.info("remoteAddr {} xForwardedFor {}", remoteAddr, xForwardedFor);
 
         // 로그인 URL 제외
         if (requestURI.contains("/login")) {
@@ -25,7 +28,7 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
         }
 
         if (!isInternalNetwork(remoteAddr)) {
-            response.sendRedirect("/login");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "외부 접근 차단");
             return;
         }
 
@@ -33,7 +36,7 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
     }
 
     private boolean isInternalNetwork(String ip) {
-        return ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.") || ip.startsWith("127.") || ip.equals("0:0:0:0:0:0:0:1");
+        return ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.") || ip.startsWith("127.");
     }
 
 }
