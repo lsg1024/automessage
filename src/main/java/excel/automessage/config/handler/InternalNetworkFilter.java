@@ -19,8 +19,6 @@ public class InternalNetworkFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         String xForwardedFor = request.getHeader("X-Forwarded-For");
 
-        log.info("remoteAddr {} xForwardedFor {}", remoteAddr, xForwardedFor);
-
         // 로그인 URL 제외
         if (requestURI.contains("/login")) {
             filterChain.doFilter(request, response);
