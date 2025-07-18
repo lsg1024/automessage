@@ -11,9 +11,9 @@ import excel.automessage.entity.Store;
 import excel.automessage.repository.MessageHistoryRepository;
 import excel.automessage.repository.MessageStorageRepository;
 import excel.automessage.repository.StoreRepository;
-import excel.automessage.service.message.util.MessageUtil;
+import excel.automessage.excel.util.MessageUtil;
 import excel.automessage.service.message.util.NaverApi;
-import excel.automessage.util.ExcelSheetUtils;
+import excel.automessage.excel.util.ExcelSheetUtils;
 import io.micrometer.core.annotation.Timed;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static excel.automessage.service.message.util.MessageUtil.extractedOrderExcelData;
-import static excel.automessage.service.message.util.MessageUtil.isCheckboxSelected;
+import static excel.automessage.excel.util.MessageUtil.extractedOrderExcelData;
+import static excel.automessage.excel.util.MessageUtil.isCheckboxSelected;
 
 @Slf4j
 @Service

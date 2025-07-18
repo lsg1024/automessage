@@ -1,4 +1,4 @@
-package excel.automessage.service.message.util;
+package excel.automessage.excel.util;
 
 import excel.automessage.service.redis.ExcelRedisService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class LatestFileService {
     private final ExcelRedisService excelRedisService;
 
     public boolean messageAutoLoad() {
-        String response = excelRedisService.getTodayFileStatus();
+        String response = excelRedisService.getTodayMessageFileStatus();
 
         File file = new File(FILE_PATH + "판매관리.xls");
 
@@ -29,12 +29,35 @@ public class LatestFileService {
     public MultipartFile getExcelFileAsMultipart() {
         File file = new File(FILE_PATH + "판매관리.xls");
 
-        if (!file.exists()) {
-            log.error("file.exists");
-            return null;
-        }
+        if (exception(file)) return null;
 
         return new CustomMultipartFile(file);
+    }
+
+    public boolean autoOrderListLoad() {
+        String response = excelRedisService.getTodayOrderFileStatus();
+
+        File file = new File(FILE_PATH + "주문리스트.xls");
+
+        return "success".equals(response) || file.exists();
+    }
+
+    public MultipartFile getExcelFileAsMultipartOrderList() {
+
+        log.info("getExcelFileAsMultipartOrderList");
+        File file = new File("src/main/resources/static/excel/" + "주문리스트.xls");
+
+        if (exception(file)) return null;
+
+        return new CustomMultipartFile(file);
+    }
+
+    private boolean exception(File file) {
+        if (!file.exists()) {
+            log.error("file.exists");
+            return true;
+        }
+        return false;
     }
 
 }

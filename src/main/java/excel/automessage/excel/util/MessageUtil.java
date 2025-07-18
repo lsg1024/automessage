@@ -1,4 +1,4 @@
-package excel.automessage.service.message.util;
+package excel.automessage.excel.util;
 
 import excel.automessage.dto.message.MessageDTO;
 import excel.automessage.dto.message.MessageFormEntry;

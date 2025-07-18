@@ -1,6 +1,6 @@
 package excel.automessage.service;
 
-import excel.automessage.service.message.util.LatestFileService;
+import excel.automessage.excel.util.LatestFileService;
 import excel.automessage.service.redis.ExcelRedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ public class LatestFileServiceTest {
     @Test
     @DisplayName("Redis 응답이 success면 true를 반환한다")
     void whenRedisSuccess_thenReturnTrue() {
-        given(excelRedisService.getTodayFileStatus()).willReturn("success");
+        given(excelRedisService.getTodayMessageFileStatus()).willReturn("success");
 
         boolean result = latestFileService.messageAutoLoad();
 
@@ -43,7 +43,7 @@ public class LatestFileServiceTest {
     @Test
     @DisplayName("Redis 실패 + 파일 없음이면 false를 반환한다")
     void whenRedisFailAndNoFile_thenReturnFalse() {
-        given(excelRedisService.getTodayFileStatus()).willReturn("fail");
+        given(excelRedisService.getTodayMessageFileStatus()).willReturn("fail");
 
         File file = new File("./test-files/판매관리.xls");
         if (file.exists()) file.delete();
@@ -57,7 +57,7 @@ public class LatestFileServiceTest {
     @DisplayName("파일이 존재하면 true를 반환한다")
     void whenFileExists_thenReturnTrue() throws IOException {
         // given
-        given(excelRedisService.getTodayFileStatus()).willReturn("fail");
+        given(excelRedisService.getTodayMessageFileStatus()).willReturn("fail");
 
         File testFile = new File("./test-files/판매관리.xls");
         testFile.getParentFile().mkdirs();

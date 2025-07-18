@@ -1,4 +1,4 @@
-package excel.automessage.util;
+package excel.automessage.excel.util;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;

@@ -36,6 +36,7 @@ dependencies {
 
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 
 	//DB
 	runtimeOnly 'com.h2database:h2'

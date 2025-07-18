@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+  <div class="jumbotron">
+    <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
+      <div style="display: flex; justify-content: center; flex-basis: calc(50%);" >
+<!--   주문 아이템 받고 리스트 형식으로 뿌리고 엑셀 다운로드 기능 추가     -->
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+<script th:inline="javascript">
+
+  document.addEventListener("DOMContentLoaded", function () {
+    let response = [[${errorMessage}]]
+    if (response) {
+      alert(response);
+    }
+  })
+</script>
+</html>
