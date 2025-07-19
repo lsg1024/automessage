@@ -3,6 +3,7 @@ package excel.automessage.controller;
 import excel.automessage.excel.service.DownloadService;
 import excel.automessage.excel.util.LatestFileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
+@Slf4j
 @Controller
 @RequestMapping("/automessage")
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class AutoOrderController {
 
                 if (excelBytes == null) {
                     redirectAttributes.addFlashAttribute("errorMessage", "자동으로 저장된 파일이 없습니다.\n수동으로 기능을 사용해 주십시오.");
+                    return "redirect:/automessage";
                 }
 
                 String encodedFileName = encodeFileName(fileName);
