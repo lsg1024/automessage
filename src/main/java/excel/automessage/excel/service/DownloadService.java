@@ -17,6 +17,7 @@ public class DownloadService {
 
     public byte[] downloadXls(MultipartFile file) throws IOException {
 
+        log.info("DownloadService start");
         Workbook sheets = ExcelSheetUtils.getSheets(file);
         Sheet worksheet = sheets.getSheetAt(0);
 

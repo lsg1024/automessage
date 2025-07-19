@@ -29,7 +29,7 @@ public class LatestFileService {
     public MultipartFile getExcelFileAsMultipart() {
         File file = new File(FILE_PATH + "판매관리.xls");
 
-        exception(file);
+        if (exception(file)) return null;
 
         return new CustomMultipartFile(file);
     }
@@ -38,6 +38,7 @@ public class LatestFileService {
         String response = excelRedisService.getTodayOrderFileStatus();
 
         File file = new File(FILE_PATH + "주문리스트.xls");
+        log.info("{}", file.getAbsolutePath());
 
         return "success".equals(response) || file.exists();
     }
@@ -46,16 +47,17 @@ public class LatestFileService {
 
         File file = new File(FILE_PATH + "주문리스트.xls");
 
-        exception(file);
+        if (exception(file)) return null;
 
         return new CustomMultipartFile(file);
     }
 
-    private void exception(File file) {
+    private boolean exception(File file) {
         if (!file.exists()) {
             log.error("file.exists");
-            throw new IllegalArgumentException("파일을 찾을 수 없습니다.");
+            return true;
         }
+        return false;
     }
 
 }

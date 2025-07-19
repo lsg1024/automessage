@@ -1,5 +1,6 @@
 package excel.automessage.excel.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 public class ExcelSheetUtils {
 
     public static Workbook getSheets(MultipartFile file) throws IOException {
@@ -67,6 +69,7 @@ public class ExcelSheetUtils {
 
     // download excel worksheet 생성
     public static byte[] createOrderWorkSheet(Sheet worksheet, LocalDate today) throws IOException {
+        log.info("createOrderWorkSheet");
 
         List<String> targetHeaders = Arrays.asList("No", "제조번호", "재질", "색상", "사이즈", "비고", "제조사");
 
