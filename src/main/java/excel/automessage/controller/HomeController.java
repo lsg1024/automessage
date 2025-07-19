@@ -21,12 +21,6 @@ public class HomeController {
             session.removeAttribute("loginSuccess");
         }
 
-        String errorMsg = (String) session.getAttribute("errorMessage");
-        if (errorMsg != null) {
-            model.addAttribute("error", errorMsg);
-            session.removeAttribute("errorMessage");
-        }
-
         return "home";
     }
 
