@@ -28,6 +28,14 @@
                             </div>
                         </button>
                     </form>
+                    <form th:action="@{/automessage/order/download}" method="get" style="margin-top: 20px">
+                        <button type="submit" class="button">
+                            <p class="btnText">오늘 주문장</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">다운</p>
+                            </div>
+                        </button>
+                    </form>
                 </div>
 
                 <div>
@@ -47,21 +55,17 @@
                             </div>
                         </button>
                     </form>
+                    <form th:action="@{/automessage/admin}" method="get" style="margin-top: 20px; margin-left: 20px">
+                        <button type="submit" class="button">
+                            <p class="btnText">유저 관리</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">확인</p>
+                            </div>
+                        </button>
+                    </form>
                 </div>
 
             </div>
-
-            <div style="margin-top: 20px">
-                <form th:action="@{/automessage/admin}" method="get">
-                    <button type="submit" class="button">
-                        <p class="btnText">유저 관리</p>
-                        <div class="btnTwo">
-                            <p class="btnText2">확인</p>
-                        </div>
-                    </button>
-                </form>
-            </div>
-
         </div>
     </div>
 </div>
@@ -70,6 +74,13 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         let message = /*[[${success}]]*/ '';
+        if (message) {
+            alert(message);
+        }
+    })
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let message = /*[[${error}]]*/ '';
         if (message) {
             alert(message);
         }

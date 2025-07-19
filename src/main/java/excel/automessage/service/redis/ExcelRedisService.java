@@ -10,8 +10,13 @@ public class ExcelRedisService {
 
     private final StringRedisTemplate redisTemplate;
 
-    public String getTodayFileStatus() {
-        String key = "todayFile";
+    public String getTodayMessageFileStatus() {
+        String key = "todayMessageFile";
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public String getTodayOrderFileStatus() {
+        String key = "todayOrderFile";
         return redisTemplate.opsForValue().get(key);
     }
 

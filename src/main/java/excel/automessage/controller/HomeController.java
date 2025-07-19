@@ -18,8 +18,13 @@ public class HomeController {
         String message = (String) session.getAttribute("loginSuccess");
         if (message != null) {
             model.addAttribute("success", message);
-            log.info("message success = {}", message);
             session.removeAttribute("loginSuccess");
+        }
+
+        String errorMsg = (String) session.getAttribute("errorMessage");
+        if (errorMsg != null) {
+            model.addAttribute("error", errorMsg);
+            session.removeAttribute("errorMessage");
         }
 
         return "home";

@@ -5,7 +5,7 @@ import excel.automessage.dto.message.MessageResponseDTO;
 import excel.automessage.dto.message.ProductDTO;
 import excel.automessage.dto.message.log.MessageLogDetailDTO;
 import excel.automessage.dto.message.log.MessageStorageDTO;
-import excel.automessage.service.message.util.LatestFileService;
+import excel.automessage.excel.util.LatestFileService;
 import excel.automessage.service.message.MessageService;
 import excel.automessage.service.redis.IdempotencyRedisService;
 import lombok.RequiredArgsConstructor;

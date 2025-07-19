@@ -17,15 +17,16 @@
         if (errorMessage && errorMessage.length > 0) {
             // 오류 메시지 출력
             let formattedErrors = errorMessage.map(index => `${index}번`).join(', ');
-            alert("메시지 전송 실패: " + formattedErrors);
+            alert("실패: " + formattedErrors);
             location.href = "/automessage";
         } else if (responses && responses.length > 0) {
             // 응답 메시지 출력
-            alert("메시지 전송 성공");
+            alert("성공");
             location.href = "/automessage";
         }
     });
 </script>
 
 </body>
+</head>
 </html>
