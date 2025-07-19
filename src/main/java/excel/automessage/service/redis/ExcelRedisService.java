@@ -11,12 +11,12 @@ public class ExcelRedisService {
     private final StringRedisTemplate redisTemplate;
 
     public String getTodayMessageFileStatus() {
-        String key = "todayFile";
+        String key = "todayMessageFile";
         return redisTemplate.opsForValue().get(key);
     }
 
     public String getTodayOrderFileStatus() {
-        String key = "orderFile";
+        String key = "todayOrderFile";
         return redisTemplate.opsForValue().get(key);
     }
 

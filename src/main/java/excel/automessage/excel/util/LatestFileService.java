@@ -44,8 +44,7 @@ public class LatestFileService {
 
     public MultipartFile getExcelFileAsMultipartOrderList() {
 
-        log.info("getExcelFileAsMultipartOrderList");
-        File file = new File("src/main/resources/static/excel/" + "주문리스트.xls");
+        File file = new File(FILE_PATH + "주문리스트.xls");
 
         if (exception(file)) return null;
 
