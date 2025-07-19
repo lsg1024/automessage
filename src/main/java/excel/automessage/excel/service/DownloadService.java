@@ -22,21 +22,7 @@ public class DownloadService {
         Sheet worksheet = sheets.getSheetAt(0);
 
         LocalDate today = LocalDate.now();
-
-//        checkDateValidate(worksheet, today);
         return createOrderWorkSheet(worksheet, today);
-    }
-
-    private void checkDateValidate(Sheet worksheet, LocalDate today) {
-
-        Row row = worksheet.getRow(1);
-        Cell cell = row.getCell(7);
-        if (cell != null && cell.getCellType() == CellType.STRING) {
-            String sellType = cell.getStringCellValue();
-            if (!sellType.equals(today.toString())) {
-                throw new IllegalArgumentException("오늘 판매 데이터가 아닙니다.\n수동으로 입력해주세요.");
-            }
-        }
     }
 
 }
