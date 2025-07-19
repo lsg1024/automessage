@@ -38,7 +38,6 @@ public class LatestFileService {
         String response = excelRedisService.getTodayOrderFileStatus();
 
         File file = new File(FILE_PATH + "주문리스트.xls");
-        log.info("{}", file.getAbsolutePath());
 
         return "success".equals(response) || file.exists();
     }
