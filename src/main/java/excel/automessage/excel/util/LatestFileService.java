@@ -23,13 +23,13 @@ public class LatestFileService {
 
         File file = new File(FILE_PATH + "판매관리.xls");
 
-        return "success".equals(response) || file.exists();
+        return "success".equals(response) && file.exists();
     }
 
     public MultipartFile getExcelFileAsMultipart() {
         File file = new File(FILE_PATH + "판매관리.xls");
 
-        if (exception(file)) return null;
+        exception(file);
 
         return new CustomMultipartFile(file);
     }
@@ -39,24 +39,23 @@ public class LatestFileService {
 
         File file = new File(FILE_PATH + "주문리스트.xls");
 
-        return "success".equals(response) || file.exists();
+        return "success".equals(response) && file.exists();
     }
 
     public MultipartFile getExcelFileAsMultipartOrderList() {
 
         File file = new File(FILE_PATH + "주문리스트.xls");
 
-        if (exception(file)) return null;
+        exception(file);
 
         return new CustomMultipartFile(file);
     }
 
-    private boolean exception(File file) {
+    private void exception(File file) {
         if (!file.exists()) {
             log.error("file.exists");
-            return true;
+            throw new IllegalArgumentException("파일을 찾을 수 없습니다.");
         }
-        return false;
     }
 
 }
