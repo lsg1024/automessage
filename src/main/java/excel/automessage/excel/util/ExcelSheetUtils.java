@@ -150,18 +150,24 @@ public class ExcelSheetUtils {
             Cell cell = header.createCell(i);
             cell.setCellValue(outputHeaders.get(i));
             cell.setCellStyle(headerStyle);
-            factorySheet.setColumnWidth(i, widths[i]); // 너비 px
+
+            factorySheet.setColumnWidth(i, widths[i]);
         }
         header.setHeightInPoints(24); // 헤더 높이 24px
     }
 
     private static void setWorkSheetBody(Map<String, List<List<String>>> factoryRows, String factory, Sheet factorySheet, CellStyle dataStyle, int rowIdx) {
+        int index = 1;
         for (List<String> dataRow : factoryRows.get(factory)) {
             Row excelRow = factorySheet.createRow(rowIdx);
             excelRow.setHeightInPoints(50); // 데이터 행 높이 60px
             for (int i = 0; i < dataRow.size(); i++) {
                 Cell cell = excelRow.createCell(i);
-                cell.setCellValue(dataRow.get(i));
+                if (i == 0) {
+                    cell.setCellValue(index++);
+                } else {
+                    cell.setCellValue(dataRow.get(i));
+                }
                 cell.setCellStyle(dataStyle);
             }
             rowIdx++;
