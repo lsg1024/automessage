@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Path;
 
 @Slf4j
 @Component
@@ -18,16 +19,25 @@ public class LatestFileService {
     private String FILE_PATH;
     private final ExcelRedisService excelRedisService;
 
+    private File getFileFromPath(String fileName) {
+        Path filePath = Path.of(FILE_PATH, fileName);
+        return filePath.toFile();
+    }
+
     public boolean messageAutoLoad() {
         String response = excelRedisService.getTodayMessageFileStatus();
 
-        File file = new File(FILE_PATH + "판매관리.xls");
+        File file = getFileFromPath("판매관리.xls");
+
+        if (!file.exists()) {
+            log.warn("메시지 파일 (판매관리.xls)을 찾을 수 없음. 확인 경로: {}", file.getAbsolutePath());
+        }
 
         return "success".equals(response) || file.exists();
     }
 
     public MultipartFile getExcelFileAsMultipart() {
-        File file = new File(FILE_PATH + "판매관리.xls");
+        File file = getFileFromPath("판매관리.xls");
 
         if (exception(file)) return null;
 
@@ -37,14 +47,18 @@ public class LatestFileService {
     public boolean autoOrderListLoad() {
         String response = excelRedisService.getTodayOrderFileStatus();
 
-        File file = new File(FILE_PATH + "주문리스트.xls");
+        File file = getFileFromPath("주문리스트.xls");
+
+        if (!file.exists()) {
+            log.warn("주문 파일 (주문리스트.xls)을 찾을 수 없음. 확인 경로: {}", file.getAbsolutePath());
+        }
 
         return "success".equals(response) || file.exists();
     }
 
     public MultipartFile getExcelFileAsMultipartOrderList() {
 
-        File file = new File(FILE_PATH + "주문리스트.xls");
+        File file = getFileFromPath("주문리스트.xls");
 
         if (exception(file)) return null;
 
@@ -53,7 +67,7 @@ public class LatestFileService {
 
     private boolean exception(File file) {
         if (!file.exists()) {
-            log.error("file.exists");
+            log.error("파일을 찾을 수 없음. 예상 경로: {}", file.getAbsolutePath());
             return true;
         }
         return false;
