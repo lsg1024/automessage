@@ -37,7 +37,7 @@ public class LatestFileService {
     public boolean autoOrderListLoad() {
         String response = excelRedisService.getTodayOrderFileStatus();
 
-        File file = new File("FILE_PATH" + "주문리스트.xls");
+        File file = new File(FILE_PATH + "주문리스트.xls");
 
         return "success".equals(response) || file.exists();
     }
