@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 public class AutomessageApplication {
 
-
 	public static void main(String[] args) {
 		SpringApplication.run(AutomessageApplication.class, args);
 	}
