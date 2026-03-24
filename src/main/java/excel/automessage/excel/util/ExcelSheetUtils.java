@@ -108,20 +108,20 @@ public class ExcelSheetUtils {
 
             // 제조사명 스타일 (16px)
             CellStyle factoryStyle = newWorkbook.createCellStyle();
-            headerSheetStyle(newWorkbook, 16, factoryStyle, factoryCell);
+            headerSheetStyle(newWorkbook, 15, factoryStyle, factoryCell);
 
             // === 매장명(24px, 칸 -> 가변변경 가능)
             Cell storeCell = firstRow.createCell(4);
             storeCell.setCellValue("칸");
 
             CellStyle storeStyle = newWorkbook.createCellStyle();
-            headerSheetStyle(newWorkbook, 24, storeStyle, storeCell);
+            headerSheetStyle(newWorkbook, 23, storeStyle, storeCell);
 
             // === 오늘 날짜(24px)
             Cell dateCell = firstRow.createCell(5);
             dateCell.setCellValue(today.toString());
             CellStyle dateStyle = newWorkbook.createCellStyle();
-            headerSheetStyle(newWorkbook, 20, dateStyle, dateCell);
+            headerSheetStyle(newWorkbook, 19, dateStyle, dateCell);
 
             Row header = factorySheet.createRow(1);
 
@@ -145,7 +145,7 @@ public class ExcelSheetUtils {
     }
 
     private static void setWorkSheetHeader(List<String> outputHeaders, Sheet factorySheet, Row header, CellStyle headerStyle) {
-        int[] widths = {5 * 256, 15 * 256, 5 * 256, 5 * 256, 20 * 256, 30 * 256};
+        int[] widths = {5 * 256, 15 * 256, 5 * 256, 5 * 256, 19 * 256, 29 * 256};
         for (int i = 0; i < outputHeaders.size(); i++) {
             Cell cell = header.createCell(i);
             cell.setCellValue(outputHeaders.get(i));
@@ -188,7 +188,7 @@ public class ExcelSheetUtils {
     private static void headerSheetStyle(Workbook newWorkbook, CellStyle headerStyle) {
         Font headerFont = newWorkbook.createFont();
         headerFont.setBold(true);
-        headerFont.setFontHeightInPoints((short) 12);
+        headerFont.setFontHeightInPoints((short) 11);
         headerStyle.setFont(headerFont);
         headerStyle.setWrapText(true);
         headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -210,7 +210,7 @@ public class ExcelSheetUtils {
 
     private static void dataSheetStyle(Workbook newWorkbook, CellStyle dataStyle) {
         Font dataFont = newWorkbook.createFont();
-        dataFont.setFontHeightInPoints((short) 12); // 12pt
+        dataFont.setFontHeightInPoints((short) 11); // 11pt
         dataStyle.setFont(dataFont);
         dataStyle.setWrapText(true);
         dataStyle.setAlignment(HorizontalAlignment.CENTER);
