@@ -45,7 +45,13 @@ public class LatestFileService {
     }
 
     public boolean autoOrderListLoad() {
-        String response = excelRedisService.getTodayOrderFileStatus();
+        String response = null;
+        try {
+            response = excelRedisService.getTodayOrderFileStatus();
+        } catch (Exception e) {
+            // Redis 연결 실패 시에도 파일 존재 여부로 동작하도록 폴백
+            log.warn("Redis 조회 실패 - 파일 존재 여부만으로 판단합니다. 원인: {}", e.getMessage());
+        }
 
         File file = getFileFromPath("주문리스트.xls");
 

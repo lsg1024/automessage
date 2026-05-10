@@ -28,14 +28,14 @@
                             </div>
                         </button>
                     </form>
-                    <form th:action="@{/automessage/order/download}" method="get" style="margin-top: 20px">
-                        <button type="submit" class="button">
+                    <div style="margin-top: 20px">
+                        <button type="button" class="button" onclick="openOrderDownloadModal()">
                             <p class="btnText">오늘 주문장</p>
                             <div class="btnTwo">
                                 <p class="btnText2">다운</p>
                             </div>
                         </button>
-                    </form>
+                    </div>
                 </div>
 
                 <div>
@@ -55,17 +55,63 @@
                             </div>
                         </button>
                     </form>
-                    <form th:action="@{/automessage/admin}" method="get" style="margin-top: 20px; margin-left: 20px">
+                    <form th:action="@{/automessage/order/additional}" method="get" style="margin-top: 20px; margin-left: 20px">
                         <button type="submit" class="button">
-                            <p class="btnText">유저 관리</p>
+                            <p class="btnText">추가 주문장</p>
                             <div class="btnTwo">
-                                <p class="btnText2">확인</p>
+                                <p class="btnText2">업로드</p>
                             </div>
                         </button>
                     </form>
                 </div>
 
             </div>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <form th:action="@{/automessage/admin}" method="get">
+                    <button type="submit" class="button">
+                        <p class="btnText">유저 관리</p>
+                        <div class="btnTwo">
+                            <p class="btnText2">확인</p>
+                        </div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 주문장 다운로드 선택 모달 -->
+<div id="orderDownloadModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:8px; padding:24px; min-width:340px; max-width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 4px 20px rgba(0,0,0,0.2);">
+        <h4 style="margin:0 0 16px 0; text-align:center;">주문장 다운로드</h4>
+
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+            <button type="button" class="button" onclick="downloadAllAsZip()">
+                <p class="btnText">전체 ZIP</p>
+                <div class="btnTwo">
+                    <p class="btnText2">일괄 다운</p>
+                </div>
+            </button>
+            <button type="button" class="button" onclick="downloadAllSeparately()">
+                <p class="btnText">전체 개별</p>
+                <div class="btnTwo">
+                    <p class="btnText2">일괄 다운</p>
+                </div>
+            </button>
+        </div>
+
+        <hr style="margin:16px 0; border:none; border-top:1px solid #eee;"/>
+
+        <div style="font-size:13px; color:#555; margin-bottom:8px; text-align:center;">공장 하나만 받기</div>
+        <div id="factoryList" style="display:flex; flex-direction:column; gap:8px;">
+            <div style="text-align:center; color:#999; font-size:13px;">불러오는 중...</div>
+        </div>
+
+        <div style="display:flex; justify-content:center; margin-top:20px;">
+            <button type="button" onclick="closeOrderDownloadModal()"
+                    style="padding:8px 20px; background:#999; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+                닫기
+            </button>
         </div>
     </div>
 </div>
@@ -85,6 +131,96 @@
             alert(message);
         }
     })
+
+    function openOrderDownloadModal() {
+        const modal = document.getElementById('orderDownloadModal');
+        modal.style.display = 'flex';
+
+        const list = document.getElementById('factoryList');
+        list.innerHTML = '<div style="text-align:center; color:#999; font-size:13px;">불러오는 중...</div>';
+
+        fetch('/automessage/order/factories', { credentials: 'same-origin' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('factories fetch failed: ' + res.status);
+                return res.json();
+            })
+            .then(function (factories) {
+                if (!factories || factories.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; color:#999; font-size:13px;">표시할 공장이 없습니다.</div>';
+                    return;
+                }
+                list.innerHTML = '';
+                factories.forEach(function (factory) {
+                    const a = document.createElement('a');
+                    a.href = '/automessage/order/download/single?factory=' + encodeURIComponent(factory);
+                    a.textContent = factory;
+                    a.style.cssText = 'display:block; padding:10px 16px; background:#3D4C53; color:#fff; text-align:center; text-decoration:none; border-radius:4px; font-weight:bold;';
+                    a.addEventListener('mouseenter', function () { a.style.background = '#26A69A'; });
+                    a.addEventListener('mouseleave', function () { a.style.background = '#3D4C53'; });
+                    list.appendChild(a);
+                });
+            })
+            .catch(function (err) {
+                console.error(err);
+                list.innerHTML = '<div style="text-align:center; color:#c00; font-size:13px;">목록을 불러오지 못했습니다.</div>';
+            });
+    }
+
+    function closeOrderDownloadModal() {
+        document.getElementById('orderDownloadModal').style.display = 'none';
+    }
+
+    function downloadAllAsZip() {
+        window.location = '/automessage/order/download';
+    }
+
+    function downloadAllSeparately() {
+        fetch('/automessage/order/factories', { credentials: 'same-origin' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('factories fetch failed: ' + res.status);
+                return res.json();
+            })
+            .then(function (factories) {
+                if (!factories || factories.length === 0) {
+                    alert('다운로드할 공장이 없습니다.');
+                    return;
+                }
+
+                if (factories.length > 1) {
+                    const ok = confirm(factories.length + '개의 파일을 개별로 다운로드합니다.\n브라우저에서 "여러 파일 다운로드 허용"을 묻는 경우 허용을 눌러주세요.');
+                    if (!ok) return;
+                }
+
+                factories.forEach(function (factory, idx) {
+                    setTimeout(function () {
+                        const a = document.createElement('a');
+                        a.href = '/automessage/order/download/single?factory=' + encodeURIComponent(factory);
+                        a.download = ''; // 브라우저에 download intent 명시
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function () { a.remove(); }, 1000);
+                    }, idx * 600); // 600ms 간격으로 순차 트리거 (너무 빠르면 브라우저가 무시함)
+                });
+
+                // 마지막 다운로드가 충분히 시작된 후 모달 닫기
+                setTimeout(closeOrderDownloadModal, factories.length * 600 + 300);
+            })
+            .catch(function (err) {
+                console.error(err);
+                alert('공장 목록을 불러오지 못했습니다.');
+            });
+    }
+
+    // 모달 바깥 영역 클릭 시 닫기
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById('orderDownloadModal');
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeOrderDownloadModal();
+            });
+        }
+    });
 
 </script>
 

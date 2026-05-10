@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+    <div class="jumbotron">
+        <div style="display:flex; flex-direction:column; align-items:center; padding:20px;">
+
+            <h4 style="margin:0 0 8px 0;">추가 주문장 다운로드</h4>
+            <div style="font-size:13px; color:#666; margin-bottom:24px;">
+                기존 <b>주문리스트.xls</b>에 없던 항목만 정리되었습니다.
+                <span th:if="${factories != null}" th:text="'(공장 ' + ${factories.size()} + '개)'"></span>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+                <a th:href="@{/automessage/order/additional/download/zip}" style="text-decoration:none;">
+                    <button type="button" class="button">
+                        <p class="btnText">전체 ZIP</p>
+                        <div class="btnTwo">
+                            <p class="btnText2">일괄 다운</p>
+                        </div>
+                    </button>
+                </a>
+                <button type="button" class="button" onclick="downloadAllSeparately()">
+                    <p class="btnText">전체 개별</p>
+                    <div class="btnTwo">
+                        <p class="btnText2">일괄 다운</p>
+                    </div>
+                </button>
+            </div>
+
+            <hr style="margin:16px 0; border:none; border-top:1px solid #eee; width:340px;"/>
+
+            <div style="font-size:13px; color:#555; margin-bottom:8px; text-align:center;">공장 하나만 받기</div>
+
+            <div id="factoryList" style="display:flex; flex-direction:column; gap:8px; width:340px;"
+                 th:if="${factories != null and !factories.isEmpty()}">
+                <a th:each="factory : ${factories}"
+                   th:href="@{/automessage/order/additional/download/single(factory=${factory})}"
+                   th:text="${factory}"
+                   class="factory-link"
+                   style="display:block; padding:10px 16px; background:#3D4C53; color:#fff; text-align:center; text-decoration:none; border-radius:4px; font-weight:bold;">
+                </a>
+            </div>
+
+            <div th:if="${factories == null or factories.isEmpty()}" style="color:#999;">
+                새로 추가된 항목이 없습니다.
+            </div>
+
+            <div style="margin-top:30px;">
+                <a href="/automessage/order/additional" style="color:#3D4C53; text-decoration:underline;">
+                    다른 파일 다시 업로드
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        let message = /*[[${errorMessage}]]*/ '';
+        if (message) alert(message);
+
+        // 공장 링크 hover 효과
+        document.querySelectorAll('.factory-link').forEach(function (a) {
+            a.addEventListener('mouseenter', function () { a.style.background = '#26A69A'; });
+            a.addEventListener('mouseleave', function () { a.style.background = '#3D4C53'; });
+        });
+    });
+
+    function downloadAllSeparately() {
+        fetch('/automessage/order/additional/factories', { credentials: 'same-origin' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('factories fetch failed: ' + res.status);
+                return res.json();
+            })
+            .then(function (factories) {
+                if (!factories || factories.length === 0) {
+                    alert('다운로드할 공장이 없습니다.');
+                    return;
+                }
+                if (factories.length > 1) {
+                    const ok = confirm(factories.length + '개의 파일을 개별로 다운로드합니다.\n브라우저에서 "여러 파일 다운로드 허용"을 묻는 경우 허용을 눌러주세요.');
+                    if (!ok) return;
+                }
+                factories.forEach(function (factory, idx) {
+                    setTimeout(function () {
+                        const a = document.createElement('a');
+                        a.href = '/automessage/order/additional/download/single?factory=' + encodeURIComponent(factory);
+                        a.download = '';
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function () { a.remove(); }, 1000);
+                    }, idx * 600);
+                });
+            })
+            .catch(function (err) {
+                console.error(err);
+                alert('공장 목록을 불러오지 못했습니다.');
+            });
+    }
+</script>
+</body>
+</html>

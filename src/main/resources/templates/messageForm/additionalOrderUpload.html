@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"></div>
+    <div class="jumbotron">
+        <div style="display: flex; align-items: center; flex-direction: column; margin-bottom: 50px;">
+            <div style="display: flex; justify-content: center;">
+                <form id="additionalOrderForm" th:action="@{/automessage/order/additional}" method="post" enctype="multipart/form-data">
+                    <div class="filebox" id="filebox" style="display: flex">
+                        <input id="upload_file" class="upload-name" value="파일 드래그 혹은 첨부" placeholder="파일 드래그 혹은 첨부" disabled="disabled">
+                        <label for="file">파일찾기</label>
+                        <input type="file" name="file" id="file" accept=".xls,.xlsx">
+                    </div>
+                    <div style="display: flex; justify-content: center; margin-top: 20px">
+                        <button type="submit" id="submitBtn" class="button">
+                            <p class="btnText">추가 주문장</p>
+                            <div class="btnTwo">
+                                <p class="btnText2">다운</p>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div style="margin-top: 20px; color: #555; font-size: 13px; text-align: center;">
+                업로드 시 서버에 저장된 <b>주문리스트.xls</b> 에 이미 존재하는 항목은 자동으로 제외됩니다.
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        let response = /*[[${errorMessage}]]*/ '';
+        if (response) {
+            alert(response);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let fileBox = document.getElementById("filebox");
+        let fileInput = document.getElementById("file");
+        let uploadName = document.getElementById("upload_file");
+
+        fileBox.addEventListener("dragover", function (e) {
+            e.preventDefault();
+        });
+
+        fileBox.addEventListener("drop", function (e) {
+            e.preventDefault();
+            let files = e.dataTransfer.files;
+            if (files.length > 0) {
+                let file = files[0];
+                let name = (file.name || "").toLowerCase();
+                if (name.endsWith(".xls") || name.endsWith(".xlsx")
+                    || file.type.includes("excel") || file.type.includes("sheet")) {
+                    fileInput.files = files;
+                    uploadName.value = file.name;
+                } else {
+                    alert("엑셀 파일만 업로드 가능합니다.");
+                }
+            }
+        });
+
+        fileInput.addEventListener("change", function () {
+            let fileName = this.value.split("\\").pop();
+            uploadName.value = fileName;
+        });
+    });
+</script>
+</body>
+</html>
