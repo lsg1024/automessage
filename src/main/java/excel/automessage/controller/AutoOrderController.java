@@ -1,6 +1,7 @@
 package excel.automessage.controller;
 
 import excel.automessage.excel.service.DownloadService;
+import excel.automessage.excel.util.ExcelSheetUtils;
 import excel.automessage.excel.util.LatestFileService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -66,23 +69,39 @@ public class AutoOrderController {
     }
 
     /**
-     * 현재 주문리스트.xls 의 공장(제조사) 이름 목록을 JSON 으로 반환.
-     * 모달에서 공장별 개별 다운로드 옵션을 만들기 위한 데이터.
+     * 현재 주문리스트.xls 의 공장(제조사) 이름 목록 + 파일 날짜 메타정보를 JSON 으로 반환.
+     * 모달이 열릴 때 호출되어 다운로드 옵션 + 당일 여부 검증에 사용된다.
      */
     @GetMapping("/order/factories")
     @ResponseBody
-    public List<String> listFactories() {
+    public Map<String, Object> listFactories() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        String today = LocalDate.now().toString();
+        response.put("factories", Collections.emptyList());
+        response.put("fileDate", "");
+        response.put("today", today);
+        response.put("isToday", true);
+
         if (!latestFileService.autoOrderListLoad()) {
-            return Collections.emptyList();
+            return response;
         }
         MultipartFile file = latestFileService.getExcelFileAsMultipartOrderList();
-        if (file == null) return Collections.emptyList();
+        if (file == null) return response;
+
         try {
-            return downloadService.listFactories(file);
+            Workbook wb = ExcelSheetUtils.getSheets(file);
+            Sheet sheet = wb.getSheetAt(0);
+
+            List<String> factories = ExcelSheetUtils.extractFactoryNames(sheet, Collections.emptySet());
+            String fileDate = ExcelSheetUtils.extractFileDate(sheet);
+
+            response.put("factories", factories);
+            response.put("fileDate", fileDate);
+            response.put("isToday", fileDate.isEmpty() || fileDate.equals(today));
         } catch (Exception e) {
             log.error("listFactories error", e);
-            return Collections.emptyList();
         }
+        return response;
     }
 
     /**

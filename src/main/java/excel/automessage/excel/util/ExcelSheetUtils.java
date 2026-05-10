@@ -331,6 +331,32 @@ public class ExcelSheetUtils {
     }
 
     /**
+     * 시트의 첫 데이터 행(row 1)에서 "접수일" 컬럼 값을 꺼내 반환한다.
+     * 헤더 또는 데이터 행이 없으면 빈 문자열.
+     */
+    public static String extractFileDate(Sheet worksheet) {
+        if (worksheet == null) return "";
+
+        Row headerRow = worksheet.getRow(0);
+        if (headerRow == null) return "";
+
+        Integer dateIdx = null;
+        for (Cell cell : headerRow) {
+            String value = getCellString(cell).trim();
+            if ("접수일".equals(value)) {
+                dateIdx = cell.getColumnIndex();
+                break;
+            }
+        }
+        if (dateIdx == null) return "";
+
+        Row dataRow = worksheet.getRow(1);
+        if (dataRow == null) return "";
+
+        return getCellString(dataRow.getCell(dateIdx)).trim();
+    }
+
+    /**
      * 시트의 첫 행에서 "접수번호" 헤더 인덱스를 찾아 모든 접수번호를 Set 으로 반환한다.
      * 헤더가 없으면 빈 Set 을 반환한다.
      */

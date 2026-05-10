@@ -144,8 +144,27 @@
                 if (!res.ok) throw new Error('factories fetch failed: ' + res.status);
                 return res.json();
             })
-            .then(function (factories) {
-                if (!factories || factories.length === 0) {
+            .then(function (data) {
+                const factories = (data && data.factories) || [];
+                const fileDate = (data && data.fileDate) || '';
+                const isToday = data && data.isToday !== false;
+
+                // 당일 주문리스트가 아니라면 confirm 으로 진행 여부 확인
+                if (!isToday && fileDate) {
+                    const proceed = confirm(
+                        '아직 업데이트 되지 않은 이전 날짜의 주문리스트입니다.\n' +
+                        '파일 접수일: ' + fileDate + '\n' +
+                        '오늘 날짜: ' + (data.today || '') + '\n\n' +
+                        '확인을 누르면 다운로드를 진행하고, 취소를 누르면 홈으로 돌아갑니다.'
+                    );
+                    if (!proceed) {
+                        closeOrderDownloadModal();
+                        window.location.href = '/automessage';
+                        return;
+                    }
+                }
+
+                if (factories.length === 0) {
                     list.innerHTML = '<div style="text-align:center; color:#999; font-size:13px;">표시할 공장이 없습니다.</div>';
                     return;
                 }
@@ -180,7 +199,8 @@
                 if (!res.ok) throw new Error('factories fetch failed: ' + res.status);
                 return res.json();
             })
-            .then(function (factories) {
+            .then(function (data) {
+                const factories = (data && data.factories) || [];
                 if (!factories || factories.length === 0) {
                     alert('다운로드할 공장이 없습니다.');
                     return;
